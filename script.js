@@ -1,21 +1,88 @@
 const sidebar = document.getElementById('sidebar');
 const toggleBtn = document.getElementById('sidebarToggle');
 
-toggleBtn.addEventListener('click', () => {
-  sidebar.classList.toggle('hidden');
-  // アイコンを状態に応じて変更
-  const icon = toggleBtn.querySelector('i');
-  if (sidebar.classList.contains('hidden')) {
-    icon.className = 'fas fa-bars';
+// モバイル判定
+const isMobile = () => window.innerWidth <= 768;
+
+// サイドバーの初期状態を設定
+function initializeSidebar() {
+  if (isMobile()) {
+    // モバイルではサイドバーを完全に非表示
+    if (sidebar) {
+      sidebar.style.display = 'none';
+    }
+    if (toggleBtn) {
+      toggleBtn.style.display = 'none';
+    }
   } else {
-    icon.className = 'fas fa-bars';
+    // デスクトップではサイドバーを表示
+    if (sidebar) {
+      sidebar.style.display = 'flex';
+      sidebar.classList.remove('hidden');
+      sidebar.classList.remove('show');
+    }
+    if (toggleBtn) {
+      toggleBtn.style.display = 'flex';
+    }
+  }
+}
+
+// ページ読み込み時に初期化
+document.addEventListener('DOMContentLoaded', initializeSidebar);
+window.addEventListener('load', initializeSidebar);
+
+// サイドバートグル（デスクトップのみ）
+if (toggleBtn) {
+  toggleBtn.addEventListener('click', () => {
+    if (!isMobile()) {
+      // デスクトップでのみサイドバーを切り替え
+      sidebar.classList.toggle('hidden');
+      
+      // アイコンを状態に応じて変更
+      const icon = toggleBtn.querySelector('i');
+      if (sidebar.classList.contains('hidden')) {
+        icon.className = 'fas fa-bars';
+      } else {
+        icon.className = 'fas fa-times';
+      }
+    }
+  });
+}
+
+// 画面サイズ変更時の処理
+window.addEventListener('resize', () => {
+  if (isMobile()) {
+    // モバイルになった時はサイドバーを非表示
+    if (sidebar) {
+      sidebar.style.display = 'none';
+    }
+    if (toggleBtn) {
+      toggleBtn.style.display = 'none';
+    }
+  } else {
+    // デスクトップに戻った時はサイドバーを表示
+    if (sidebar) {
+      sidebar.style.display = 'flex';
+      sidebar.classList.remove('show');
+      if (sidebar.classList.contains('hidden')) {
+        sidebar.classList.remove('hidden');
+      }
+    }
+    if (toggleBtn) {
+      toggleBtn.style.display = 'flex';
+      const icon = toggleBtn.querySelector('i');
+      icon.className = 'fas fa-bars';
+    }
   }
 });
 
 // プロジェクト選択時のイベント
-document.getElementById('projectSelect').addEventListener('change', function () {
-  alert('選択されたプロジェクト: ' + this.value);
-});
+const projectSelect = document.getElementById('projectSelect');
+if (projectSelect) {
+  projectSelect.addEventListener('change', function () {
+    alert('選択されたプロジェクト: ' + this.value);
+  });
+}
 
 // タスク管理機能
 class TaskManager {
@@ -88,130 +155,6 @@ class TaskManager {
   async saveTasks() {
     // 常にローカルストレージへ保存（静的環境での永続化）
     localStorage.setItem('tasks', JSON.stringify(this.tasks));
-
-    // サーバーAPIを使用してtickets.jsonに保存
-    try {
-      const response = await fetch('/api/tasks', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ tasks: this.tasks })
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
-      
-      if (result.success) {
-        this.showNotification('タスクが正常に保存されました', 'success');
-      } else {
-        throw new Error(result.error || '保存に失敗しました');
-      }
-      
-    } catch (error) {
-      console.error('tickets.jsonへの保存に失敗しました:', error);
-      
-      // フォールバック: 静的ファイルサーバーでの処理
-      try {
-        // 現在のtickets.jsonの内容を読み込み
-        const currentResponse = await fetch('tickets.json');
-        let currentData = { tasks: [] };
-        
-        if (currentResponse.ok) {
-          currentData = await currentResponse.json();
-        }
-        
-        // 新しいタスクデータで更新
-        const updatedData = {
-          ...currentData,
-          tasks: this.tasks,
-          lastUpdated: new Date().toISOString()
-        };
-
-        // ローカルストレージにバックアップ保存
-        localStorage.setItem('tickets_backup', JSON.stringify(updatedData));
-        
-        this.showNotification('ローカルストレージに保存しました（サーバー同期は失敗）', 'warning');
-        
-      } catch (fallbackError) {
-        console.error('フォールバック処理も失敗:', fallbackError);
-        this.showNotification('ローカルストレージのみに保存しました', 'warning');
-      }
-    }
-  }
-
-  // 通知機能を追加
-  showNotification(message, type = 'info') {
-    // 既存の通知を削除
-    const existingNotification = document.querySelector('.notification');
-    if (existingNotification) {
-      existingNotification.remove();
-    }
-
-    // 新しい通知を作成
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.innerHTML = `
-      <span>${message}</span>
-      <button class="notification-close">&times;</button>
-    `;
-
-    // スタイルを適用
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 12px 20px;
-      border-radius: 4px;
-      color: white;
-      font-weight: 500;
-      z-index: 10000;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      max-width: 400px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      animation: slideIn 0.3s ease-out;
-    `;
-
-    // タイプ別の色を設定
-    const colors = {
-      success: '#4caf50',
-      warning: '#ff9800',
-      error: '#f44336',
-      info: '#2196f3'
-    };
-    notification.style.backgroundColor = colors[type] || colors.info;
-
-    // 閉じるボタンのスタイル
-    const closeBtn = notification.querySelector('.notification-close');
-    closeBtn.style.cssText = `
-      background: none;
-      border: none;
-      color: white;
-      font-size: 18px;
-      cursor: pointer;
-      padding: 0;
-      margin-left: auto;
-    `;
-
-    // 閉じるボタンのイベント
-    closeBtn.addEventListener('click', () => {
-      notification.remove();
-    });
-
-    // 通知を表示
-    document.body.appendChild(notification);
-
-    // 5秒後に自動で閉じる
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.remove();
-      }
-    }, 5000);
   }
 
   setupEventListeners() {
@@ -349,7 +292,6 @@ class TaskManager {
     }
   }
 
-  // タスク追加処理の改善
   addTask() {
     const form = document.getElementById('taskForm');
     if (!form) return;
@@ -371,19 +313,7 @@ class TaskManager {
 
     // バリデーション
     if (!taskData.title || !taskData.assignee || !taskData.dueDate || !taskData.priority || !taskData.category || !taskData.status) {
-      this.showNotification('必須項目を入力してください。', 'error');
-      return;
-    }
-
-    // 重複チェック（同じタイトルと担当者の組み合わせ）
-    const isDuplicate = this.tasks.some(task => 
-      task.title === taskData.title && 
-      task.assignee === taskData.assignee &&
-      task.status !== 'done'
-    );
-
-    if (isDuplicate) {
-      this.showNotification('同じタイトルと担当者のタスクが既に存在します。', 'warning');
+      alert('必須項目を入力してください。');
       return;
     }
 
@@ -391,9 +321,7 @@ class TaskManager {
     this.saveTasks();
     this.renderTasks();
     this.closeModal();
-    
-    // 成功メッセージ
-    this.showNotification('タスクが正常に追加されました。', 'success');
+    alert('タスクが正常に追加されました。');
   }
 
   generateTaskId() {
@@ -455,24 +383,6 @@ class TaskManager {
     checkbox.addEventListener('change', (e) => {
       this.toggleTaskStatus(task.id, e.target.checked);
     });
-
-    // ボタンに直接イベントを付与（念のための保険 + バブリング抑止）
-    const deleteBtn = taskDiv.querySelector('.delete-task-btn');
-    if (deleteBtn) {
-      deleteBtn.addEventListener('click', (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        this.deleteTask(task.id);
-      });
-    }
-    const editBtn = taskDiv.querySelector('.edit-task-btn');
-    if (editBtn) {
-      editBtn.addEventListener('click', (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        this.editTask(task.id);
-      });
-    }
 
     return taskDiv;
   }

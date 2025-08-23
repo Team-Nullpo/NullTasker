@@ -4,94 +4,26 @@
   padding: 0;
 }
 
-/* 通知アニメーション */
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slideOut {
-  from {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-}
-
 body, html {
   height: 100%;
-  font-family: sans-serif;
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
 }
 
 .app-container {
   display: flex;
   height: 100vh;
-  overflow: hidden;
+  background-color: #fff;
 }
 
 /* サイドバー */
 .sidebar {
   background-color: #ddd;
   width: 400px;
-  transition: transform 0.3s ease;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   padding: 20px 10px;
-  position: relative;
-  z-index: 2;
   border-right: 1px solid #ccc;
-}
-
-.sidebar.hidden {
-  transform: translateX(-370px);
-  position: relative;
-}
-
-.sidebar.hidden .toggle-btn {
-  position: absolute;
-  right: -44px;
-  top: 20px;
-  z-index: 1001;
-  background-color: #ddd;
-  border: 1px solid #ccc;
-  border-left: none;
-  border-radius: 0 6px 6px 0;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 2px 0 4px rgba(0,0,0,0.1);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.sidebar.hidden .toggle-btn:hover {
-  background-color: #ccc;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-}
-
-.sidebar.hidden .menu,
-.sidebar.hidden .bottom-section {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.sidebar.hidden .logo img {
-  opacity: 0;
-  pointer-events: none;
 }
 
 .logo {
@@ -101,14 +33,12 @@ body, html {
   gap: 10px;
   font-size: 18px;
   font-weight: bold;
-  position: relative;
   margin-bottom: 20px;
 }
 
 .logo img {
   width: 260px;
   height: auto;
-  object-fit: contain;
 }
 
 .toggle-btn {
@@ -122,26 +52,17 @@ body, html {
   font-size: 16px;
   padding: 8px;
   border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  transition: all 0.2s ease;
   width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1002;
-}
-
-.toggle-btn:hover {
-  background-color: #ccc;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
 .menu {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  margin-top: -500px;
 }
 
 .menu a {
@@ -153,13 +74,6 @@ body, html {
   gap: 15px;
   padding: 15px 10px;
   border-radius: 6px;
-  transition: background-color 0.2s, color 0.2s;
-}
-
-.menu a:hover {
-  color: #000;
-  font-weight: bold;
-  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .menu a i {
@@ -173,6 +87,7 @@ body, html {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  margin-top: auto;
 }
 
 #projectSelect {
@@ -195,12 +110,6 @@ body, html {
   padding: 20px;
   width: 100%;
   overflow-y: auto;
-  position: relative;
-  transition: margin-left 0.3s ease;
-}
-
-.sidebar.hidden + .main-content {
-  margin-left: -270px;
 }
 
 .main-header {
@@ -208,10 +117,264 @@ body, html {
   align-items: center;
   gap: 10px;
   margin-bottom: 20px;
+  background-color: #f0f0f0;
+  padding: 15px;
+  border-radius: 5px;
+  border: 2px solid #007bff;
 }
 
 .main-header h1 {
   font-size: 24px;
+  color: #333;
+  margin: 0;
+}
+
+.main-body {
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 5px;
+  border: 2px solid #28a745;
+}
+
+.main-body p {
+  color: #333;
+  font-size: 16px;
+  margin: 0;
+}
+
+/* スマートフォン専用ボトムナビゲーション */
+.bottom-navigation {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border-top: 1px solid #e0e0e0;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  padding: 8px 0;
+}
+
+.bottom-navigation .nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 8px 4px;
+  text-decoration: none;
+  color: #666;
+  font-size: 12px;
+  transition: color 0.2s ease;
+  min-height: 60px;
+}
+
+.bottom-navigation .nav-item i {
+  font-size: 20px;
+  margin-bottom: 4px;
+  transition: transform 0.2s ease;
+}
+
+.bottom-navigation .nav-item span {
+  font-size: 10px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.bottom-navigation .nav-item.active {
+  color: #007bff;
+}
+
+.bottom-navigation .nav-item.active i {
+  transform: scale(1.1);
+}
+
+.bottom-navigation .nav-item:hover {
+  color: #007bff;
+}
+
+.bottom-navigation .nav-item:active {
+  background-color: #f8f9fa;
+}
+
+/* レスポンシブ対応 */
+@media screen and (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+  }
+  
+  /* サイドバーを非表示 */
+  .sidebar {
+    display: none;
+  }
+  
+  /* メインコンテンツの調整 */
+  .main-content {
+    margin-left: 0;
+    padding: 15px;
+    width: 100%;
+    min-height: 100vh;
+    background-color: #fff;
+    padding-bottom: 80px; /* ボトムナビゲーションの高さ分 */
+  }
+  
+  .main-header {
+    margin-bottom: 15px;
+    padding-top: 20px; /* ハンバーガーメニューボタンの高さ分を削除 */
+    background-color: #f0f0f0;
+    padding: 15px;
+    border-radius: 5px;
+    border: 2px solid #007bff;
+  }
+  
+  .main-header h1 {
+    font-size: 20px;
+    color: #333;
+    margin: 0;
+  }
+  
+  .main-body {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 5px;
+    border: 2px solid #28a745;
+  }
+  
+  .main-body p {
+    color: #333;
+    font-size: 16px;
+    margin: 0;
+  }
+  
+  /* ボトムナビゲーションを表示 */
+  .bottom-navigation {
+    display: flex;
+  }
+  
+  /* タスクページのモバイル対応 */
+  .task-container {
+    max-width: 100%;
+  }
+  
+  .task-header {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .add-task-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 15px;
+    font-size: 16px;
+  }
+  
+  .task-filters {
+    width: 100%;
+  }
+  
+  .filter-select {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+  }
+  
+  .task-item {
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+  }
+  
+  .task-checkbox {
+    align-self: flex-start;
+  }
+  
+  .task-content h3 {
+    font-size: 16px;
+  }
+  
+  .task-content p {
+    font-size: 14px;
+  }
+  
+  .task-meta {
+    gap: 10px;
+  }
+  
+  .task-priority,
+  .task-status {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+  
+  .task-actions {
+    align-self: flex-end;
+    gap: 10px;
+  }
+  
+  .task-btn {
+    padding: 10px;
+    font-size: 16px;
+  }
+  
+  /* モーダルのモバイル対応 */
+  .modal-content {
+    margin: 5% auto;
+    width: 95%;
+    max-width: none;
+  }
+  
+  .modal-header {
+    padding: 15px 20px;
+  }
+  
+  .modal-header h2 {
+    font-size: 18px;
+  }
+  
+  .task-form {
+    padding: 20px;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  
+  .form-group label {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 15px;
+    font-size: 16px;
+  }
+  
+  .form-group textarea {
+    min-height: 100px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+  }
 }
 
 /* Taskページ用のスタイル */
@@ -545,26 +708,4 @@ body, html {
 .btn-secondary:hover {
   background-color: #545b62;
   transform: translateY(-1px);
-}
-
-/* レスポンシブ対応 */
-@media screen and (max-width: 768px) {
-  .modal-content {
-    margin: 10% auto;
-    width: 95%;
-  }
-  
-  .form-row {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-  
-  .form-actions {
-    flex-direction: column;
-  }
-  
-  .btn-primary,
-  .btn-secondary {
-    width: 100%;
-  }
 }
