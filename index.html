@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NullTasker</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="script.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- サイドバー -->
+    <aside class="sidebar" id="sidebar">
+      <div class="logo">
+        <img src="logo.png" alt="Logo" />
+        <button id="sidebarToggle" class="toggle-btn">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+      <nav class="menu">
+        <a href="#" class="active"><i class="fas fa-home"></i> Home</a>
+        <a href="task.html"><i class="fas fa-tasks"></i> Task</a>
+        <a href="#"><i class="fas fa-calendar"></i> Calendar</a>
+        <a href="#"><i class="fas fa-chart-bar"></i> Gantt</a>
+        <a href="#"><i class="fas fa-cog"></i> Setting</a>
+      </nav>
+      <div class="bottom-section">
+        <select id="projectSelect">
+          <option value="value1">Value</option>
+          <!-- 他のプロジェクト -->
+        </select>
+        <div class="user-icon">
+          <i class="fas fa-user-circle"></i>
+        </div>
+      </div>
+    </aside>
+
+    <!-- メインコンテンツ -->
+    <main class="main-content">
+      <div class="main-header">
+        <h1>ダッシュボード</h1>
+      </div>
+      <div class="main-body">
+        <p>Hello!!!</p>
+        <!-- プレースホルダなど -->
+      </div>
+    </main>
+
+  </div>
+</body>
+</html>

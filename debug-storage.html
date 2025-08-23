@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ローカルストレージ デバッグ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .storage-item {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .key {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .value {
+            background: white;
+            padding: 10px;
+            border-radius: 3px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .clear-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .clear-btn:hover {
+            background: #d32f2f;
+        }
+        .refresh-btn {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .refresh-btn:hover {
+            background: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <h1>ローカルストレージ デバッグ</h1>
+    
+    <div>
+        <button class="refresh-btn" onclick="refreshStorage()">更新</button>
+        <button class="clear-btn" onclick="clearAllStorage()">全削除</button>
+    </div>
+    
+    <div id="storage-content">
+        <!-- ローカルストレージの内容がここに表示されます -->
+    </div>
+
+    <script>
+        function refreshStorage() {
+            const container = document.getElementById('storage-content');
+            container.innerHTML = '';
+            
+            // ローカルストレージの全キーを取得
+            const keys = Object.keys(localStorage);
+            
+            if (keys.length === 0) {
+                container.innerHTML = '<p>ローカルストレージにデータがありません。</p>';
+                return;
+            }
+            
+            keys.forEach(key => {
+                const value = localStorage.getItem(key);
+                let displayValue = value;
+                
+                // JSONとして解析を試行
+                try {
+                    const parsed = JSON.parse(value);
+                    displayValue = JSON.stringify(parsed, null, 2);
+                } catch (e) {
+                    // JSONでない場合はそのまま表示
+                }
+                
+                const item = document.createElement('div');
+                item.className = 'storage-item';
+                item.innerHTML = `
+                    <div class="key">キー: ${key}</div>
+                    <div class="value">${displayValue}</div>
+                    <button class="clear-btn" onclick="clearItem('${key}')">この項目を削除</button>
+                `;
+                container.appendChild(item);
+            });
+        }
+        
+        function clearItem(key) {
+            if (confirm(`キー "${key}" のデータを削除しますか？`)) {
+                localStorage.removeItem(key);
+                refreshStorage();
+            }
+        }
+        
+        function clearAllStorage() {
+            if (confirm('ローカルストレージの全データを削除しますか？')) {
+                localStorage.clear();
+                refreshStorage();
+            }
+        }
+        
+        // ページ読み込み時に表示
+        refreshStorage();
+    </script>
+</body>
+</html>

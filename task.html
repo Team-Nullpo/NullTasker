@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Task - NullTasker</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="script.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- サイドバー -->
+    <aside class="sidebar" id="sidebar">
+      <div class="logo">
+        <img src="logo.png" alt="Logo" />
+        <button id="sidebarToggle" class="toggle-btn">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+      <nav class="menu">
+        <a href="index.html"><i class="fas fa-home"></i> Home</a>
+        <a href="task.html" class="active"><i class="fas fa-tasks"></i> Task</a>
+        <a href="#"><i class="fas fa-calendar"></i> Calendar</a>
+        <a href="#"><i class="fas fa-chart-bar"></i> Gantt</a>
+        <a href="#"><i class="fas fa-cog"></i> Setting</a>
+      </nav>
+      <div class="bottom-section">
+        <select id="projectSelect">
+          <option value="value1">Value</option>
+          <!-- 他のプロジェクト -->
+        </select>
+        <div class="user-icon">
+          <i class="fas fa-user-circle"></i>
+        </div>
+      </div>
+    </aside>
+
+    <!-- メインコンテンツ -->
+    <main class="main-content">
+      <div class="main-header">
+        <h1>タスク管理</h1>
+      </div>
+      <div class="main-body">
+        <div class="task-container">
+          <div class="task-header">
+            <button class="add-task-btn">
+              <i class="fas fa-plus"></i> 新しいタスクを追加
+            </button>
+            <div class="task-filters">
+              <select class="filter-select">
+                <option value="all">すべてのタスク</option>
+                <option value="todo">未完了</option>
+                <option value="done">完了済み</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="task-list">
+            <div class="task-item">
+              <div class="task-checkbox">
+                <input type="checkbox" id="task1">
+                <label for="task1"></label>
+              </div>
+              <div class="task-content">
+                <h3>プロジェクト計画の作成</h3>
+                <p>新しいプロジェクトの初期計画とスケジュールを策定する</p>
+                <div class="task-meta">
+                  <span class="task-priority high">高優先度</span>
+                  <span class="task-due">期限: 2024/01/15</span>
+                </div>
+              </div>
+              <div class="task-actions">
+                <button class="task-btn"><i class="fas fa-edit"></i></button>
+                <button class="task-btn"><i class="fas fa-trash"></i></button>
+              </div>
+            </div>
+            
+            <div class="task-item">
+              <div class="task-checkbox">
+                <input type="checkbox" id="task2" checked>
+                <label for="task2"></label>
+              </div>
+              <div class="task-content">
+                <h3>チームミーティングの準備</h3>
+                <p>週次チームミーティングの議題と資料を準備する</p>
+                <div class="task-meta">
+                  <span class="task-priority medium">中優先度</span>
+                  <span class="task-due">期限: 2024/01/10</span>
+                </div>
+              </div>
+              <div class="task-actions">
+                <button class="task-btn"><i class="fas fa-edit"></i></button>
+                <button class="task-btn"><i class="fas fa-trash"></i></button>
+              </div>
+            </div>
+            
+            <div class="task-item">
+              <div class="task-checkbox">
+                <input type="checkbox" id="task3">
+                <label for="task3"></label>
+              </div>
+              <div class="task-content">
+                <h3>コードレビューの実施</h3>
+                <p>開発チームのコードレビューを実施し、フィードバックを提供する</p>
+                <div class="task-meta">
+                  <span class="task-priority low">低優先度</span>
+                  <span class="task-due">期限: 2024/01/20</span>
+                </div>
+              </div>
+              <div class="task-actions">
+                <button class="task-btn"><i class="fas fa-edit"></i></button>
+                <button class="task-btn"><i class="fas fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- タスク追加モーダル -->
+  <div id="taskModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>新しいタスクを追加</h2>
+        <button class="close-btn" id="closeModal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form id="taskForm" class="task-form">
+        <div class="form-group">
+          <label for="taskTitle">タイトル *</label>
+          <input type="text" id="taskTitle" name="title" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="taskDescription">説明</label>
+          <textarea id="taskDescription" name="description" rows="3"></textarea>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="taskAssignee">担当者 *</label>
+            <select id="taskAssignee" name="assignee" required>
+              <option value="">選択してください</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="taskDueDate">期日 *</label>
+            <input type="date" id="taskDueDate" name="dueDate" required>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="taskPriority">優先度 *</label>
+            <select id="taskPriority" name="priority" required>
+              <option value="">選択してください</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="taskCategory">分類 *</label>
+            <select id="taskCategory" name="category" required>
+              <option value="">選択してください</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="taskStatus">ステータス *</label>
+            <select id="taskStatus" name="status" required>
+              <option value="">選択してください</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="taskProgress">進捗率</label>
+            <select id="taskProgress" name="progress">
+              <option value="0">0%</option>
+              <option value="25">25%</option>
+              <option value="50">50%</option>
+              <option value="75">75%</option>
+              <option value="100">100%</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" id="cancelTask">キャンセル</button>
+          <button type="submit" class="btn-primary">タスクを追加</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>
