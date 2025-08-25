@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>設定 - NullTasker</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="script.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- サイドバー -->
+    <aside class="sidebar" id="sidebar">
+      <div class="logo">
+        <img src="logo.png" alt="Logo" />
+        <button id="sidebarToggle" class="toggle-btn">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+      <nav class="menu">
+        <a href="index.html"><i class="fas fa-home"></i> Home</a>
+        <a href="task.html"><i class="fas fa-tasks"></i> Task</a>
+        <a href="#"><i class="fas fa-calendar"></i> Calendar</a>
+        <a href="#"><i class="fas fa-chart-bar"></i> Gantt</a>
+        <a href="setting.html" class="active"><i class="fas fa-cog"></i> Setting</a>
+      </nav>
+      <div class="bottom-section">
+        <select id="projectSelect">
+          <option value="value1">Value</option>
+          <!-- 他のプロジェクト -->
+        </select>
+        <div class="user-icon">
+          <i class="fas fa-user-circle"></i>
+        </div>
+      </div>
+    </aside>
+
+    <!-- メインコンテンツ -->
+    <main class="main-content">
+      <div class="main-header">
+        <h1>設定</h1>
+      </div>
+      <div class="main-body">
+        <div class="settings-container">
+          
+          <!-- プロジェクト設定 -->
+          <div class="settings-section">
+            <h2><i class="fas fa-project-diagram"></i> プロジェクト設定</h2>
+            <div class="form-group">
+              <label for="projectName">プロジェクト名</label>
+              <input type="text" id="projectName" value="NullTasker Project" />
+            </div>
+            <div class="form-group">
+              <label for="projectDescription">プロジェクト説明</label>
+              <textarea id="projectDescription" rows="3">チームでのタスク管理を効率化するプロジェクトです。</textarea>
+            </div>
+          </div>
+
+          <!-- ユーザー管理 -->
+          <div class="settings-section">
+            <h2><i class="fas fa-users"></i> ユーザー管理</h2>
+            <div class="user-management">
+              <div class="form-group">
+                <label for="newUser">新しいユーザー</label>
+                <div class="input-with-button">
+                  <input type="text" id="newUser" placeholder="ユーザー名を入力" />
+                  <button class="add-btn" onclick="addUser()">
+                    <i class="fas fa-plus"></i> 追加
+                  </button>
+                </div>
+              </div>
+              <div class="user-list">
+                <h3>登録済みユーザー</h3>
+                <div id="usersList" class="items-list">
+                  <!-- ユーザーリストがここに表示されます -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- カテゴリ管理 -->
+          <div class="settings-section">
+            <h2><i class="fas fa-tags"></i> カテゴリ管理</h2>
+            <div class="category-management">
+              <div class="form-group">
+                <label for="newCategory">新しいカテゴリ</label>
+                <div class="input-with-button">
+                  <input type="text" id="newCategory" placeholder="カテゴリ名を入力" />
+                  <button class="add-btn" onclick="addCategory()">
+                    <i class="fas fa-plus"></i> 追加
+                  </button>
+                </div>
+              </div>
+              <div class="category-list">
+                <h3>登録済みカテゴリ</h3>
+                <div id="categoriesList" class="items-list">
+                  <!-- カテゴリリストがここに表示されます -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 通知設定 -->
+          <div class="settings-section">
+            <h2><i class="fas fa-bell"></i> 通知設定</h2>
+            <div class="notification-settings">
+              <div class="setting-item">
+                <label class="switch">
+                  <input type="checkbox" id="emailNotification" checked>
+                  <span class="slider"></span>
+                </label>
+                <span>メール通知を有効にする</span>
+              </div>
+              <div class="setting-item">
+                <label class="switch">
+                  <input type="checkbox" id="desktopNotification">
+                  <span class="slider"></span>
+                </label>
+                <span>デスクトップ通知を有効にする</span>
+              </div>
+              <div class="setting-item">
+                <label class="switch">
+                  <input type="checkbox" id="taskReminder" checked>
+                  <span class="slider"></span>
+                </label>
+                <span>タスク期限のリマインダー</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 表示設定 -->
+          <div class="settings-section">
+            <h2><i class="fas fa-palette"></i> 表示設定</h2>
+            <div class="display-settings">
+              <div class="form-group">
+                <label for="theme">テーマ</label>
+                <select id="theme">
+                  <option value="light">ライト</option>
+                  <option value="dark">ダーク</option>
+                  <option value="auto">自動</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="language">言語</label>
+                <select id="language">
+                  <option value="ja">日本語</option>
+                  <option value="en">English</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="tasksPerPage">1ページあたりのタスク数</label>
+                <select id="tasksPerPage">
+                  <option value="10">10</option>
+                  <option value="20" selected>20</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- データ管理 -->
+          <div class="settings-section">
+            <h2><i class="fas fa-database"></i> データ管理</h2>
+            <div class="data-management">
+              <div class="action-buttons">
+                <button class="btn-secondary" onclick="exportData()">
+                  <i class="fas fa-download"></i> データをエクスポート
+                </button>
+                <button class="btn-secondary" onclick="importData()">
+                  <i class="fas fa-upload"></i> データをインポート
+                </button>
+                <button class="btn-warning" onclick="clearAllData()">
+                  <i class="fas fa-trash-alt"></i> 全データをクリア
+                </button>
+              </div>
+              <div class="storage-info">
+                <h3>ストレージ使用量</h3>
+                <div class="storage-bar">
+                  <div class="storage-used" style="width: 25%"></div>
+                </div>
+                <p>使用量: 2.5MB / 10MB</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 設定を保存 -->
+          <div class="settings-actions">
+            <button class="btn-primary" onclick="saveSettings()">
+              <i class="fas fa-save"></i> 設定を保存
+            </button>
+            <button class="btn-secondary" onclick="resetSettings()">
+              <i class="fas fa-undo"></i> 設定をリセット
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </main>
+
+    <!-- スマートフォン専用ボトムナビゲーション -->
+    <nav class="bottom-navigation">
+      <a href="index.html" class="nav-item">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+      </a>
+      <a href="task.html" class="nav-item">
+        <i class="fas fa-tasks"></i>
+        <span>Task</span>
+      </a>
+      <a href="#" class="nav-item">
+        <i class="fas fa-calendar"></i>
+        <span>Calendar</span>
+      </a>
+      <a href="#" class="nav-item">
+        <i class="fas fa-chart-bar"></i>
+        <span>Gantt</span>
+      </a>
+      <a href="setting.html" class="nav-item active">
+        <i class="fas fa-cog"></i>
+        <span>Setting</span>
+      </a>
+    </nav>
+
+  </div>
+
+  <!-- データインポート用の隠しファイル入力 -->
+  <input type="file" id="importFile" accept=".json" style="display: none;" onchange="handleFileImport(event)">
+
+</body>
+</html>

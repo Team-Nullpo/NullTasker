@@ -525,3 +525,474 @@ let taskManager;
 if (document.querySelector('.task-container')) {
   taskManager = new TaskManager();
 }
+
+// 設定管理機能
+class SettingsManager {
+  constructor() {
+    this.settings = {
+      users: ['田中太郎', '佐藤花子', '山田次郎', '鈴木美咲', '高橋健一'],
+      categories: ['企画', '開発', 'デザイン', 'テスト', 'ドキュメント', '会議', 'その他'],
+      projectName: 'NullTasker Project',
+      projectDescription: 'チームでのタスク管理を効率化するプロジェクトです。',
+      notifications: {
+        email: true,
+        desktop: false,
+        taskReminder: true
+      },
+      display: {
+        theme: 'light',
+        language: 'ja',
+        tasksPerPage: 20
+      }
+    };
+    this.init();
+  }
+
+  init() {
+    // ローカルストレージから設定を読み込み
+    this.loadSettings();
+    
+    // 設定ページの場合のみ初期化
+    if (document.querySelector('.settings-container')) {
+      this.renderSettings();
+      this.setupSettingsEventListeners();
+    }
+  }
+
+  loadSettings() {
+    const saved = localStorage.getItem('appSettings');
+    if (saved) {
+      try {
+        const savedSettings = JSON.parse(saved);
+        this.settings = { ...this.settings, ...savedSettings };
+      } catch (e) {
+        console.warn('設定の読み込みに失敗しました:', e);
+      }
+    }
+  }
+
+  saveSettings() {
+    localStorage.setItem('appSettings', JSON.stringify(this.settings));
+    this.updateGlobalSettings();
+  }
+
+  updateGlobalSettings() {
+    // グローバルのsettings.jsonの内容も更新
+    const globalSettings = {
+      categories: this.settings.categories,
+      users: this.settings.users,
+      priorities: [
+        { value: 'high', label: '高優先度', color: '#c62828' },
+        { value: 'medium', label: '中優先度', color: '#ef6c00' },
+        { value: 'low', label: '低優先度', color: '#2e7d32' }
+      ],
+      statuses: [
+        { value: 'todo', label: '未着手', color: '#666' },
+        { value: 'in_progress', label: '進行中', color: '#1976d2' },
+        { value: 'review', label: 'レビュー中', color: '#f57c00' },
+        { value: 'done', label: '完了', color: '#388e3c' }
+      ]
+    };
+    
+    // TaskManagerが存在する場合は設定を更新
+    if (window.taskManager) {
+      window.taskManager.settings = globalSettings;
+    }
+  }
+
+  renderSettings() {
+    this.renderProjectSettings();
+    this.renderUsers();
+    this.renderCategories();
+    this.renderNotificationSettings();
+    this.renderDisplaySettings();
+    this.updateStorageInfo();
+  }
+
+  renderProjectSettings() {
+    const projectName = document.getElementById('projectName');
+    const projectDescription = document.getElementById('projectDescription');
+    
+    if (projectName) projectName.value = this.settings.projectName;
+    if (projectDescription) projectDescription.value = this.settings.projectDescription;
+  }
+
+  renderUsers() {
+    const usersList = document.getElementById('usersList');
+    if (!usersList) return;
+
+    usersList.innerHTML = '';
+    this.settings.users.forEach((user, index) => {
+      const userItem = document.createElement('div');
+      userItem.className = 'list-item';
+      userItem.innerHTML = `
+        <span>${user}</span>
+        <button class="remove-btn" onclick="settingsManager.removeUser(${index})">
+          <i class="fas fa-times"></i> 削除
+        </button>
+      `;
+      usersList.appendChild(userItem);
+    });
+  }
+
+  renderCategories() {
+    const categoriesList = document.getElementById('categoriesList');
+    if (!categoriesList) return;
+
+    categoriesList.innerHTML = '';
+    this.settings.categories.forEach((category, index) => {
+      const categoryItem = document.createElement('div');
+      categoryItem.className = 'list-item';
+      categoryItem.innerHTML = `
+        <span>${category}</span>
+        <button class="remove-btn" onclick="settingsManager.removeCategory(${index})">
+          <i class="fas fa-times"></i> 削除
+        </button>
+      `;
+      categoriesList.appendChild(categoryItem);
+    });
+  }
+
+  renderNotificationSettings() {
+    const emailNotification = document.getElementById('emailNotification');
+    const desktopNotification = document.getElementById('desktopNotification');
+    const taskReminder = document.getElementById('taskReminder');
+
+    if (emailNotification) emailNotification.checked = this.settings.notifications.email;
+    if (desktopNotification) desktopNotification.checked = this.settings.notifications.desktop;
+    if (taskReminder) taskReminder.checked = this.settings.notifications.taskReminder;
+  }
+
+  renderDisplaySettings() {
+    const theme = document.getElementById('theme');
+    const language = document.getElementById('language');
+    const tasksPerPage = document.getElementById('tasksPerPage');
+
+    if (theme) theme.value = this.settings.display.theme;
+    if (language) language.value = this.settings.display.language;
+    if (tasksPerPage) tasksPerPage.value = this.settings.display.tasksPerPage;
+  }
+
+  updateStorageInfo() {
+    const storageUsed = this.calculateStorageUsage();
+    const storageBar = document.querySelector('.storage-used');
+    const storageText = document.querySelector('.storage-info p');
+    
+    if (storageBar && storageText) {
+      const percentage = Math.min((storageUsed / (10 * 1024 * 1024)) * 100, 100);
+      storageBar.style.width = `${percentage}%`;
+      storageText.textContent = `使用量: ${this.formatBytes(storageUsed)} / 10MB`;
+    }
+  }
+
+  calculateStorageUsage() {
+    let total = 0;
+    for (let key in localStorage) {
+      if (localStorage.hasOwnProperty(key)) {
+        total += localStorage[key].length;
+      }
+    }
+    return total;
+  }
+
+  formatBytes(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  setupSettingsEventListeners() {
+    // プロジェクト設定の変更を監視
+    const projectName = document.getElementById('projectName');
+    const projectDescription = document.getElementById('projectDescription');
+    
+    if (projectName) {
+      projectName.addEventListener('change', (e) => {
+        this.settings.projectName = e.target.value;
+      });
+    }
+    
+    if (projectDescription) {
+      projectDescription.addEventListener('change', (e) => {
+        this.settings.projectDescription = e.target.value;
+      });
+    }
+
+    // 通知設定の変更を監視
+    const notifications = ['emailNotification', 'desktopNotification', 'taskReminder'];
+    notifications.forEach(id => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.addEventListener('change', (e) => {
+          const settingKey = id.replace('Notification', '').replace('taskReminder', 'taskReminder');
+          this.settings.notifications[settingKey] = e.target.checked;
+        });
+      }
+    });
+
+    // 表示設定の変更を監視
+    const displaySettings = ['theme', 'language', 'tasksPerPage'];
+    displaySettings.forEach(id => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.addEventListener('change', (e) => {
+          this.settings.display[id] = e.target.value;
+        });
+      }
+    });
+  }
+
+  addUser() {
+    const newUserInput = document.getElementById('newUser');
+    if (!newUserInput) return;
+
+    const userName = newUserInput.value.trim();
+    if (userName && !this.settings.users.includes(userName)) {
+      this.settings.users.push(userName);
+      this.renderUsers();
+      newUserInput.value = '';
+      this.showNotification('ユーザーが追加されました', 'success');
+    } else if (this.settings.users.includes(userName)) {
+      this.showNotification('このユーザーは既に存在します', 'warning');
+    }
+  }
+
+  removeUser(index) {
+    if (confirm('このユーザーを削除しますか？')) {
+      this.settings.users.splice(index, 1);
+      this.renderUsers();
+      this.showNotification('ユーザーが削除されました', 'success');
+    }
+  }
+
+  addCategory() {
+    const newCategoryInput = document.getElementById('newCategory');
+    if (!newCategoryInput) return;
+
+    const categoryName = newCategoryInput.value.trim();
+    if (categoryName && !this.settings.categories.includes(categoryName)) {
+      this.settings.categories.push(categoryName);
+      this.renderCategories();
+      newCategoryInput.value = '';
+      this.showNotification('カテゴリが追加されました', 'success');
+    } else if (this.settings.categories.includes(categoryName)) {
+      this.showNotification('このカテゴリは既に存在します', 'warning');
+    }
+  }
+
+  removeCategory(index) {
+    if (confirm('このカテゴリを削除しますか？')) {
+      this.settings.categories.splice(index, 1);
+      this.renderCategories();
+      this.showNotification('カテゴリが削除されました', 'success');
+    }
+  }
+
+  exportData() {
+    const data = {
+      settings: this.settings,
+      tasks: JSON.parse(localStorage.getItem('tasks') || '[]'),
+      timestamp: new Date().toISOString()
+    };
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `nulltasker-backup-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    this.showNotification('データがエクスポートされました', 'success');
+  }
+
+  importData() {
+    const fileInput = document.getElementById('importFile');
+    if (fileInput) {
+      fileInput.click();
+    }
+  }
+
+  handleFileImport(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        
+        if (confirm('現在のデータを上書きしますか？この操作は元に戻せません。')) {
+          if (data.settings) {
+            this.settings = { ...this.settings, ...data.settings };
+            this.renderSettings();
+          }
+          
+          if (data.tasks) {
+            localStorage.setItem('tasks', JSON.stringify(data.tasks));
+          }
+          
+          this.saveSettings();
+          this.showNotification('データがインポートされました', 'success');
+          
+          // ページをリロードして変更を反映
+          setTimeout(() => {
+            location.reload();
+          }, 1500);
+        }
+      } catch (error) {
+        this.showNotification('ファイルの読み込みに失敗しました', 'error');
+        console.error('Import error:', error);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  clearAllData() {
+    if (confirm('全てのデータを削除しますか？この操作は元に戻せません。')) {
+      if (confirm('本当にすべてのデータを削除しますか？')) {
+        localStorage.clear();
+        this.showNotification('全データが削除されました', 'success');
+        
+        // デフォルト設定に戻す
+        setTimeout(() => {
+          location.reload();
+        }, 1500);
+      }
+    }
+  }
+
+  saveAllSettings() {
+    this.saveSettings();
+    this.showNotification('設定が保存されました', 'success');
+  }
+
+  resetSettings() {
+    if (confirm('設定をリセットしますか？')) {
+      localStorage.removeItem('appSettings');
+      this.settings = {
+        users: ['田中太郎', '佐藤花子', '山田次郎', '鈴木美咲', '高橋健一'],
+        categories: ['企画', '開発', 'デザイン', 'テスト', 'ドキュメント', '会議', 'その他'],
+        projectName: 'NullTasker Project',
+        projectDescription: 'チームでのタスク管理を効率化するプロジェクトです。',
+        notifications: {
+          email: true,
+          desktop: false,
+          taskReminder: true
+        },
+        display: {
+          theme: 'light',
+          language: 'ja',
+          tasksPerPage: 20
+        }
+      };
+      this.renderSettings();
+      this.showNotification('設定がリセットされました', 'success');
+    }
+  }
+
+  showNotification(message, type = 'info') {
+    // 通知要素を作成
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    
+    // スタイルを設定
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: ${type === 'success' ? '#28a745' : type === 'warning' ? '#ffc107' : type === 'error' ? '#dc3545' : '#007bff'};
+      color: ${type === 'warning' ? '#212529' : 'white'};
+      padding: 15px 20px;
+      border-radius: 6px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      z-index: 10000;
+      font-size: 14px;
+      font-weight: 500;
+      max-width: 300px;
+      word-wrap: break-word;
+      animation: slideInRight 0.3s ease;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // 3秒後に自動削除
+    setTimeout(() => {
+      notification.style.animation = 'slideOutRight 0.3s ease';
+      setTimeout(() => {
+        document.body.removeChild(notification);
+      }, 300);
+    }, 3000);
+  }
+}
+
+// 設定管理の初期化
+let settingsManager;
+if (document.querySelector('.settings-container')) {
+  settingsManager = new SettingsManager();
+}
+
+// グローバル関数として設定関数を公開
+function addUser() {
+  if (settingsManager) settingsManager.addUser();
+}
+
+function addCategory() {
+  if (settingsManager) settingsManager.addCategory();
+}
+
+function exportData() {
+  if (settingsManager) settingsManager.exportData();
+}
+
+function importData() {
+  if (settingsManager) settingsManager.importData();
+}
+
+function handleFileImport(event) {
+  if (settingsManager) settingsManager.handleFileImport(event);
+}
+
+function clearAllData() {
+  if (settingsManager) settingsManager.clearAllData();
+}
+
+function saveSettings() {
+  if (settingsManager) settingsManager.saveAllSettings();
+}
+
+function resetSettings() {
+  if (settingsManager) settingsManager.resetSettings();
+}
+
+// 通知アニメーションのCSS
+const notificationStyles = document.createElement('style');
+notificationStyles.textContent = `
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(300px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes slideOutRight {
+    from {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(300px);
+    }
+  }
+`;
+document.head.appendChild(notificationStyles);
