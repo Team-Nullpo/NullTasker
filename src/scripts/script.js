@@ -142,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log('DOM読み込み完了 - サイドバー初期化開始');
   initializeSidebar();
   setupEventListeners();
+  updateActiveNavigation(); // アクティブなナビゲーションを更新
 });
 
 // イベントリスナーの設定
@@ -236,7 +237,7 @@ class TaskManager {
 
   async loadSettings() {
     try {
-      const response = await fetch('settings.json');
+      const response = await fetch('/config/settings.json');
       this.settings = await response.json();
     } catch (error) {
       console.error('設定の読み込みに失敗しました:', error);
@@ -273,7 +274,7 @@ class TaskManager {
 
     // ローカルストレージに無い場合はtickets.jsonから初期データを読み込む
     try {
-      const response = await fetch('tickets.json');
+      const response = await fetch('/config/tickets.json');
       if (!response.ok) throw new Error('Failed to fetch tickets.json');
       const data = await response.json();
       this.tasks = data.tasks || [];
@@ -1967,3 +1968,32 @@ function toggleCalendarView() {
     }
   }
 }
+
+// アクティブなナビゲーション項目を更新
+function updateActiveNavigation() {
+  const currentPath = window.location.pathname;
+  
+  // サイドバーのナビゲーション項目
+  const sidebarLinks = document.querySelectorAll('.menu a');
+  // ボトムナビゲーションの項目
+  const bottomNavLinks = document.querySelectorAll('.bottom-navigation .nav-item');
+  
+  // 全てのアクティブクラスを削除
+  sidebarLinks.forEach(link => link.classList.remove('active'));
+  bottomNavLinks.forEach(link => link.classList.remove('active'));
+  
+  // 現在のパスに対応する項目をアクティブにする
+  sidebarLinks.forEach(link => {
+    if (link.getAttribute('href') === currentPath) {
+      link.classList.add('active');
+    }
+  });
+  
+  bottomNavLinks.forEach(link => {
+    if (link.getAttribute('href') === currentPath) {
+      link.classList.add('active');
+    }
+  });
+}
+
+

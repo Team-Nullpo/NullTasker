@@ -57,19 +57,31 @@ npm start
 
 ```
 nulltasker-v0/
-├── index.html          # ダッシュボード
-├── task.html           # タスク管理ページ
-├── gantt.html          # ガントチャートページ
-├── calendar.html       # カレンダーページ
-├── setting.html        # 設定ページ
-├── debug-storage.html  # デバッグ用ストレージ管理
-├── styles.css          # メインスタイルシート
-├── script.js           # フロントエンドロジック
-├── server.js           # バックエンドサーバー
-├── settings.json       # アプリケーション設定
-├── tickets.json        # タスクデータ
-├── package.json        # プロジェクト設定
-└── logo.png           # アプリケーションロゴ
+├── LICENSE                    # ライセンスファイル
+├── README.md                  # メインドキュメント
+├── package.json              # Node.js プロジェクト設定
+├── package-lock.json          # 依存関係ロックファイル
+├── server.js                  # バックエンドサーバー
+├── config/                    # 設定・データファイル
+│   ├── settings.json          # アプリケーション設定
+│   └── tickets.json           # タスクデータ
+├── docs/                      # ドキュメント
+│   └── README.md              # ドキュメント用README
+├── public/                    # 静的ファイル（将来の拡張用）
+└── src/                       # ソースコード
+    ├── assets/                # アセット（画像等）
+    │   └── logo.png           # アプリケーションロゴ
+    ├── pages/                 # HTMLページ
+    │   ├── index.html         # ダッシュボード
+    │   ├── task.html          # タスク管理
+    │   ├── gantt.html         # ガントチャート
+    │   ├── calendar.html      # カレンダー
+    │   ├── setting.html       # 設定
+    │   └── debug-storage.html # デバッグ用
+    ├── scripts/               # JavaScript
+    │   └── script.js          # メインスクリプト
+    └── styles/                # CSS
+        └── styles.css         # メインスタイルシート
 ```
 
 ## 🎯 詳細機能
