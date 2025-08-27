@@ -8,7 +8,7 @@
 
 ## 📋 概要
 
-NullTaskerは、チーム開発に特化したWebベースのタスク管理システムです。直感的なインターフェースと豊富な機能で、プロジェクトの進捗管理を効率化します。
+NullTaskerは、学生向けのWebベースのタスク管理システムです。直感的なインターフェースと豊富な機能で、プロジェクトの進捗管理を効率化します。
 
 ### 🌟 主要機能
 
@@ -263,32 +263,6 @@ tail -f logs/app.log
 tail -f logs/error.log
 ```
 
-## 🔒 セキュリティ
-
-### データ保護
-- **クライアントサイド暗号化**: 機密データの暗号化保存
-- **入力検証**: XSS・SQL Injection対策
-- **CSRF保護**: クロスサイトリクエストフォージェリ対策
-
-### プライバシー
-- **ローカルファースト**: データは主にローカルに保存
-- **最小権限**: 必要最小限の権限で動作
-- **データ削除**: 完全なデータ削除機能
-
-## 🤝 コントリビューション
-
-### 開発参加
-1. **Fork**: リポジトリをフォーク
-2. **Branch**: 機能ブランチを作成
-3. **Commit**: 変更をコミット
-4. **Test**: テストを実行して確認
-5. **PR**: プルリクエストを作成
-
-### コーディング規約
-- **ESLint**: JavaScript標準に準拠
-- **Prettier**: コード整形の統一
-- **JSDoc**: 関数・クラスのドキュメント化
-- **Git Flow**: ブランチ戦略に従った開発
 
 ## 📝 ライセンス
 
@@ -296,9 +270,9 @@ MIT License - 詳細は [LICENSE](LICENSE) ファイルを参照してくださ�
 
 ## 📞 サポート
 
-- **Issues**: [GitHub Issues](https://github.com/Team-Nullpo/nulltasker-v0/issues)
-- **Wiki**: [プロジェクトWiki](https://github.com/Team-Nullpo/nulltasker-v0/wiki)
-- **Discussions**: [GitHub Discussions](https://github.com/Team-Nullpo/nulltasker-v0/discussions)
+- **Issues**: [GitHub Issues](https://github.com/Team-Nullpo/nulltasker/issues)
+- **Wiki**: [プロジェクトWiki](https://github.com/Team-Nullpo/nulltasker/wiki)
+- **Discussions**: [GitHub Discussions](https://github.com/Team-Nullpo/nulltasker/discussions)
 
 ---
 
