@@ -94,7 +94,3 @@ npm run dev
 ## ライセンス
 
 MIT License
-
-
-
-This Document Made By Claude Sonnet4.

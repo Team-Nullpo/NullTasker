@@ -14,42 +14,75 @@ body, html {
   display: flex;
   height: 100vh;
   background-color: #fff;
+  position: relative; /* 相対位置を追加 */
 }
 
 /* サイドバー */
 .sidebar {
   background-color: #ddd;
-  width: 400px;
+  width: 380px;
   display: flex;
   flex-direction: column;
-  padding: 20px 10px;
+  padding: 10px 3px;
   border-right: 1px solid #ccc;
+  transition: transform 0.3s ease;
+  position: fixed; /* 絶対位置に変更 */
+  left: 0;
+  top: 0;
+  height: 100vh;
+  z-index: 1000;
+}
+
+.sidebar.hidden {
+  transform: translateX(-100%); /* 完全に非表示 */
+}
+
+.sidebar.collapsed {
+  width: 70px; /* 縮小時も少し小さく */
+  padding: 10px 3px;
+}
+
+.sidebar.collapsed .menu a span {
+  display: none;
+}
+
+.sidebar.collapsed .logo img {
+  display: none;
+}
+
+.sidebar.collapsed .bottom-section {
+  flex-direction: column;
+  gap: 15px;
+}
+
+.sidebar.collapsed #projectSelect {
+  display: none;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  font-size: 18px;
+  justify-content: space-between;
+  gap: 5px; /* さらにギャップを縮小 */
+  font-size: 16px; /* フォントサイズを縮小 */
   font-weight: bold;
-  margin-bottom: 20px;
+  margin-bottom: 10px; /* マージンをさらに縮小 */
+  position: relative;
 }
 
 .logo img {
-  width: 260px;
+  width: 270px; /* 画像サイズを調整 */
   height: auto;
+  flex: 1;
 }
 
-.toggle-btn {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: #ddd;
+/* サイドバー内の非表示ボタン */
+.sidebar-hide-btn {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #333;
   border: 1px solid #ccc;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 14px;
   padding: 8px;
   border-radius: 50%;
   width: 32px;
@@ -57,28 +90,82 @@ body, html {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.sidebar-hide-btn:hover {
+  background-color: #f0f0f0;
+  transform: scale(1.05);
+}
+
+.sidebar-hide-btn:active {
+  transform: scale(0.95);
+}
+
+/* サイドバーが非表示の時は隠す */
+.sidebar.hidden .sidebar-hide-btn {
+  display: none;
+}
+
+.toggle-btn {
+  position: fixed; /* absoluteからfixedに変更 */
+  top: 20px; /* 画面上部から20px */
+  left: 20px; /* 初期位置 */
+  background-color: #2196f3;
+  color: white;
+  border: 1px solid #0d7377;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 10px;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001; /* 他の要素より前面に */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2); /* 視認性向上 */
+  transition: all 0.3s ease; /* スムーズなアニメーション */
+}
+
+/* ホバー時の効果 */
+.toggle-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* アクティブ時の効果 */
+.toggle-btn:active {
+  transform: scale(0.95);
+}
+
+/* 緊急時のリセット用 - ダブルクリックで強制表示 */
+.toggle-btn:active {
+  background-color: #4caf50;
+  color: white;
 }
 
 .menu {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 5px; /* ギャップをさらに縮小 */
 }
 
 .menu a {
   color: #333;
   text-decoration: none;
-  font-size: 22px;
+  font-size: 18px; /* フォントサイズを縮小 */
   display: flex;
   align-items: center;
-  gap: 15px;
-  padding: 15px 10px;
-  border-radius: 6px;
+  gap: 10px; /* ギャップを縮小 */
+  padding: 10px 6px; /* パディングを縮小 */
+  border-radius: 4px; /* 角丸も小さく */
 }
 
 .menu a i {
-  font-size: 24px;
-  width: 24px;
+  font-size: 20px; /* アイコンサイズを縮小 */
+  width: 20px;
   text-align: center;
 }
 
@@ -107,33 +194,40 @@ body, html {
 .main-content {
   flex-grow: 1;
   background-color: #fff;
-  padding: 20px;
+  padding: 10px;
   width: 100%;
   overflow-y: auto;
+  margin-left: 380px; /* サイドバー幅分のマージン */
+  transition: margin-left 0.3s ease; /* スムーズなトランジション */
+}
+
+/* サイドバーが非表示の時はメインコンテンツを全幅に */
+.main-content.expanded {
+  margin-left: 0; /* マージンを0にして全幅使用 */
 }
 
 .main-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 8px; /* ギャップを縮小 */
+  margin-bottom: 10px; /* マージンを縮小 */
   background-color: #f0f0f0;
-  padding: 15px;
-  border-radius: 5px;
-  border: 2px solid #007bff;
+  padding: 10px; /* パディングを縮小 */
+  border-radius: 4px; /* 角丸を小さく */
+  border: 1px solid #007bff; /* ボーダーを細く */
 }
 
 .main-header h1 {
-  font-size: 24px;
+  font-size: 22px; /* フォントサイズを縮小 */
   color: #333;
   margin: 0;
 }
 
 .main-body {
   background-color: #f9f9f9;
-  padding: 15px;
-  border-radius: 5px;
-  border: 2px solid #28a745;
+  padding: 10px; /* パディングを縮小 */
+  border-radius: 4px;
+  border: 1px solid #28a745; /* ボーダーを細く */
 }
 
 .main-body p {
@@ -387,8 +481,8 @@ body, html {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
-  padding: 20px;
+  margin-bottom: 20px; /* マージンを縮小 */
+  padding: 15px; /* パディングを縮小 */
   background-color: #f8f9fa;
   border-radius: 8px;
 }
@@ -427,8 +521,8 @@ body, html {
 .task-item {
   display: flex;
   align-items: flex-start;
-  gap: 15px;
-  padding: 20px;
+  gap: 12px; /* ギャップを縮小 */
+  padding: 15px; /* パディングを縮小 */
   background-color: white;
   border: 1px solid #e9ecef;
   border-radius: 8px;
@@ -468,7 +562,7 @@ body, html {
 
 .task-meta {
   display: flex;
-  gap: 15px;
+  gap: 12px; /* ギャップを縮小 */
   flex-wrap: wrap;
 }
 
@@ -720,24 +814,20 @@ body, html {
   background-color: white;
   border: 1px solid #e9ecef;
   border-radius: 8px;
-  margin-bottom: 30px;
-  padding: 25px;
+  margin-bottom: 20px; /* マージンを縮小 */
+  padding: 20px; /* パディングを縮小 */
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .settings-section h2 {
   color: #333;
   font-size: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 15px; /* マージンを縮小 */
   display: flex;
   align-items: center;
   gap: 10px;
   border-bottom: 2px solid #f8f9fa;
-  padding-bottom: 10px;
-}
-
-.settings-section h2 i {
-  color: #007bff;
+  padding-bottom: 8px; /* パディングを縮小 */
 }
 
 .settings-section h3 {
@@ -1082,5 +1172,680 @@ input:checked + .slider:before {
   .remove-btn {
     padding: 10px 15px;
     font-size: 14px;
+  }
+}
+
+/* ガントチャートページ用のスタイル */
+.gantt-container {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.gantt-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px; /* マージンを縮小 */
+  padding: 12px 15px; /* パディングを縮小 */
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  flex-wrap: wrap;
+  gap: 12px; /* ギャップを縮小 */
+}
+
+.time-scale-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.time-scale-controls label {
+  font-weight: 600;
+  color: #333;
+}
+
+.time-scale-controls select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.date-navigation {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.nav-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.nav-btn:hover {
+  background-color: #0056b3;
+}
+
+.current-period {
+  font-weight: 600;
+  color: #333;
+  min-width: 120px;
+  text-align: center;
+}
+
+.gantt-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.gantt-chart {
+  display: flex;
+  background-color: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  overflow: hidden;
+  min-height: 400px;
+}
+
+.gantt-task-list {
+  flex-shrink: 0;
+  width: 350px;
+  border-right: 1px solid #e9ecef;
+}
+
+.gantt-task-header {
+  display: flex;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  font-weight: 600;
+  color: #333;
+  height: 40px;
+}
+
+.task-name-column {
+  flex: 1;
+  padding: 12px;
+  border-right: 1px solid #e9ecef;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-assignee-column {
+  width: 100px;
+  padding: 12px;
+  border-right: 1px solid #e9ecef;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-duration-column {
+  width: 80px;
+  padding: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gantt-task-rows {
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+.gantt-task-row {
+  display: flex;
+  height: 40px;
+  border-bottom: 1px solid #f1f3f4;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.gantt-task-row:hover {
+  background-color: #f8f9fa;
+}
+
+.gantt-timeline {
+  flex: 1;
+  overflow-x: auto;
+}
+
+.gantt-timeline-header {
+  display: flex;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  height: 40px;
+  font-weight: 600;
+  color: #333;
+  font-size: 12px;
+}
+
+.gantt-date-cell {
+  min-width: 60px;
+  padding: 12px 8px;
+  border-right: 1px solid #e9ecef;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.gantt-timeline-body {
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+.gantt-bar-row {
+  display: flex;
+  height: 40px;
+  border-bottom: 1px solid #f1f3f4;
+  position: relative;
+}
+
+.gantt-bar {
+  position: absolute;
+  height: 20px;
+  top: 10px;
+  border-radius: 10px;
+  color: white;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.gantt-bar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.gantt-bar.high {
+  background-color: #dc3545;
+}
+
+.gantt-bar.medium {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.gantt-bar.low {
+  background-color: #28a745;
+}
+
+.gantt-bar.completed {
+  background-color: #6c757d;
+}
+
+/* ガントチャート進捗バー */
+.gantt-bar-container {
+  transition: all 0.2s ease;
+}
+
+.gantt-progress-bar {
+  background: linear-gradient(45deg, rgba(255,255,255,0.2), rgba(255,255,255,0.4));
+  border-right: 2px solid rgba(255,255,255,0.6);
+}
+
+.gantt-bar.high .gantt-progress-bar {
+  background: linear-gradient(45deg, rgba(255,255,255,0.3), rgba(255,255,255,0.5));
+}
+
+.gantt-bar.medium .gantt-progress-bar {
+  background: linear-gradient(45deg, rgba(0,0,0,0.1), rgba(0,0,0,0.2));
+}
+
+.gantt-bar.low .gantt-progress-bar {
+  background: linear-gradient(45deg, rgba(255,255,255,0.2), rgba(255,255,255,0.4));
+}
+
+.gantt-bar.completed .gantt-progress-bar {
+  background: linear-gradient(45deg, rgba(255,255,255,0.3), rgba(255,255,255,0.5));
+}
+
+.gantt-legend {
+  display: flex;
+  justify-content: center;
+  gap: 15px; /* ギャップを縮小 */
+  margin-top: 12px; /* マージンを縮小 */
+  padding: 12px; /* パディングを縮小 */
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #333;
+}
+
+.legend-color {
+  width: 20px;
+  height: 12px;
+  border-radius: 6px;
+}
+
+.legend-color.high {
+  background-color: #dc3545;
+}
+
+.legend-color.medium {
+  background-color: #ffc107;
+}
+
+.legend-color.low {
+  background-color: #28a745;
+}
+
+.legend-color.completed {
+  background-color: #6c757d;
+}
+
+/* カレンダーページ用のスタイル */
+.calendar-container {
+  display: flex;
+  gap: 15px; /* ギャップを縮小 */
+  height: calc(100vh - 200px);
+}
+
+.calendar-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px; /* マージンを縮小 */
+  padding: 12px 15px; /* パディングを縮小 */
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  flex-wrap: wrap;
+  gap: 12px; /* ギャップを縮小 */
+}
+
+.calendar-navigation {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.current-month {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  min-width: 150px;
+  text-align: center;
+}
+
+.calendar-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.calendar-view {
+  flex: 1;
+  background-color: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.calendar-grid {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.calendar-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.calendar-day-header {
+  padding: 15px 8px;
+  text-align: center;
+  font-weight: 600;
+  color: #333;
+  border-right: 1px solid #e9ecef;
+}
+
+.calendar-day-header:last-child {
+  border-right: none;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: 1fr;
+  flex: 1;
+}
+
+.calendar-day {
+  border-right: 1px solid #f1f3f4;
+  border-bottom: 1px solid #f1f3f4;
+  padding: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-day:hover {
+  background-color: #f8f9fa;
+}
+
+.calendar-day.selected {
+  background-color: #e3f2fd;
+}
+
+.calendar-day.today {
+  background-color: #fff3cd;
+}
+
+.calendar-day.other-month {
+  color: #ccc;
+  background-color: #fafafa;
+}
+
+.day-number {
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.day-tasks {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.calendar-task {
+  background-color: #007bff;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.calendar-task.high {
+  background-color: #dc3545;
+}
+
+.calendar-task.medium {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.calendar-task.low {
+  background-color: #28a745;
+}
+
+.calendar-task.completed {
+  background-color: #6c757d;
+}
+
+.calendar-sidebar {
+  flex-shrink: 0;
+  width: 300px;
+  background-color: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 15px; /* パディングを縮小 */
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  margin-bottom: 15px; /* マージンを縮小 */
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 12px; /* パディングを縮小 */
+}
+
+.sidebar-header h3 {
+  margin: 0 0 5px 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.selected-date {
+  color: #666;
+  font-size: 14px;
+}
+
+.daily-tasks {
+  margin-bottom: 20px; /* マージンを縮小 */
+}
+
+.daily-task {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  margin-bottom: 8px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.daily-task:hover {
+  background-color: #e9ecef;
+}
+
+.task-info {
+  flex: 1;
+}
+
+.task-title {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.task-meta {
+  font-size: 12px;
+  color: #666;
+}
+
+.task-priority-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.quick-add-section {
+  border-top: 1px solid #e9ecef;
+  padding-top: 15px; /* パディングを縮小 */
+}
+
+.quick-add-section h4 {
+  margin: 0 0 12px 0; /* マージンを縮小 */
+  font-size: 16px;
+  color: #333;
+}
+
+.quick-add-form {
+  display: flex;
+  gap: 8px;
+}
+
+.quick-add-form input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.quick-add-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.quick-add-btn:hover {
+  background-color: #218838;
+}
+
+/* 週表示用のスタイル */
+.calendar-week-view {
+  height: 100%;
+}
+
+.week-grid {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.week-header {
+  display: flex;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.week-time-column {
+  width: 80px;
+  padding: 15px 8px;
+  text-align: center;
+  font-weight: 600;
+  color: #333;
+  border-right: 1px solid #e9ecef;
+}
+
+.week-day-headers {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.week-day-header {
+  padding: 15px 8px;
+  text-align: center;
+  font-weight: 600;
+  color: #333;
+  border-right: 1px solid #e9ecef;
+}
+
+.week-body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.week-hour-row {
+  display: flex;
+  min-height: 50px;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.week-hour-label {
+  width: 80px;
+  padding: 8px;
+  border-right: 1px solid #e9ecef;
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+}
+
+.week-hour-cells {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.week-hour-cell {
+  border-right: 1px solid #f1f3f4;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.week-hour-cell:hover {
+  background-color: #f8f9fa;
+}
+
+/* レスポンシブ対応 - ガントチャートとカレンダー */
+@media screen and (max-width: 768px) {
+  .gantt-controls,
+  .calendar-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+
+  .gantt-chart {
+    flex-direction: column;
+    overflow-x: auto;
+  }
+
+  .gantt-task-list {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  .gantt-timeline {
+    min-width: 600px;
+  }
+
+  .calendar-container {
+    flex-direction: column;
+    height: auto;
+    gap: 15px;
+  }
+
+  .calendar-sidebar {
+    width: 100%;
+    order: -1;
+  }
+
+  .calendar-day {
+    min-height: 60px;
+    padding: 5px;
+  }
+
+  .day-tasks {
+    display: none; /* モバイルでは日付セルのタスクを非表示 */
+  }
+
+  .calendar-task {
+    display: none;
+  }
+
+  .gantt-legend {
+    gap: 10px;
+  }
+
+  .legend-item {
+    font-size: 12px;
+  }
+
+  .current-month {
+    font-size: 18px;
+    min-width: auto;
+  }
+
+  .current-period {
+    min-width: auto;
   }
 }

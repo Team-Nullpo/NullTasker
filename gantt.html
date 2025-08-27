@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ガントチャート - NullTasker</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="script.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- トグルボタン（サイドバーの外に配置） -->
+    <button id="sidebarToggle" class="toggle-btn">
+      <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- サイドバー -->
+    <aside class="sidebar" id="sidebar">
+      <div class="logo">
+        <img src="logo.png" alt="Logo" />
+        <!-- サイドバー内の非表示ボタン -->
+        <button id="sidebarHideBtn" class="sidebar-hide-btn">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+      </div>
+      <nav class="menu">
+        <a href="index.html"><i class="fas fa-home"></i> Home</a>
+        <a href="task.html"><i class="fas fa-tasks"></i> Task</a>
+        <a href="calendar.html"><i class="fas fa-calendar"></i> Calendar</a>
+        <a href="gantt.html" class="active"><i class="fas fa-chart-bar"></i> Gantt</a>
+        <a href="setting.html"><i class="fas fa-cog"></i> Setting</a>
+      </nav>
+      <div class="bottom-section">
+        <select id="projectSelect">
+          <option value="value1">Value</option>
+          <!-- 他のプロジェクト -->
+        </select>
+        <div class="user-icon">
+          <i class="fas fa-user-circle"></i>
+        </div>
+      </div>
+    </aside>
+
+    <!-- メインコンテンツ -->
+    <main class="main-content">
+      <div class="main-header">
+        <h1>ガントチャート</h1>
+      </div>
+      <div class="main-body">
+        <div class="gantt-container">
+          
+          <!-- ガントチャートコントロール -->
+          <div class="gantt-controls">
+            <div class="time-scale-controls">
+              <label for="timeScale">表示期間:</label>
+              <select id="timeScale">
+                <option value="day">日</option>
+                <option value="week" selected>週</option>
+                <option value="month">月</option>
+              </select>
+            </div>
+            
+            <div class="date-navigation">
+              <button id="prevPeriod" class="nav-btn">
+                <i class="fas fa-chevron-left"></i> 前
+              </button>
+              <span id="currentPeriod" class="current-period">2025年8月</span>
+              <button id="nextPeriod" class="nav-btn">
+                次 <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+
+            <div class="gantt-actions">
+              <button class="btn-secondary" onclick="toggleExpand()">
+                <i class="fas fa-expand-arrows-alt"></i> 展開/縮小
+              </button>
+              <button class="btn-secondary" onclick="exportGantt()">
+                <i class="fas fa-download"></i> エクスポート
+              </button>
+            </div>
+          </div>
+
+          <!-- ガントチャート本体 -->
+          <div class="gantt-chart" id="ganttChart">
+            <!-- タスクリスト部分 -->
+            <div class="gantt-task-list">
+              <div class="gantt-task-header">
+                <div class="task-name-column">タスク名</div>
+                <div class="task-assignee-column">担当者</div>
+                <div class="task-duration-column">期間</div>
+              </div>
+              <div class="gantt-task-rows" id="ganttTaskRows">
+                <!-- タスク行がここに動的に生成されます -->
+              </div>
+            </div>
+
+            <!-- タイムライン部分 -->
+            <div class="gantt-timeline">
+              <div class="gantt-timeline-header" id="ganttTimelineHeader">
+                <!-- タイムライン ヘッダーがここに生成されます -->
+              </div>
+              <div class="gantt-timeline-body" id="ganttTimelineBody">
+                <!-- ガントバーがここに生成されます -->
+              </div>
+            </div>
+          </div>
+
+          <!-- ガントチャートの凡例 -->
+          <div class="gantt-legend">
+            <div class="legend-item">
+              <div class="legend-color high"></div>
+              <span>高優先度</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color medium"></div>
+              <span>中優先度</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color low"></div>
+              <span>低優先度</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color completed"></div>
+              <span>完了</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+
+    <!-- スマートフォン専用ボトムナビゲーション -->
+    <nav class="bottom-navigation">
+      <a href="index.html" class="nav-item">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+      </a>
+      <a href="task.html" class="nav-item">
+        <i class="fas fa-tasks"></i>
+        <span>Task</span>
+      </a>
+      <a href="calendar.html" class="nav-item">
+        <i class="fas fa-calendar"></i>
+        <span>Calendar</span>
+      </a>
+      <a href="gantt.html" class="nav-item active">
+        <i class="fas fa-chart-bar"></i>
+        <span>Gantt</span>
+      </a>
+      <a href="setting.html" class="nav-item">
+        <i class="fas fa-cog"></i>
+        <span>Setting</span>
+      </a>
+    </nav>
+
+  </div>
+
+  <!-- タスク詳細モーダル -->
+  <div id="taskDetailModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>タスク詳細</h2>
+        <button class="close-btn" id="closeTaskDetail">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="task-detail-content" id="taskDetailContent">
+        <!-- タスク詳細がここに表示されます -->
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
