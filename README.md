@@ -1,7 +1,7 @@
 # NullTasker
 
 <div align="center">
-  <img src="logo.png" alt="NullTasker Logo" width="300">
+  <img src="src/assets/logo.png" alt="NullTasker Logo" width="300">
   <p><strong>チーム向け総合タスク管理システム</strong></p>
   <p>効率的なプロジェクト管理とチームコラボレーションを実現</p>
 </div>
@@ -24,7 +24,7 @@ NullTaskerは、学生向けのWebベースのタスク管理システムです�
 
 ### 前提条件
 
-- Node.js 16.0.0以上
+- Node.js 14.0.0以上
 - npm または yarn
 - モダンブラウザ（Chrome, Firefox, Safari, Edge）
 
@@ -32,8 +32,8 @@ NullTaskerは、学生向けのWebベースのタスク管理システムです�
 
 ```bash
 # リポジトリのクローン
-git clone https://github.com/Team-Nullpo/nulltasker-v0.git
-cd nulltasker-v0
+git clone https://github.com/Team-Nullpo/NullTasker.git
+cd NullTasker
 
 # 依存関係のインストール
 npm install
@@ -56,17 +56,14 @@ npm start
 ## 📁 プロジェクト構造
 
 ```
-nulltasker-v0/
-├── LICENSE                    # ライセンスファイル
-├── README.md                  # メインドキュメント
-├── package.json              # Node.js プロジェクト設定
-├── package-lock.json          # 依存関係ロックファイル
+NullTasker/
+├── LICENSE                     # ライセンスファイル
+├── README.md                   # メインドキュメント
+├── package.json               # Node.js プロジェクト設定
 ├── server.js                  # バックエンドサーバー
 ├── config/                    # 設定・データファイル
 │   ├── settings.json          # アプリケーション設定
 │   └── tickets.json           # タスクデータ
-├── docs/                      # ドキュメント
-│   └── README.md              # ドキュメント用README
 ├── public/                    # 静的ファイル（将来の拡張用）
 └── src/                       # ソースコード
     ├── assets/                # アセット（画像等）
@@ -79,9 +76,22 @@ nulltasker-v0/
     │   ├── setting.html       # 設定
     │   └── debug-storage.html # デバッグ用
     ├── scripts/               # JavaScript
-    │   └── script.js          # メインスクリプト
+    │   ├── main.js            # メインエントリーポイント
+    │   ├── script.js          # メインスクリプト
+    │   ├── task-manager.js    # タスク管理機能
+    │   ├── calendar-manager.js # カレンダー機能
+    │   ├── gantt-manager.js   # ガントチャート機能
+    │   ├── settings-manager.js # 設定管理機能
+    │   ├── sidebar.js         # サイドバー制御
+    │   └── utils.js           # 共通ユーティリティ
     └── styles/                # CSS
-        └── styles.css         # メインスタイルシート
+        ├── styles.css         # メインスタイルシート
+        ├── base.css           # ベーススタイル
+        ├── components.css     # コンポーネントスタイル
+        ├── layout.css         # レイアウトスタイル
+        ├── pages.css          # ページ固有スタイル
+        ├── responsive.css     # レスポンシブデザイン
+        └── sidebar.css        # サイドバースタイル
 ```
 
 ## 🎯 詳細機能
@@ -154,18 +164,32 @@ nulltasker-v0/
 #### 設定データ（settings.json）
 ```json
 {
-  "categories": ["企画", "開発", "デザイン", "テスト", "ドキュメント"],
-  "users": ["田中太郎", "佐藤花子", "山田次郎"],
+  "categories": [
+    "企画",
+    "開発", 
+    "デザイン",
+    "テスト",
+    "ドキュメント",
+    "会議",
+    "その他"
+  ],
+  "users": [
+    "田中太郎",
+    "佐藤花子", 
+    "山田次郎",
+    "鈴木美咲",
+    "高橋健一"
+  ],
   "priorities": [
-    {"value": "high", "label": "高優先度", "color": "#dc3545"},
-    {"value": "medium", "label": "中優先度", "color": "#ffc107"},
-    {"value": "low", "label": "低優先度", "color": "#28a745"}
+    {"value": "high", "label": "高優先度", "color": "#c62828"},
+    {"value": "medium", "label": "中優先度", "color": "#ef6c00"},
+    {"value": "low", "label": "低優先度", "color": "#2e7d32"}
   ],
   "statuses": [
-    {"value": "todo", "label": "未着手", "color": "#6c757d"},
-    {"value": "in_progress", "label": "進行中", "color": "#007bff"},
-    {"value": "review", "label": "レビュー中", "color": "#fd7e14"},
-    {"value": "done", "label": "完了", "color": "#28a745"}
+    {"value": "todo", "label": "未着手", "color": "#666"},
+    {"value": "in_progress", "label": "進行中", "color": "#1976d2"},
+    {"value": "review", "label": "レビュー中", "color": "#f57c00"},
+    {"value": "done", "label": "完了", "color": "#388e3c"}
   ]
 }
 ```
@@ -199,26 +223,22 @@ nulltasker-v0/
 - **データクリア**: 全データの一括削除機能
 - **デバッグモード**: 開発者向けストレージ詳細表示
 
-## 🔧 API仕様
+### API仕様
 
 ### タスクAPI
 ```http
 GET  /api/tasks          # 全タスク取得
-POST /api/tasks          # 新規タスク作成
-PUT  /api/tasks/:id      # タスク更新
-DELETE /api/tasks/:id    # タスク削除
+POST /api/tasks          # タスクデータ保存
 ```
 
 ### バックアップAPI
 ```http
-GET  /api/backup         # データバックアップ
-POST /api/restore        # データ復元
+POST /api/backup         # データバックアップ
 ```
 
 ### 設定API
 ```http
 GET  /api/settings       # 設定取得
-PUT  /api/settings       # 設定更新
 ```
 
 ## 🛠️ 開発・カスタマイズ
@@ -236,8 +256,8 @@ DEBUG=nulltasker:* npm run dev
 ```
 
 ### カスタマイズポイント
-- **テーマ変更**: `styles.css`でカラースキーム調整
-- **機能拡張**: `script.js`のクラス構造で機能追加
+- **テーマ変更**: `src/styles/`ディレクトリのCSSファイルでカラースキーム調整
+- **機能拡張**: `src/scripts/`の各マネージャークラスで機能追加
 - **データスキーマ**: JSONスキーマの拡張・変更
 - **UI拡張**: HTMLテンプレートとCSSスタイル追加
 
@@ -282,9 +302,9 @@ MIT License - 詳細は [LICENSE](LICENSE) ファイルを参照してくださ�
 
 ## 📞 サポート
 
-- **Issues**: [GitHub Issues](https://github.com/Team-Nullpo/nulltasker/issues)
-- **Wiki**: [プロジェクトWiki](https://github.com/Team-Nullpo/nulltasker/wiki)
-- **Discussions**: [GitHub Discussions](https://github.com/Team-Nullpo/nulltasker/discussions)
+- **Issues**: [GitHub Issues](https://github.com/Team-Nullpo/NullTasker/issues)
+- **Wiki**: [プロジェクトWiki](https://github.com/Team-Nullpo/NullTasker/wiki)
+- **Discussions**: [GitHub Discussions](https://github.com/Team-Nullpo/NullTasker/discussions)
 
 ---
 
