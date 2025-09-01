@@ -1,43 +1,4 @@
 {
-  "tasks": [
-    {
-      "id": "task_002",
-      "title": "チームミーティングの準備",
-      "description": "週次チームミーティングの議題と資料を準備する",
-      "assignee": "佐藤花子",
-      "dueDate": "2024-01-10",
-      "priority": "medium",
-      "category": "会議",
-      "progress": 100,
-      "status": "done",
-      "createdAt": "2024-01-01T09:00:00Z"
-    },
-    {
-      "id": "task_1755949613706_7",
-      "title": "aaa",
-      "description": "",
-      "assignee": "鈴木美咲",
-      "dueDate": "2025-08-07",
-      "priority": "high",
-      "category": "開発",
-      "status": "todo",
-      "progress": 0,
-      "createdAt": "2025-08-23T11:46:53.706Z",
-      "updatedAt": "2025-08-23T11:46:53.706Z"
-    },
-    {
-      "id": "task_1755921284666_283",
-      "title": "名簿作成",
-      "description": "名簿",
-      "assignee": "高橋健一",
-      "dueDate": "2025-08-23",
-      "priority": "high",
-      "category": "開発",
-      "status": "todo",
-      "progress": 0,
-      "createdAt": "2025-08-23T03:54:44.666Z",
-      "updatedAt": "2025-08-23T03:54:44.666Z"
-    }
-  ],
-  "lastUpdated": "2025-08-23T04:56:16.227Z"
+  "tasks": [],
+  "lastUpdated": "2025-09-01T05:45:28.669Z"
 }

@@ -1,4 +1,5 @@
 import { Utils } from './utils.js';
+import { authManager } from './auth.js';
 
 // タスク管理クラス
 export class TaskManager {
@@ -19,7 +20,12 @@ export class TaskManager {
 
   async loadSettings() {
     try {
-      const response = await fetch('/config/settings.json');
+      const response = await fetch('/api/settings', {
+        headers: authManager.getAuthHeaders()
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       this.settings = await response.json();
     } catch (error) {
       console.error('設定の読み込みに失敗しました:', error);
@@ -46,26 +52,45 @@ export class TaskManager {
   }
 
   async loadTasks() {
-    // ローカルストレージから読み込み
-    this.tasks = Utils.getFromStorage('tasks', []);
-    
-    // ローカルストレージにない場合はtickets.jsonから初期データを読み込む
-    if (this.tasks.length === 0) {
-      try {
-        const response = await fetch('/config/tickets.json');
-        if (response.ok) {
-          const data = await response.json();
-          this.tasks = data.tasks || [];
-          Utils.saveToStorage('tasks', this.tasks);
-        }
-      } catch (error) {
-        console.error('タスクの読み込みに失敗しました:', error);
+    try {
+      // APIからタスクデータを取得
+      const response = await fetch('/api/tasks', {
+        headers: authManager.getAuthHeaders()
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+      
+      const data = await response.json();
+      this.tasks = data.tasks || [];
+    } catch (error) {
+      console.error('タスクの読み込みに失敗しました:', error);
+      // フォールバック：ローカルストレージから読み込み
+      this.tasks = Utils.getFromStorage('tasks', []);
     }
   }
 
-  saveTasks() {
-    Utils.saveToStorage('tasks', this.tasks);
+  async saveTasks() {
+    try {
+      // APIにタスクデータを保存
+      const response = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: authManager.getAuthHeaders(),
+        body: JSON.stringify({ tasks: this.tasks })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      console.log('タスク保存成功:', result.message);
+    } catch (error) {
+      console.error('タスクの保存に失敗しました:', error);
+      // フォールバック：ローカルストレージに保存
+      Utils.saveToStorage('tasks', this.tasks);
+    }
   }
 
   setupEventListeners() {
@@ -94,15 +119,15 @@ export class TaskManager {
     
     // フォーム送信
     if (elements.form) {
-      elements.form.addEventListener('submit', (e) => {
+      elements.form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        this.handleFormSubmit();
+        await this.handleFormSubmit();
       });
     }
 
     // タスクリストのイベント（イベントデリゲーション）
     if (elements.taskList) {
-      elements.taskList.addEventListener('click', (e) => this.handleTaskListClick(e));
+      elements.taskList.addEventListener('click', async (e) => await this.handleTaskListClick(e));
     }
 
     // フィルター機能
@@ -149,8 +174,8 @@ export class TaskManager {
     }
   }
 
-  handleTaskListClick(e) {
-    const button = e.target.closest('button.task-btn');
+  async handleTaskListClick(e) {
+    const button = e.target.closest('button');
     if (!button) return;
     
     const container = button.closest('.task-item');
@@ -158,7 +183,7 @@ export class TaskManager {
     if (!taskId) return;
 
     if (button.classList.contains('delete-task-btn')) {
-      this.deleteTask(taskId);
+      await this.deleteTask(taskId);
     } else if (button.classList.contains('edit-task-btn')) {
       this.editTask(taskId);
     }
@@ -204,7 +229,7 @@ export class TaskManager {
     this.resetEditState();
   }
 
-  handleFormSubmit() {
+  async handleFormSubmit() {
     const form = Utils.getElement('#taskForm');
     if (!form) return;
 
@@ -224,9 +249,9 @@ export class TaskManager {
     if (!this.validateTaskData(payload)) return;
 
     if (this.editingTaskId) {
-      this.updateTask(payload);
+      await this.updateTask(payload);
     } else {
-      this.addTask(payload);
+      await this.addTask(payload);
     }
   }
 
@@ -247,7 +272,7 @@ export class TaskManager {
     return true;
   }
 
-  addTask(payload) {
+  async addTask(payload) {
     const task = {
       id: Utils.generateId('task'),
       ...payload,
@@ -256,13 +281,13 @@ export class TaskManager {
     };
 
     this.tasks.push(task);
-    this.saveTasks();
+    await this.saveTasks();
     this.renderTasks();
     this.closeModal();
     Utils.showNotification('タスクが正常に追加されました。', 'success');
   }
 
-  updateTask(payload) {
+  async updateTask(payload) {
     const index = this.tasks.findIndex(t => t.id === this.editingTaskId);
     if (index !== -1) {
       this.tasks[index] = { 
@@ -270,7 +295,7 @@ export class TaskManager {
         ...payload, 
         updatedAt: new Date().toISOString() 
       };
-      this.saveTasks();
+      await this.saveTasks();
       this.renderTasks();
       this.closeModal();
       Utils.showNotification('タスクを更新しました。', 'success');
@@ -329,10 +354,10 @@ export class TaskManager {
     }
   }
 
-  deleteTask(taskId) {
+  async deleteTask(taskId) {
     if (confirm('このタスクを削除しますか？')) {
       this.tasks = this.tasks.filter(t => t.id !== taskId);
-      this.saveTasks();
+      await this.saveTasks();
       this.renderTasks();
       Utils.showNotification('タスクが削除されました。', 'success');
     }
@@ -419,19 +444,19 @@ export class TaskManager {
 
     // チェックボックスのイベント
     const checkbox = taskDiv.querySelector('input[type="checkbox"]');
-    checkbox.addEventListener('change', (e) => {
-      this.toggleTaskStatus(task.id, e.target.checked);
+    checkbox.addEventListener('change', async (e) => {
+      await this.toggleTaskStatus(task.id, e.target.checked);
     });
 
     return taskDiv;
   }
 
-  toggleTaskStatus(taskId, isDone) {
+  async toggleTaskStatus(taskId, isDone) {
     const task = this.tasks.find(t => t.id === taskId);
     if (task) {
       task.status = isDone ? 'done' : 'todo';
       task.progress = isDone ? 100 : 0;
-      this.saveTasks();
+      await this.saveTasks();
       this.renderTasks();
     }
   }

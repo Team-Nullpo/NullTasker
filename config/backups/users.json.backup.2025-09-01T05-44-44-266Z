@@ -1,0 +1,13 @@
+{
+  "users": [
+    {
+      "id": "admin",
+      "displayName": "管理者",
+      "email": "admin@nulltasker.com",
+      "password": "$2b$10$RiZky4vC9rq4qgolc79uc.d8GCvpXz5tmA5gaFxBlv0wVpuUpsI0O",
+      "createdAt": "2025-09-01T00:00:00.000Z",
+      "lastLogin": "2025-09-01T05:34:25.359Z"
+    }
+  ],
+  "lastUpdated": "2025-09-01T05:34:25.359Z"
+}

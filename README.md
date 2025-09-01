@@ -12,7 +12,9 @@ NullTaskerは、学生向けのWebベースのタスク管理システムです�
 
 ### 🌟 主要機能
 
-- **📊 ダッシュボード**: プロジェクト全体の進捗を一目で確認
+- **� ユーザー認証**: セキュアなログイン・ログアウト機能
+- **👤 ユーザー管理**: ログインID・表示名・メールアドレス・パスワード管理
+- **�📊 ダッシュボード**: プロジェクト全体の進捗を一目で確認
 - **✅ タスク管理**: 詳細なタスク作成・編集・追跡機能
 - **📈 ガントチャート**: 視覚的なプロジェクトスケジュール管理
 - **📅 カレンダー**: 期日と予定の統合管理
@@ -53,6 +55,14 @@ npm start
 
 アプリケーションは `http://localhost:3000` で起動します。
 
+### 初回ログイン
+
+デフォルトの管理者アカウント：
+- **ログインID**: `admin`
+- **パスワード**: `admin123`
+
+セキュリティのため、初回ログイン後にパスワードの変更を推奨します。
+
 ## 📁 プロジェクト構造
 
 ```
@@ -63,13 +73,15 @@ NullTasker/
 ├── server.js                  # バックエンドサーバー
 ├── config/                    # 設定・データファイル
 │   ├── settings.json          # アプリケーション設定
-│   └── tickets.json           # タスクデータ
+│   ├── tickets.json           # タスクデータ
+│   └── users.json             # ユーザー認証データ
 ├── public/                    # 静的ファイル（将来の拡張用）
 └── src/                       # ソースコード
     ├── assets/                # アセット（画像等）
     │   └── logo.png           # アプリケーションロゴ
     ├── pages/                 # HTMLページ
     │   ├── index.html         # ダッシュボード
+    │   ├── login.html         # ログインページ
     │   ├── task.html          # タスク管理
     │   ├── gantt.html         # ガントチャート
     │   ├── calendar.html      # カレンダー
@@ -78,6 +90,8 @@ NullTasker/
     ├── scripts/               # JavaScript
     │   ├── main.js            # メインエントリーポイント
     │   ├── script.js          # メインスクリプト
+    │   ├── auth.js            # 認証管理機能
+    │   ├── login.js           # ログインページ機能
     │   ├── task-manager.js    # タスク管理機能
     │   ├── calendar-manager.js # カレンダー機能
     │   ├── gantt-manager.js   # ガントチャート機能
@@ -86,6 +100,7 @@ NullTasker/
     │   └── utils.js           # 共通ユーティリティ
     └── styles/                # CSS
         ├── styles.css         # メインスタイルシート
+        ├── login.css          # ログインページスタイル
         ├── base.css           # ベーススタイル
         ├── components.css     # コンポーネントスタイル
         ├── layout.css         # レイアウトスタイル
@@ -95,6 +110,14 @@ NullTasker/
 ```
 
 ## 🎯 詳細機能
+
+### ユーザー認証
+- **セキュアログイン**: bcryptによるパスワードハッシュ化
+- **JWTトークン**: JSON Web Tokenによるセッション管理
+- **自動ログアウト**: 一定期間後の自動セッション終了
+- **ログイン状態保持**: "ログイン状態を保持する"オプション
+- **認証保護**: 全ページでのログイン状態チェック
+- **ユーザー情報表示**: ログイン中のユーザー情報表示
 
 ### タスク管理
 - **作成・編集**: 直感的なモーダルフォームでタスク管理
@@ -133,6 +156,8 @@ NullTasker/
 ### バックエンド
 - **Node.js**: サーバーサイドJavaScript
 - **Express.js**: Webアプリケーションフレームワーク
+- **bcrypt**: パスワードハッシュ化ライブラリ
+- **jsonwebtoken**: JWT認証トークン管理
 - **JSON**: ファイルベースデータストレージ
 - **CORS**: クロスオリジンリクエスト対応
 
@@ -158,6 +183,23 @@ NullTasker/
     }
   ],
   "lastUpdated": "2025-08-27T15:30:00.000Z"
+}
+```
+
+#### ユーザーデータ（users.json）
+```json
+{
+  "users": [
+    {
+      "id": "admin",
+      "displayName": "管理者",
+      "email": "admin@nulltasker.com",
+      "password": "$2b$10$RiZky4vC9rq4qgolc79uc.d8GCvpXz5tmA5gaFxBlv0wVpuUpsI0O",
+      "createdAt": "2025-09-01T00:00:00.000Z",
+      "lastLogin": null
+    }
+  ],
+  "lastUpdated": "2025-09-01T00:00:00.000Z"
 }
 ```
 
@@ -225,20 +267,29 @@ NullTasker/
 
 ### API仕様
 
+### 認証API
+```http
+POST /api/login          # ユーザーログイン
+POST /api/register       # ユーザー登録
+POST /api/logout         # ログアウト
+POST /api/validate-token # トークン検証
+GET  /api/user           # ユーザー情報取得
+```
+
 ### タスクAPI
 ```http
-GET  /api/tasks          # 全タスク取得
-POST /api/tasks          # タスクデータ保存
+GET  /api/tasks          # 全タスク取得（認証必須）
+POST /api/tasks          # タスクデータ保存（認証必須）
 ```
 
 ### バックアップAPI
 ```http
-POST /api/backup         # データバックアップ
+POST /api/backup         # データバックアップ（認証必須）
 ```
 
 ### 設定API
 ```http
-GET  /api/settings       # 設定取得
+GET  /api/settings       # 設定取得（認証必須）
 ```
 
 ## 🛠️ 開発・カスタマイズ
