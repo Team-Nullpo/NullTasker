@@ -1,5 +1,5 @@
 import { Utils } from './utils.js';
-import { authManager } from './auth.js';
+import { SimpleAuth } from './simple-auth.js';
 
 // タスク管理クラス
 export class TaskManager {
@@ -12,6 +12,7 @@ export class TaskManager {
 
   async init() {
     await this.loadSettings();
+    await this.loadUsers(); // ユーザーリストを読み込み
     await this.loadTasks();
     this.setupEventListeners();
     this.populateFormOptions();
@@ -21,7 +22,7 @@ export class TaskManager {
   async loadSettings() {
     try {
       const response = await fetch('/api/settings', {
-        headers: authManager.getAuthHeaders()
+        headers: SimpleAuth.getAuthHeaders()
       });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -36,7 +37,7 @@ export class TaskManager {
   getDefaultSettings() {
     return {
       categories: ['企画', '開発', 'デザイン', 'テスト', 'ドキュメント', '会議', 'その他'],
-      users: ['田中太郎', '佐藤花子', '山田次郎', '鈴木美咲', '高橋健一'],
+      users: [], // 初期値を空配列に
       priorities: [
         { value: 'high', label: '高優先度', color: '#c62828' },
         { value: 'medium', label: '中優先度', color: '#ef6c00' },
@@ -51,11 +52,40 @@ export class TaskManager {
     };
   }
 
+  async loadUsers() {
+    try {
+      const response = await fetch('/api/users', {
+        headers: SimpleAuth.getAuthHeaders()
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      // ユーザーリストを設定に追加
+      this.settings.users = data.users.map(user => ({
+        value: user.id,
+        label: user.displayName || user.loginId
+      }));
+      
+    } catch (error) {
+      console.error('ユーザーの読み込みに失敗しました:', error);
+      // フォールバック：管理者と現在のユーザーのみ
+      const currentUser = SimpleAuth.getCurrentUser();
+      this.settings.users = [
+        { value: 'admin', label: '管理者' },
+        { value: currentUser?.id || 'current', label: currentUser?.displayName || 'あなた' }
+      ];
+    }
+  }
+
   async loadTasks() {
     try {
       // APIからタスクデータを取得
       const response = await fetch('/api/tasks', {
-        headers: authManager.getAuthHeaders()
+        headers: SimpleAuth.getAuthHeaders()
       });
       
       if (!response.ok) {
@@ -76,7 +106,7 @@ export class TaskManager {
       // APIにタスクデータを保存
       const response = await fetch('/api/tasks', {
         method: 'POST',
-        headers: authManager.getAuthHeaders(),
+        headers: SimpleAuth.getAuthHeaders(),
         body: JSON.stringify({ tasks: this.tasks })
       });
       
@@ -191,7 +221,7 @@ export class TaskManager {
 
   populateFormOptions() {
     const selectors = [
-      { id: '#taskAssignee', options: this.settings.users },
+      { id: '#taskAssignee', options: this.settings.users, hasValue: true },
       { id: '#taskCategory', options: this.settings.categories },
       { id: '#taskPriority', options: this.settings.priorities, hasValue: true },
       { id: '#taskStatus', options: this.settings.statuses, hasValue: true }
@@ -200,6 +230,13 @@ export class TaskManager {
     selectors.forEach(({ id, options, hasValue }) => {
       const select = Utils.getElement(id);
       if (select && options) {
+        // 既存のオプション（"選択してください"以外）をクリア
+        const firstOption = select.querySelector('option[value=""]');
+        select.innerHTML = '';
+        if (firstOption) {
+          select.appendChild(firstOption);
+        }
+
         options.forEach(option => {
           const optionElement = document.createElement('option');
           optionElement.value = hasValue ? option.value : option;

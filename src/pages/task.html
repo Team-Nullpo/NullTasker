@@ -4,9 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Task - NullTasker</title>
+  <link rel="stylesheet" href="../styles/base.css" />
+  <link rel="stylesheet" href="../styles/layout.css" />
+  <link rel="stylesheet" href="../styles/components.css" />
+  <link rel="stylesheet" href="../styles/sidebar.css" />
+  <link rel="stylesheet" href="../styles/pages.css" />
+  <link rel="stylesheet" href="../styles/user-dropdown.css" />
+  <link rel="stylesheet" href="../styles/responsive.css" />
   <link rel="stylesheet" href="../styles/styles.css" />
-  <script type="module" src="../scripts/auth.js"></script>
-  <script type="module" src="../scripts/script.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
 <body>
@@ -38,7 +43,7 @@
           <option value="value1">Project 1</option>
           <option value="value2">Project 2</option>
         </select>
-        <div class="user-icon">
+        <div class="user-icon" id="userIcon">
           <i class="fas fa-user-circle"></i>
         </div>
       </div>
@@ -124,9 +129,6 @@
             <label for="taskAssignee">担当者 *</label>
             <select id="taskAssignee" name="assignee" required>
               <option value="">選択してください</option>
-              <option value="田中太郎">田中太郎</option>
-              <option value="佐藤花子">佐藤花子</option>
-              <option value="鈴木次郎">鈴木次郎</option>
             </select>
           </div>
           
@@ -212,5 +214,7 @@
     </div>
   </div>
 
+  <!-- JavaScriptファイルの読み込み -->
+  <script type="module" src="../scripts/main.js"></script>
 </body>
 </html>

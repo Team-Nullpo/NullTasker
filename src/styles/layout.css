@@ -4,13 +4,14 @@
 
 /* メインコンテンツ */
 .main-content {
-  flex-grow: 1;
+  flex: 1;
   background-color: #fff;
-  padding: var(--spacing-md);
   width: 100%;
   overflow-y: auto;
   margin-left: 380px;
   transition: margin-left 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .main-content.expanded {
@@ -18,30 +19,50 @@
 }
 
 .main-header {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-md);
-  background-color: var(--light-bg);
-  padding: var(--spacing-md);
-  border-radius: var(--border-radius-sm);
-  border: 1px solid var(--primary-color);
+  background: white;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e0e0e0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
 }
 
 .main-header h1 {
-  font-size: var(--font-size-xxl);
-  color: var(--gray-800);
+  color: #333;
+  font-size: 1.75rem;
   margin: 0;
 }
 
+.breadcrumb {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.breadcrumb a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+/* メインボディ */
 .main-body {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+/* ページ固有のコンテナ */
+.page-container {
   background-color: #f9f9f9;
   padding: var(--spacing-md);
   border-radius: var(--border-radius-sm);
   border: 1px solid var(--success-color);
 }
 
-.main-body p {
+.page-container p {
   color: var(--gray-800);
   font-size: var(--font-size-base);
   margin: 0;

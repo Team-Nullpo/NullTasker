@@ -65,10 +65,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (/\d/.test(password)) score++;
     else feedback.push('数字');
 
-    // 記号チェック
-    if (/[@$!%*?&]/.test(password)) score++;
-    else feedback.push('記号');
-
     // 強度表示
     if (score < 3) {
       passwordStrength.className = 'password-strength weak';
@@ -202,8 +198,8 @@ document.addEventListener('DOMContentLoaded', function() {
       showError('パスワードは8文字以上で入力してください。');
       return false;
     }
-    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(data.password)) {
-      showError('パスワードは大文字・小文字・数字・記号をそれぞれ1文字以上含む必要があります。');
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]/.test(data.password)) {
+      showError('パスワードは大文字・小文字・数字をそれぞれ1文字以上含む必要があります。');
       return false;
     }
 

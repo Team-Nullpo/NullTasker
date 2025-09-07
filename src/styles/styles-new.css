@@ -1,9 +1,27 @@
 /* ==========================================================================
-   NullTasker - Main Styles (Modular Approach)
+   NullTasker - Modular CSS Structure
    ========================================================================== */
 
-/* このファイルは base.css, layout.css, components.css, sidebar.css, 
-   pages.css, user-dropdown.css, responsive.css と組み合わせて使用します */
+/* 基本スタイル */
+@import url('./base.css');
+
+/* レイアウト */
+@import url('./layout.css');
+
+/* コンポーネント */
+@import url('./components.css');
+
+/* サイドバー */
+@import url('./sidebar.css');
+
+/* ページ固有スタイル */
+@import url('./pages.css');
+
+/* ユーザードロップダウンメニュー */
+@import url('./user-dropdown.css');
+
+/* レスポンシブ対応 */
+@import url('./responsive.css');
 
 /* ==========================================================================
    Legacy Compatibility - 既存の依存関係維持
@@ -22,10 +40,54 @@ input, select, textarea, button {
   background-color: #f8f9fa;
 }
 
-/* メインコンテンツエリア（layout.cssと重複回避のため削除される予定） */
-/* 現在layout.cssで管理されている */
+/* メインコンテンツエリア */
+.main-content {
+  flex: 1;
+  margin-left: 380px;
+  transition: margin-left 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
 
-/* ヘッダーとボディはlayout.cssで管理されている */
+.main-content.expanded {
+  margin-left: 0;
+}
+
+/* メインヘッダー */
+.main-header {
+  background: white;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e0e0e0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.main-header h1 {
+  color: #333;
+  font-size: 1.75rem;
+  margin: 0;
+}
+
+.breadcrumb {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.breadcrumb a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+/* メインボディ */
+.main-body {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
 
 /* セクション共通スタイル */
 .settings-section {

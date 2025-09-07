@@ -4,8 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Settings - NullTasker</title>
+  <link rel="stylesheet" href="../styles/base.css" />
+  <link rel="stylesheet" href="../styles/layout.css" />
+  <link rel="stylesheet" href="../styles/components.css" />
+  <link rel="stylesheet" href="../styles/sidebar.css" />
+  <link rel="stylesheet" href="../styles/pages.css" />
+  <link rel="stylesheet" href="../styles/user-dropdown.css" />
+  <link rel="stylesheet" href="../styles/responsive.css" />
   <link rel="stylesheet" href="../styles/styles.css" />
-  <script type="module" src="../scripts/auth.js"></script>
+  <script type="module" src="../scripts/simple-auth.js"></script>
   <script type="module" src="../scripts/script.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
@@ -37,13 +44,8 @@
           <option value="value1">Project 1</option>
           <option value="value2">Project 2</option>
         </select>
-        <div class="user-section">
-          <div class="user-icon">
-            <i class="fas fa-user-circle"></i>
-          </div>
-          <button id="logoutBtn" class="logout-button">
-            <i class="fas fa-sign-out-alt"></i>
-          </button>
+        <div class="user-icon" id="userIcon">
+          <i class="fas fa-user-circle"></i>
         </div>
       </div>
     </aside>
@@ -181,5 +183,7 @@
 
   <input type="file" id="importFileInput" style="display: none;" accept=".json">
 
+  <!-- JavaScriptファイルの読み込み -->
+  <script type="module" src="../scripts/main.js"></script>
 </body>
 </html>

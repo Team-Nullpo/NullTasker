@@ -1,4 +1,5 @@
 import { Utils } from './utils.js';
+import { SimpleAuth } from './simple-auth.js';
 
 // サイドバー管理クラス
 export class SidebarManager {
@@ -14,6 +15,7 @@ export class SidebarManager {
     this.initializeElements();
     this.initializeSidebar();
     this.setupEventListeners();
+    this.initializeUserIcon();
   }
 
   initializeElements() {
@@ -200,6 +202,15 @@ export class SidebarManager {
         this.sidebar.style.display = 'flex';
         this.applySidebarState();
       }
+    }
+  }
+
+  initializeUserIcon() {
+    // ユーザーアイコンのドロップダウンメニューを初期化
+    try {
+      SimpleAuth.initUserIcon();
+    } catch (error) {
+      console.error('ユーザーアイコン初期化エラー:', error);
     }
   }
 }

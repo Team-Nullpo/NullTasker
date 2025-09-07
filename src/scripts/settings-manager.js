@@ -32,7 +32,7 @@ export class SettingsManager {
     if (Utils.getElement('.settings-container')) {
       this.renderSettings();
       this.setupEventListeners();
-      this.setupSettingsButtons(); // 新しいメソッド追加
+      this.setupSettingsButtons();
     }
   }
 
@@ -88,7 +88,7 @@ export class SettingsManager {
   }
 
   renderUsers() {
-    const usersList = Utils.getElement('#membersList'); // 修正: HTMLのIDに合わせる
+    const usersList = Utils.getElement('#membersList');
     if (!usersList) return;
 
     usersList.innerHTML = '';
@@ -128,8 +128,9 @@ export class SettingsManager {
   renderNotificationSettings() {
     const settings = [
       { id: '#emailNotification', value: this.settings.notifications.email },
-      { id: '#desktopNotification', value: this.settings.notifications.desktop },
-      { id: '#taskReminder', value: this.settings.notifications.taskReminder }
+      { id: '#desktopNotifications', value: this.settings.notifications.desktop },
+      { id: '#deadlineNotifications', value: this.settings.notifications.taskReminder },
+      { id: '#newTaskNotifications', value: false }
     ];
 
     settings.forEach(({ id, value }) => {
@@ -157,9 +158,12 @@ export class SettingsManager {
     const storageText = Utils.getElement('.storage-info p');
     
     if (storageBar && storageText) {
-      const percentage = Math.min((storageUsed / (10 * 1024 * 1024)) * 100, 100);
+      const maxStorage = 10 * 1024 * 1024; // 10MB
+      const percentage = Math.min((storageUsed / maxStorage) * 100, 100);
       storageBar.style.width = `${percentage}%`;
-      storageText.textContent = `使用量: ${Utils.formatBytes(storageUsed)} / 10MB`;
+      
+      const usedMB = (storageUsed / (1024 * 1024)).toFixed(1);
+      storageText.textContent = `${percentage.toFixed(1)}% 使用中 (${usedMB}MB / 10MB)`;
     }
   }
 
@@ -167,7 +171,7 @@ export class SettingsManager {
     let total = 0;
     for (let key in localStorage) {
       if (localStorage.hasOwnProperty(key)) {
-        total += localStorage[key].length;
+        total += new Blob([localStorage[key]]).size;
       }
     }
     return total;
@@ -208,8 +212,8 @@ export class SettingsManager {
   setupNotificationSettings() {
     const notifications = [
       { id: '#emailNotification', key: 'email' },
-      { id: '#desktopNotification', key: 'desktop' },
-      { id: '#taskReminder', key: 'taskReminder' }
+      { id: '#desktopNotifications', key: 'desktop' },
+      { id: '#deadlineNotifications', key: 'taskReminder' }
     ];
     
     notifications.forEach(({ id, key }) => {
@@ -297,7 +301,7 @@ export class SettingsManager {
   }
 
   addMember() {
-    const memberInput = Utils.getElement('#memberInput'); // 修正: HTMLのIDに合わせる
+    const memberInput = Utils.getElement('#memberInput');
     if (!memberInput) return;
 
     const userName = memberInput.value.trim();
@@ -315,15 +319,15 @@ export class SettingsManager {
   }
 
   removeUser(index) {
-    if (confirm('このユーザーを削除しますか？')) {
+    if (confirm('このメンバーを削除しますか？')) {
       this.settings.users.splice(index, 1);
       this.renderUsers();
-      Utils.showNotification('ユーザーが削除されました', 'success');
+      Utils.showNotification('メンバーが削除されました', 'success');
     }
   }
 
   addCategory() {
-    const categoryInput = Utils.getElement('#categoryInput'); // 修正: HTMLのIDに合わせる
+    const categoryInput = Utils.getElement('#categoryInput');
     if (!categoryInput) return;
 
     const categoryName = categoryInput.value.trim();
@@ -369,7 +373,7 @@ export class SettingsManager {
   }
 
   importData() {
-    const fileInput = Utils.getElement('#importFile');
+    const fileInput = Utils.getElement('#importFileInput');
     if (fileInput) fileInput.click();
   }
 

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>システム管理 - NullTasker</title>
+  <link rel="stylesheet" href="../styles/base.css" />
+  <link rel="stylesheet" href="../styles/layout.css" />
+  <link rel="stylesheet" href="../styles/components.css" />
+  <link rel="stylesheet" href="../styles/sidebar.css" />
+  <link rel="stylesheet" href="../styles/pages.css" />
+  <link rel="stylesheet" href="../styles/user-dropdown.css" />
+  <link rel="stylesheet" href="../styles/responsive.css" />
+  <link rel="stylesheet" href="../styles/styles.css" />
+  <link rel="stylesheet" href="../styles/admin.css" />
+  <script type="module" src="../scripts/simple-auth.js"></script>
+  <script type="module" src="../scripts/admin-manager.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- トグルボタン（サイドバーの外に配置） -->
+    <button id="toggleSidebar" class="toggle-btn">
+      <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- サイドバー -->
+    <aside class="sidebar" id="sidebar">
+      <div class="logo">
+        <img src="../assets/logo.png" alt="Logo" />
+        <button id="hideSidebar" class="sidebar-hide-btn">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+      </div>
+      <nav class="menu">
+        <a href="index.html"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="task.html"><i class="fas fa-tasks"></i><span>Task</span></a>
+        <a href="calendar.html"><i class="fas fa-calendar"></i><span>Calendar</span></a>
+        <a href="gantt.html"><i class="fas fa-chart-bar"></i><span>Gantt</span></a>
+        <a href="setting.html"><i class="fas fa-cog"></i><span>Project Settings</span></a>
+      </nav>
+      <div class="bottom-section">
+        <select id="projectSelect">
+          <option value="default">デフォルトプロジェクト</option>
+        </select>
+        <div class="user-icon" id="userIcon">
+          <i class="fas fa-user-circle"></i>
+        </div>
+      </div>
+    </aside>
+
+    <!-- メインコンテンツ -->
+    <main class="main-content" id="mainContent">
+      <div class="main-header">
+        <h1><i class="fas fa-cogs"></i> システム管理</h1>
+        <nav class="breadcrumb">
+          <a href="index.html">ホーム</a> > システム管理
+        </nav>
+      </div>
+      
+      <div class="main-body">
+        
+        <!-- 成功メッセージ -->
+        <div id="successMessage" class="alert alert-success" style="display: none;">
+          <i class="fas fa-check-circle"></i>
+          <span id="successText"></span>
+        </div>
+        
+        <!-- エラーメッセージ -->
+        <div id="errorMessage" class="alert alert-error" style="display: none;">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span id="errorText"></span>
+        </div>
+
+        <!-- 管理ダッシュボード -->
+        <section class="admin-dashboard">
+          <div class="dashboard-cards">
+            
+            <div class="dashboard-card" onclick="showSection('users')">
+              <div class="card-icon">
+                <i class="fas fa-users"></i>
+              </div>
+              <div class="card-content">
+                <h3>ユーザー管理</h3>
+                <p class="card-count" id="userCount">読み込み中...</p>
+                <p class="card-description">ユーザーの作成・編集・削除</p>
+              </div>
+            </div>
+
+            <div class="dashboard-card" onclick="showSection('projects')">
+              <div class="card-icon">
+                <i class="fas fa-project-diagram"></i>
+              </div>
+              <div class="card-content">
+                <h3>プロジェクト管理</h3>
+                <p class="card-count" id="projectCount">読み込み中...</p>
+                <p class="card-description">プロジェクトの作成・設定・削除</p>
+              </div>
+            </div>
+
+            <div class="dashboard-card" onclick="showSection('system')">
+              <div class="card-icon">
+                <i class="fas fa-server"></i>
+              </div>
+              <div class="card-content">
+                <h3>システム設定</h3>
+                <p class="card-count">-</p>
+                <p class="card-description">システム全体の設定</p>
+              </div>
+            </div>
+
+            <div class="dashboard-card" onclick="showSection('backup')">
+              <div class="card-icon">
+                <i class="fas fa-download"></i>
+              </div>
+              <div class="card-content">
+                <h3>バックアップ</h3>
+                <p class="card-count">-</p>
+                <p class="card-description">データのバックアップ・復元</p>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ユーザー管理セクション -->
+        <section id="usersSection" class="admin-section" style="display: none;">
+          <div class="section-header">
+            <h2><i class="fas fa-users"></i> ユーザー管理</h2>
+            <div class="section-actions">
+              <button class="btn btn-primary" onclick="showUserModal()">
+                <i class="fas fa-plus"></i> 新規ユーザー
+              </button>
+              <button class="btn btn-secondary" onclick="showSection('dashboard')">
+                <i class="fas fa-arrow-left"></i> ダッシュボードに戻る
+              </button>
+            </div>
+          </div>
+
+          <div class="data-table-container">
+            <table class="data-table" id="usersTable">
+              <thead>
+                <tr>
+                  <th>ログインID</th>
+                  <th>表示名</th>
+                  <th>メールアドレス</th>
+                  <th>権限</th>
+                  <th>所属プロジェクト</th>
+                  <th>最終ログイン</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="usersTableBody">
+                <!-- ユーザーデータが動的に挿入される -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- プロジェクト管理セクション -->
+        <section id="projectsSection" class="admin-section" style="display: none;">
+          <div class="section-header">
+            <h2><i class="fas fa-project-diagram"></i> プロジェクト管理</h2>
+            <div class="section-actions">
+              <button class="btn btn-primary" onclick="showProjectModal()">
+                <i class="fas fa-plus"></i> 新規プロジェクト
+              </button>
+              <button class="btn btn-secondary" onclick="showSection('dashboard')">
+                <i class="fas fa-arrow-left"></i> ダッシュボードに戻る
+              </button>
+            </div>
+          </div>
+
+          <div class="data-table-container">
+            <table class="data-table" id="projectsTable">
+              <thead>
+                <tr>
+                  <th>プロジェクト名</th>
+                  <th>説明</th>
+                  <th>オーナー</th>
+                  <th>メンバー数</th>
+                  <th>作成日</th>
+                  <th>最終更新</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="projectsTableBody">
+                <!-- プロジェクトデータが動的に挿入される -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- システム設定セクション -->
+        <section id="systemSection" class="admin-section" style="display: none;">
+          <div class="section-header">
+            <h2><i class="fas fa-server"></i> システム設定</h2>
+            <div class="section-actions">
+              <button class="btn btn-secondary" onclick="showSection('dashboard')">
+                <i class="fas fa-arrow-left"></i> ダッシュボードに戻る
+              </button>
+            </div>
+          </div>
+
+          <form id="systemSettingsForm" class="settings-form">
+            <div class="form-group">
+              <label for="systemName">システム名</label>
+              <input type="text" id="systemName" name="systemName" value="NullTasker">
+            </div>
+
+            <div class="form-group">
+              <label for="systemVersion">バージョン</label>
+              <input type="text" id="systemVersion" name="systemVersion" value="1.0.0" readonly>
+            </div>
+
+            <div class="form-group">
+              <label for="defaultTheme">デフォルトテーマ</label>
+              <select id="defaultTheme" name="defaultTheme">
+                <option value="light">ライト</option>
+                <option value="dark">ダーク</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="defaultLanguage">デフォルト言語</label>
+              <select id="defaultLanguage" name="defaultLanguage">
+                <option value="ja">日本語</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="allowUserRegistration" name="allowUserRegistration">
+                <span class="checkmark"></span>
+                ユーザー自己登録を許可
+              </label>
+            </div>
+
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="enableNotifications" name="enableNotifications" checked>
+                <span class="checkmark"></span>
+                通知機能を有効化
+              </label>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> 設定を保存
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <!-- バックアップセクション -->
+        <section id="backupSection" class="admin-section" style="display: none;">
+          <div class="section-header">
+            <h2><i class="fas fa-download"></i> バックアップ管理</h2>
+            <div class="section-actions">
+              <button class="btn btn-primary" onclick="createBackup()">
+                <i class="fas fa-download"></i> バックアップ作成
+              </button>
+              <button class="btn btn-secondary" onclick="showSection('dashboard')">
+                <i class="fas fa-arrow-left"></i> ダッシュボードに戻る
+              </button>
+            </div>
+          </div>
+
+          <div class="backup-actions">
+            <div class="backup-card">
+              <h3><i class="fas fa-database"></i> データバックアップ</h3>
+              <p>ユーザー、プロジェクト、タスクデータをバックアップします。</p>
+              <button class="btn btn-primary" onclick="downloadDataBackup()">
+                <i class="fas fa-download"></i> データをダウンロード
+              </button>
+            </div>
+
+            <div class="backup-card">
+              <h3><i class="fas fa-cog"></i> 設定バックアップ</h3>
+              <p>システム設定をバックアップします。</p>
+              <button class="btn btn-primary" onclick="downloadSettingsBackup()">
+                <i class="fas fa-download"></i> 設定をダウンロード
+              </button>
+            </div>
+
+            <div class="backup-card">
+              <h3><i class="fas fa-upload"></i> データ復元</h3>
+              <p>バックアップファイルからデータを復元します。</p>
+              <input type="file" id="restoreFile" accept=".json" style="display: none;">
+              <button class="btn btn-warning" onclick="document.getElementById('restoreFile').click()">
+                <i class="fas fa-upload"></i> ファイルを選択
+              </button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- ユーザーモーダル -->
+    <div id="userModal" class="modal" style="display: none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="userModalTitle">新規ユーザー</h3>
+          <button class="modal-close" onclick="closeUserModal()">&times;</button>
+        </div>
+        <form id="userForm">
+          <input type="hidden" id="userId" name="userId">
+          
+          <div class="form-group">
+            <label for="loginId">ログインID</label>
+            <input type="text" id="userLoginId" name="loginId" required>
+          </div>
+
+          <div class="form-group">
+            <label for="displayName">表示名</label>
+            <input type="text" id="userDisplayName" name="displayName" required>
+          </div>
+
+          <div class="form-group">
+            <label for="email">メールアドレス</label>
+            <input type="email" id="userEmail" name="email" required>
+          </div>
+
+          <div class="form-group">
+            <label for="role">権限</label>
+            <select id="userRole" name="role" required>
+              <option value="member">メンバー</option>
+              <option value="project_admin">プロジェクト管理者</option>
+              <option value="system_admin">システム管理者</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="passwordGroup">
+            <label for="password">パスワード</label>
+            <input type="password" id="userPassword" name="password">
+            <small class="form-help">編集時は空欄にするとパスワードは変更されません</small>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save"></i> 保存
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="closeUserModal()">
+              <i class="fas fa-times"></i> キャンセル
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- プロジェクトモーダル -->
+    <div id="projectModal" class="modal" style="display: none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="projectModalTitle">新規プロジェクト</h3>
+          <button class="modal-close" onclick="closeProjectModal()">&times;</button>
+        </div>
+        <form id="projectForm">
+          <input type="hidden" id="projectId" name="projectId">
+          
+          <div class="form-group">
+            <label for="projectName">プロジェクト名</label>
+            <input type="text" id="projectName" name="name" required>
+          </div>
+
+          <div class="form-group">
+            <label for="projectDescription">説明</label>
+            <textarea id="projectDescription" name="description" rows="3"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="projectOwner">オーナー</label>
+            <select id="projectOwner" name="owner" required>
+              <!-- ユーザーリストが動的に挿入される -->
+            </select>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save"></i> 保存
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="closeProjectModal()">
+              <i class="fas fa-times"></i> キャンセル
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- スマートフォン専用ボトムナビゲーション -->
+    <nav class="bottom-navigation">
+      <a href="index.html" class="nav-item">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+      </a>
+      <a href="task.html" class="nav-item">
+        <i class="fas fa-tasks"></i>
+        <span>Task</span>
+      </a>
+      <a href="calendar.html" class="nav-item">
+        <i class="fas fa-calendar"></i>
+        <span>Calendar</span>
+      </a>
+      <a href="gantt.html" class="nav-item">
+        <i class="fas fa-chart-bar"></i>
+        <span>Gantt</span>
+      </a>
+      <a href="setting.html" class="nav-item">
+        <i class="fas fa-cog"></i>
+        <span>Setting</span>
+      </a>
+    </nav>
+
+  </div>
+
+  <!-- JavaScriptファイルの読み込み -->
+  <script type="module" src="../scripts/main.js"></script>
+  <script type="module" src="../scripts/admin-manager.js"></script>
+</body>
+</html>

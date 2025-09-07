@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>個人設定 - NullTasker</title>
+  <link rel="stylesheet" href="../styles/base.css" />
+  <link rel="stylesheet" href="../styles/layout.css" />
+  <link rel="stylesheet" href="../styles/components.css" />
+  <link rel="stylesheet" href="../styles/sidebar.css" />
+  <link rel="stylesheet" href="../styles/pages.css" />
+  <link rel="stylesheet" href="../styles/user-dropdown.css" />
+  <link rel="stylesheet" href="../styles/responsive.css" />
+  <link rel="stylesheet" href="../styles/styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script type="module" src="../scripts/simple-auth.js"></script>
+  <script type="module" src="../scripts/user-profile.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- トグルボタン（サイドバーの外に配置） -->
+    <button id="toggleSidebar" class="toggle-btn">
+      <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- サイドバー -->
+    <aside class="sidebar" id="sidebar">
+      <div class="logo">
+        <img src="../assets/logo.png" alt="Logo" />
+        <button id="hideSidebar" class="sidebar-hide-btn">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+      </div>
+      <nav class="menu">
+        <a href="index.html"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="task.html"><i class="fas fa-tasks"></i><span>Task</span></a>
+        <a href="calendar.html"><i class="fas fa-calendar"></i><span>Calendar</span></a>
+        <a href="gantt.html"><i class="fas fa-chart-bar"></i><span>Gantt</span></a>
+        <a href="setting.html"><i class="fas fa-cog"></i><span>Project Settings</span></a>
+      </nav>
+      <div class="bottom-section">
+        <select id="projectSelect">
+          <option value="default">デフォルトプロジェクト</option>
+        </select>
+        <div class="user-icon" id="userIcon">
+          <i class="fas fa-user-circle"></i>
+        </div>
+      </div>
+    </aside>
+
+    <!-- メインコンテンツ -->
+    <main class="main-content" id="mainContent">
+      <div class="main-header">
+        <h1><i class="fas fa-user-edit"></i> 個人設定</h1>
+        <nav class="breadcrumb">
+          <a href="index.html">ホーム</a> > 個人設定
+        </nav>
+      </div>
+      
+      <div class="main-body">
+        
+        <!-- 成功メッセージ -->
+        <div id="successMessage" class="alert alert-success" style="display: none;">
+          <i class="fas fa-check-circle"></i>
+          <span id="successText"></span>
+        </div>
+        
+        <!-- エラーメッセージ -->
+        <div id="errorMessage" class="alert alert-error" style="display: none;">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span id="errorText"></span>
+        </div>
+
+        <!-- プロフィール設定 -->
+        <section class="settings-section">
+          <h2><i class="fas fa-user"></i> プロフィール情報</h2>
+          <form id="profileForm" class="settings-form">
+            
+            <div class="form-group">
+              <label for="loginId">ログインID</label>
+              <input type="text" id="loginId" name="loginId" readonly>
+              <small class="form-help">ログインIDは変更できません</small>
+            </div>
+
+            <div class="form-group">
+              <label for="displayName">表示名</label>
+              <input type="text" id="displayName" name="displayName" required>
+            </div>
+
+            <div class="form-group">
+              <label for="email">メールアドレス</label>
+              <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+              <label for="currentRole">権限</label>
+              <input type="text" id="currentRole" name="currentRole" readonly>
+              <small class="form-help">権限の変更は管理者にお問い合わせください</small>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> 保存
+              </button>
+              <button type="button" id="cancelBtn" class="btn btn-secondary">
+                <i class="fas fa-times"></i> キャンセル
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <!-- パスワード変更 -->
+        <section class="settings-section">
+          <h2><i class="fas fa-lock"></i> パスワード変更</h2>
+          <form id="passwordForm" class="settings-form">
+            
+            <div class="form-group">
+              <label for="currentPassword">現在のパスワード</label>
+              <div class="password-input">
+                <input type="password" id="currentPassword" name="currentPassword" required>
+                <button type="button" class="password-toggle" data-target="currentPassword">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="newPassword">新しいパスワード</label>
+              <div class="password-input">
+                <input type="password" id="newPassword" name="newPassword" required minlength="6">
+                <button type="button" class="password-toggle" data-target="newPassword">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+              <div class="password-strength" id="passwordStrength"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="confirmPassword">パスワード確認</label>
+              <div class="password-input">
+                <input type="password" id="confirmPassword" name="confirmPassword" required minlength="6">
+                <button type="button" class="password-toggle" data-target="confirmPassword">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+              <div class="password-match" id="passwordMatch"></div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-key"></i> パスワード変更
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <!-- 個人設定 -->
+        <section class="settings-section">
+          <h2><i class="fas fa-cog"></i> 個人設定</h2>
+          <form id="personalSettingsForm" class="settings-form">
+            
+            <div class="form-group">
+              <label for="theme">テーマ</label>
+              <select id="theme" name="theme">
+                <option value="light">ライト</option>
+                <option value="dark">ダーク</option>
+                <option value="auto">システム設定に従う</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="language">言語</label>
+              <select id="language" name="language">
+                <option value="ja">日本語</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="timezone">タイムゾーン</label>
+              <select id="timezone" name="timezone">
+                <option value="Asia/Tokyo">Asia/Tokyo (JST)</option>
+                <option value="UTC">UTC</option>
+                <option value="America/New_York">America/New_York (EST)</option>
+                <option value="Europe/London">Europe/London (GMT)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="emailNotifications" name="emailNotifications">
+                <span class="checkmark"></span>
+                メール通知を受け取る
+              </label>
+            </div>
+
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="browserNotifications" name="browserNotifications">
+                <span class="checkmark"></span>
+                ブラウザ通知を受け取る
+              </label>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> 設定を保存
+              </button>
+            </div>
+          </form>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- スマートフォン専用ボトムナビゲーション -->
+    <nav class="bottom-navigation">
+      <a href="index.html" class="nav-item">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+      </a>
+      <a href="task.html" class="nav-item">
+        <i class="fas fa-tasks"></i>
+        <span>Task</span>
+      </a>
+      <a href="calendar.html" class="nav-item">
+        <i class="fas fa-calendar"></i>
+        <span>Calendar</span>
+      </a>
+      <a href="gantt.html" class="nav-item">
+        <i class="fas fa-chart-bar"></i>
+        <span>Gantt</span>
+      </a>
+      <a href="setting.html" class="nav-item">
+        <i class="fas fa-cog"></i>
+        <span>Setting</span>
+      </a>
+    </nav>
+
+  </div>
+
+  <!-- JavaScriptファイルの読み込み -->
+  <script type="module" src="../scripts/main.js"></script>
+  <script type="module" src="../scripts/user-profile.js"></script>
+</body>
+</html>

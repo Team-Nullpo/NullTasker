@@ -381,3 +381,93 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(26px);
 }
+
+/* ユーザーメニュー */
+.user-menu {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  min-width: 200px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  z-index: 1000;
+  margin-bottom: 10px;
+}
+
+.user-menu .user-info {
+  padding: 8px 0;
+}
+
+.user-menu .user-name {
+  font-weight: bold;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.user-menu .user-email {
+  font-size: 0.9em;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.user-menu .user-role {
+  font-size: 0.8em;
+  color: var(--primary-color);
+  background-color: var(--primary-light);
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.user-menu hr {
+  margin: 8px 0;
+  border: none;
+  border-top: 1px solid #eee;
+}
+
+.user-menu .menu-item {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  text-decoration: none;
+  color: var(--text-primary);
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.user-menu .menu-item:hover {
+  background-color: var(--background-hover);
+}
+
+.user-menu .menu-item i {
+  margin-right: 8px;
+  width: 16px;
+}
+
+.user-menu .logout-btn {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  color: var(--error-color);
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.user-menu .logout-btn:hover {
+  background-color: #fee;
+}
+
+.user-menu .logout-btn i {
+  margin-right: 8px;
+}

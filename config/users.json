@@ -2,12 +2,69 @@
   "users": [
     {
       "id": "admin",
+      "loginId": "admin",
       "displayName": "管理者",
       "email": "admin@nulltasker.com",
       "password": "$2b$10$reWja/pUq43U5WYzFTRrQu..ICRWcyzqn7cK5XEFMcHs1dJfj8dyW",
+      "role": "system_admin",
+      "projects": [
+        "default"
+      ],
       "createdAt": "2025-09-01T00:00:00.000Z",
-      "lastLogin": null
+      "lastLogin": "2025-09-07T05:41:59.537Z"
+    },
+    {
+      "id": "tester",
+      "loginId": "tester",
+      "displayName": "TESTさん",
+      "email": "test@test.com",
+      "password": "$2b$10$NuHh/gHxY0MqBArvDUJO8u4aYzA3dhHwxbHnOMS5WBap3krJHHGs6",
+      "role": "member",
+      "projects": [
+        "default"
+      ],
+      "createdAt": "2025-09-01T05:57:56.255Z",
+      "lastLogin": "2025-09-07T02:40:35.195Z"
     }
   ],
-  "lastUpdated": "2025-09-01T05:45:28.668Z"
+  "projects": [
+    {
+      "id": "default",
+      "name": "デフォルトプロジェクト",
+      "description": "初期プロジェクト",
+      "owner": "admin",
+      "members": [
+        "admin",
+        "tester"
+      ],
+      "admins": [
+        "admin"
+      ],
+      "settings": {
+        "categories": [
+          "開発",
+          "デザイン",
+          "テスト",
+          "その他"
+        ],
+        "priorities": [
+          "低",
+          "中",
+          "高",
+          "緊急"
+        ],
+        "statuses": [
+          "未着手",
+          "進行中",
+          "レビュー中",
+          "完了"
+        ],
+        "notifications": true,
+        "autoAssign": false
+      },
+      "createdAt": "2025-09-01T00:00:00.000Z",
+      "lastUpdated": "2025-09-07T00:00:00.000Z"
+    }
+  ],
+  "lastUpdated": "2025-09-07T05:41:59.537Z"
 }

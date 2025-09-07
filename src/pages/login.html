@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ログイン - NullTasker</title>
-  <link rel="stylesheet" href="../styles/styles.css" />
+  <link rel="stylesheet" href="../styles/base.css" />
+  <link rel="stylesheet" href="../styles/layout.css" />
+  <link rel="stylesheet" href="../styles/components.css" />
   <link rel="stylesheet" href="../styles/login.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
@@ -60,6 +62,89 @@
     </div>
   </div>
   
-  <script src="../scripts/login.js"></script>
+  <script type="module">
+    // ログインフォームの処理
+    document.addEventListener('DOMContentLoaded', () => {
+      const loginForm = document.getElementById('loginForm');
+      const errorMessage = document.getElementById('errorMessage');
+      
+      // 無限ループ防止: リダイレクトフラグをチェック
+      const redirectFromMain = sessionStorage.getItem('redirectedFromMain');
+      if (redirectFromMain) {
+        sessionStorage.removeItem('redirectedFromMain');
+      } else {
+        // 既にログイン済みの場合はダッシュボードにリダイレクト
+        const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+        const user = localStorage.getItem('user') || sessionStorage.getItem('user');
+        
+        if (token && user) {
+          window.location.href = '/';
+          return;
+        }
+      }
+      
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const loginId = document.getElementById('loginId').value.trim();
+        const password = document.getElementById('password').value;
+        const rememberMe = document.getElementById('rememberMe').checked;
+        
+        if (!loginId || !password) {
+          showError('ログインIDとパスワードを入力してください。');
+          return;
+        }
+        
+        try {
+          const loginBtn = document.querySelector('.login-btn');
+          loginBtn.disabled = true;
+          loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ログイン中...';
+          
+          const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ loginId, password })
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            // トークンを保存
+            if (rememberMe) {
+              localStorage.setItem('authToken', data.token);
+              localStorage.setItem('refreshToken', data.refreshToken);
+              localStorage.setItem('user', JSON.stringify(data.user));
+            } else {
+              sessionStorage.setItem('authToken', data.token);
+              sessionStorage.setItem('refreshToken', data.refreshToken);
+              sessionStorage.setItem('user', JSON.stringify(data.user));
+            }
+            
+            // ダッシュボードにリダイレクト
+            window.location.href = '/';
+          } else {
+            showError(data.message || 'ログインに失敗しました。');
+          }
+        } catch (error) {
+          console.error('ログインエラー:', error);
+          showError('ネットワークエラーが発生しました。');
+        } finally {
+          const loginBtn = document.querySelector('.login-btn');
+          loginBtn.disabled = false;
+          loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> ログイン';
+        }
+      });
+      
+      function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+        setTimeout(() => {
+          errorMessage.style.display = 'none';
+        }, 5000);
+      }
+    });
+  </script>
 </body>
 </html>

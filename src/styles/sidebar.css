@@ -179,7 +179,32 @@
   background-color: white;
 }
 
+.user-icon {
+  position: relative;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.user-icon:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
 .user-icon i {
   font-size: 32px;
   color: var(--gray-800);
+}
+
+.user-icon .user-initial {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--primary-color);
+  background-color: var(--primary-light);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
