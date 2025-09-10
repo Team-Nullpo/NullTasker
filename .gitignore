@@ -73,3 +73,10 @@ logs
 # Temporary files
 tmp/
 temp/
+
+# BuckUp files
+config/backup/*
+!config/backup/.gitkeep
+
+# etc
+memo.md
