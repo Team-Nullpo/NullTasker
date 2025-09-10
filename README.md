@@ -8,19 +8,22 @@
 
 ## 📋 概要
 
-NullTaskerは、学生向けのWebベースのタスク管理システムです。直感的なインターフェースと豊富な機能で、プロジェクトの進捗管理を効率化します。
+NullTaskerは、学生・チーム向けのWebベースのタスク管理システムです。直感的なインターフェースと豊富な機能で、プロジェクトの進捗管理を効率化します。
 
 ### 🌟 主要機能
 
-- **� ユーザー認証**: セキュアなログイン・ログアウト機能
-- **👤 ユーザー管理**: ログインID・表示名・メールアドレス・パスワード管理
-- **�📊 ダッシュボード**: プロジェクト全体の進捗を一目で確認
+- **🔐 ユーザー認証**: JWT認証によるセキュアなログイン・ログアウト機能
+- **👤 ユーザー管理**: 階層化された権限システム（システム管理者・プロジェクト管理者・メンバー）
+- **👤 ユーザープロフィール**: 個人設定・パスワード変更・プロフィール編集
+- **🛡️ システム管理**: 包括的な管理機能（ユーザー管理・システム設定・バックアップ）
+- **📊 ダッシュボード**: プロジェクト全体の進捗を一目で確認
 - **✅ タスク管理**: 詳細なタスク作成・編集・追跡機能
 - **📈 ガントチャート**: 視覚的なプロジェクトスケジュール管理
 - **📅 カレンダー**: 期日と予定の統合管理
 - **⚙️ 設定管理**: ユーザー・カテゴリ・通知の柔軟な設定
 - **📱 レスポンシブ**: デスクトップ・モバイル対応
 - **🔄 リアルタイム同期**: データの自動保存とバックアップ
+- **🔒 セキュリティ**: bcryptパスワードハッシュ化・CSP・レート制限
 
 ## 🚀 クイックスタート
 
@@ -55,6 +58,11 @@ npm start
 
 アプリケーションは `http://localhost:3000` で起動します。
 
+### データリセット機能
+
+開発・テスト用にデータリセットコマンドを提供しています。
+詳細は `docs/RESET.md`をご覧ください。
+
 ### 初回ログイン
 
 デフォルトの管理者アカウント：
@@ -69,33 +77,44 @@ npm start
 NullTasker/
 ├── LICENSE                     # ライセンスファイル
 ├── README.md                   # メインドキュメント
+├── SECURITY.md                 # セキュリティガイドライン
 ├── package.json               # Node.js プロジェクト設定
 ├── server.js                  # バックエンドサーバー
 ├── config/                    # 設定・データファイル
 │   ├── settings.json          # アプリケーション設定
 │   ├── tickets.json           # タスクデータ
-│   └── users.json             # ユーザー認証データ
+│   ├── users.json             # ユーザー認証データ
+│   └── backups/               # バックアップファイル
+├── docs/                      # ドキュメント
+│   └── RESET.md               # データリセット説明書
 ├── public/                    # 静的ファイル（将来の拡張用）
+├── scripts/                   # 管理・開発用スクリプト
+│   └── reset-data.js          # データリセットスクリプト
 └── src/                       # ソースコード
     ├── assets/                # アセット（画像等）
     │   └── logo.png           # アプリケーションロゴ
     ├── pages/                 # HTMLページ
     │   ├── index.html         # ダッシュボード
     │   ├── login.html         # ログインページ
+    │   ├── register.html      # ユーザー登録
     │   ├── task.html          # タスク管理
     │   ├── gantt.html         # ガントチャート
     │   ├── calendar.html      # カレンダー
     │   ├── setting.html       # 設定
-    │   └── debug-storage.html # デバッグ用
+    │   ├── user-profile.html  # ユーザープロフィール
+    │   ├── admin.html         # システム管理
+    │   └── debug-storage.html # ストレージデバッグ
     ├── scripts/               # JavaScript
     │   ├── main.js            # メインエントリーポイント
     │   ├── script.js          # メインスクリプト
-    │   ├── auth.js            # 認証管理機能
-    │   ├── login.js           # ログインページ機能
+    │   ├── simple-auth.js     # 認証モジュール
+    │   ├── register.js        # ユーザー登録機能
     │   ├── task-manager.js    # タスク管理機能
     │   ├── calendar-manager.js # カレンダー機能
     │   ├── gantt-manager.js   # ガントチャート機能
     │   ├── settings-manager.js # 設定管理機能
+    │   ├── admin-manager.js   # システム管理機能
+    │   ├── user-profile.js    # ユーザープロフィール機能
     │   ├── sidebar.js         # サイドバー制御
     │   └── utils.js           # 共通ユーティリティ
     └── styles/                # CSS
@@ -106,18 +125,36 @@ NullTasker/
         ├── layout.css         # レイアウトスタイル
         ├── pages.css          # ページ固有スタイル
         ├── responsive.css     # レスポンシブデザイン
-        └── sidebar.css        # サイドバースタイル
+        ├── sidebar.css        # サイドバースタイル
+        ├── admin.css          # 管理画面スタイル
+        └── user-dropdown.css  # ユーザードロップダウンスタイル
 ```
 
 ## 🎯 詳細機能
 
-### ユーザー認証
+### ユーザー認証・権限管理
 - **セキュアログイン**: bcryptによるパスワードハッシュ化
-- **JWTトークン**: JSON Web Tokenによるセッション管理
+- **JWT認証**: JSON Web Tokenによるステートレスセッション管理
+- **権限システム**: 3階層権限（システム管理者・プロジェクト管理者・メンバー）
 - **自動ログアウト**: 一定期間後の自動セッション終了
 - **ログイン状態保持**: "ログイン状態を保持する"オプション
 - **認証保護**: 全ページでのログイン状態チェック
-- **ユーザー情報表示**: ログイン中のユーザー情報表示
+
+### ユーザープロフィール管理
+- **プロフィール編集**: 表示名・メールアドレスの変更
+- **セキュアなパスワード変更**: 現在のパスワード確認必須
+- **パスワード強度チェック**: リアルタイムの強度判定とフィードバック
+- **個人設定**: テーマ・通知設定のカスタマイズ
+- **ユーザー情報表示**: ログイン中のユーザー情報とドロップダウンメニュー
+
+### システム管理機能
+- **ユーザー管理**: チームメンバーの作成・編集・削除
+- **権限管理**: 階層化された権限の付与・変更
+- **プロジェクト管理**: プロジェクトの作成・設定・メンバー割り当て
+- **システム設定**: アプリケーション全体の設定管理
+- **バックアップ機能**: データの定期バックアップと手動バックアップ
+- **データ復元**: バックアップファイルからのデータ復元
+- **ダッシュボード**: システム全体の統計とクイックアクセス
 
 ### タスク管理
 - **作成・編集**: 直感的なモーダルフォームでタスク管理
@@ -158,8 +195,11 @@ NullTasker/
 - **Express.js**: Webアプリケーションフレームワーク
 - **bcrypt**: パスワードハッシュ化ライブラリ
 - **jsonwebtoken**: JWT認証トークン管理
+- **helmet**: セキュリティヘッダー設定
+- **cors**: クロスオリジンリクエスト対応
+- **express-rate-limit**: レート制限によるDoS攻撃対策
+- **express-validator**: 入力値検証
 - **JSON**: ファイルベースデータストレージ
-- **CORS**: クロスオリジンリクエスト対応
 
 ### データ構造
 
@@ -192,8 +232,10 @@ NullTasker/
   "users": [
     {
       "id": "admin",
+      "loginId": "admin",
       "displayName": "管理者",
       "email": "admin@nulltasker.com",
+      "role": "system_admin",
       "password": "$2b$10$RiZky4vC9rq4qgolc79uc.d8GCvpXz5tmA5gaFxBlv0wVpuUpsI0O",
       "createdAt": "2025-09-01T00:00:00.000Z",
       "lastLogin": null
@@ -274,12 +316,22 @@ POST /api/register       # ユーザー登録
 POST /api/logout         # ログアウト
 POST /api/validate-token # トークン検証
 GET  /api/user           # ユーザー情報取得
+PUT  /api/user/profile   # プロフィール更新
+PUT  /api/user/password  # パスワード変更
 ```
 
 ### タスクAPI
 ```http
 GET  /api/tasks          # 全タスク取得（認証必須）
 POST /api/tasks          # タスクデータ保存（認証必須）
+```
+
+### 管理者API
+```http
+GET  /api/admin/users        # 全ユーザー取得（システム管理者のみ）
+POST /api/admin/users        # ユーザー作成（システム管理者のみ）
+PUT  /api/admin/users/:id    # ユーザー更新（システム管理者のみ）
+DELETE /api/admin/users/:id  # ユーザー削除（システム管理者のみ）
 ```
 
 ### バックアップAPI
@@ -299,18 +351,28 @@ GET  /api/settings       # 設定取得（認証必須）
 # 開発サーバー起動（ホットリロード）
 npm run dev
 
-# ファイル監視モード
-npm run watch
+# 本番サーバー起動
+npm start
+
+# データリセット（開発・テスト用）
+npm run reset
 
 # デバッグモード
 DEBUG=nulltasker:* npm run dev
 ```
+
+### 開発・デバッグツール
+- **debug-storage.html**: LocalStorageの内容確認とクリア
+- **debug-users.html**: ユーザーデータの詳細確認
+- **test-login.html**: ログイン機能のテスト
+- **test-css.html**: CSSスタイルのテスト
 
 ### カスタマイズポイント
 - **テーマ変更**: `src/styles/`ディレクトリのCSSファイルでカラースキーム調整
 - **機能拡張**: `src/scripts/`の各マネージャークラスで機能追加
 - **データスキーマ**: JSONスキーマの拡張・変更
 - **UI拡張**: HTMLテンプレートとCSSスタイル追加
+- **権限システム**: ロールベースアクセス制御の拡張
 
 ## 🚨 トラブルシューティング
 
@@ -339,11 +401,35 @@ npm install
 
 ### ログ確認
 ```bash
-# アプリケーションログ
-tail -f logs/app.log
+# アプリケーションログ（コンソール出力）
+npm run dev
 
-# エラーログ
-tail -f logs/error.log
+# データリセット操作ログ
+npm run reset -- --verbose
+```
+
+## 🔒 セキュリティ
+
+### 実装済みセキュリティ機能
+- **パスワードハッシュ化**: bcryptによる安全なパスワード保存
+- **JWT認証**: ステートレストークン認証
+- **レート制限**: 総合・ログイン・API別のレート制限
+- **入力検証**: express-validatorによる包括的な入力値検証
+- **セキュリティヘッダー**: Helmetによる各種セキュリティヘッダー設定
+- **CSP（Content Security Policy）**: XSS攻撃対策
+- **CORS設定**: クロスオリジンリクエストの厳格な制御
+
+### セキュリティ設定
+```javascript
+// 本番環境では必須
+JWT_SECRET=your-super-secure-secret-key
+
+// CORS設定（本番環境）
+ALLOWED_ORIGINS=https://yourdomain.com
+
+// レート制限設定
+RATE_LIMIT_WINDOW_MS=900000  // 15分
+RATE_LIMIT_MAX_REQUESTS=100  // 最大リクエスト数
 ```
 
 
@@ -362,4 +448,5 @@ MIT License - 詳細は [LICENSE](LICENSE) ファイルを参照してくださ�
 <div align="center">
   <p>Made with ❤️ by <strong>Team Nullpo</strong></p>
   <p><em>効率的なタスク管理で、チームの生産性を最大化</em></p>
+  <p><strong>Version 1.1.0(beta)</strong> | <strong>Node.js 14.0.0+</strong></p>
 </div>
