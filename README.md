@@ -38,7 +38,6 @@ NullTaskerは、学生・チーム向けのWebベースのタスク管理シス�
 ```bash
 # リポジトリのクローン
 git clone https://github.com/Team-Nullpo/NullTasker.git
-cd NullTasker
 
 # 依存関係のインストール
 npm install
