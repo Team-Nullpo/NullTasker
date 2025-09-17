@@ -257,7 +257,9 @@ app.post('/api/register', registerValidation, async (req, res) => {
     const users = JSON.parse(userData);
 
     // 既存ユーザーチェック
-    const existingUser = users.users.find(u => u.id === loginId || u.email === email);
+    const existingUser = users.users.find(u => 
+      u.id === loginId || u.loginId === loginId || u.email === email
+    );
     if (existingUser) {
       return res.status(409).json({ 
         success: false, 
@@ -271,14 +273,27 @@ app.post('/api/register', registerValidation, async (req, res) => {
     // 新しいユーザーを追加
     const newUser = {
       id: loginId,
+      loginId: loginId,
       displayName,
       email,
       password: hashedPassword,
+      role: "user",  // デフォルトは一般ユーザー
+      projects: ["default"],  // デフォルトプロジェクトに自動参加
       createdAt: new Date().toISOString(),
       lastLogin: null
     };
 
     users.users.push(newUser);
+    
+    // デフォルトプロジェクトのメンバーに追加
+    const defaultProject = users.projects.find(p => p.id === "default");
+    if (defaultProject) {
+      if (!defaultProject.members.includes(loginId)) {
+        defaultProject.members.push(loginId);
+        defaultProject.lastUpdated = new Date().toISOString();
+      }
+    }
+    
     users.lastUpdated = new Date().toISOString();
 
     // ファイルに保存
@@ -325,7 +340,7 @@ app.post('/api/login', loginValidation, async (req, res) => {
     const users = JSON.parse(userData);
 
     // ユーザーを検索
-    const user = users.users.find(u => u.id === loginId);
+    const user = users.users.find(u => u.id === loginId || u.loginId === loginId);
     if (!user) {
       return res.status(401).json({ 
         success: false, 
@@ -345,9 +360,12 @@ app.post('/api/login', loginValidation, async (req, res) => {
     // JWTトークンを生成（有効期間短縮）
     const accessToken = jwt.sign(
       { 
-        id: user.id, 
+        id: user.id,
+        loginId: user.loginId || user.id, 
         displayName: user.displayName, 
-        email: user.email 
+        email: user.email,
+        role: user.role || 'user',
+        projects: user.projects || ['default']
       },
       JWT_SECRET,
       { expiresIn: '15m' } // アクセストークンは15分

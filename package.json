@@ -1,6 +1,6 @@
 {
-  "name": "nulltasker-v0",
-  "version": "1.0.0",
+  "name": "nulltasker",
+  "version": "1.1.0",
   "description": "タスク管理アプリケーション",
   "main": "server.js",
   "scripts": {

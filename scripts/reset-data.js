@@ -21,11 +21,33 @@ const INITIAL_DATA = {
     users: [
       {
         id: "admin",
+        loginId: "admin",
         displayName: "管理者",
         email: "admin@nulltasker.com",
         password: "", // 後でハッシュ化
+        role: "system_admin",
+        projects: ["default"],
         createdAt: "2025-09-01T00:00:00.000Z",
         lastLogin: null
+      }
+    ],
+    projects: [
+      {
+        id: "default",
+        name: "デフォルトプロジェクト",
+        description: "初期プロジェクト",
+        owner: "admin",
+        members: ["admin"],
+        admins: ["admin"],
+        settings: {
+          categories: ["開発", "デザイン", "テスト", "その他"],
+          priorities: ["低", "中", "高", "緊急"],
+          statuses: ["未着手", "進行中", "レビュー中", "完了"],
+          notifications: true,
+          autoAssign: false
+        },
+        createdAt: "2025-09-01T00:00:00.000Z",
+        lastUpdated: "2025-09-07T00:00:00.000Z"
       }
     ],
     lastUpdated: new Date().toISOString()
