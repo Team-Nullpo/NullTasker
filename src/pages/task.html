@@ -109,7 +109,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2 id="modalTitle">新しいタスクを追加</h2>
-        <button class="close-btn" id="closeModal">
+        <button class="close-btn close-modal-btn" id="closeModal">
           <i class="fas fa-times"></i>
         </button>
       </div>
@@ -192,7 +192,7 @@
         </div>
         
         <div class="form-actions">
-          <button type="button" class="btn btn-secondary" id="cancelTask">キャンセル</button>
+          <button type="button" class="btn btn-secondary close-modal-btn" id="cancelTask">キャンセル</button>
           <button type="submit" class="btn btn-primary" id="submitTask">タスクを追加</button>
         </div>
       </form>
@@ -204,7 +204,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2>タスク詳細</h2>
-        <button class="close-btn" id="closeTaskDetail">
+        <button class="close-btn close-modal-btn" id="closeTaskDetail">
           <i class="fas fa-times"></i>
         </button>
       </div>
@@ -218,7 +218,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2>タスクの削除</h2>
-        <button class="close-btn" id="closeTaskDetail">
+        <button class="close-btn close-modal-btn" id="closeTaskDelete">
           <i class="fas fa-times"></i>
         </button>
       </div>
@@ -227,8 +227,8 @@
           <p>削除しますか</p>
         </div>
         <div class="task-delete-button">
-          <button class="btn btn-danger">タスク削除</button>
-          <button class="btn btn-secondary">キャンセル</button>
+          <button class="btn btn-danger" id="deleteTask">タスク削除</button>
+          <button class="btn btn-secondary close-modal-btn">キャンセル</button>
         </div>
       </div>
     </div>

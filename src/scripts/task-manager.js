@@ -7,6 +7,7 @@ export class TaskManager {
     this.tasks = [];
     this.settings = {};
     this.editingTaskId = null;
+    this.deletingTaskId = null; // 削除対象のタスクID
     this.init();
   }
 
@@ -126,14 +127,12 @@ export class TaskManager {
   setupEventListeners() {
     const elements = {
       addBtn: Utils.getElement('#addTaskBtn'), // 修正: IDに変更
-      modal: Utils.getElement('#taskModal'),
-      closeBtn: Utils.getElement('#closeModal'),
-      cancelBtn: Utils.getElement('#cancelTask'),
+      modals: Utils.getElements('.modal'),
+      closeBtns: Utils.getElements('.close-modal-btn'),
       form: Utils.getElement('#taskForm'),
-      taskDetailModal: Utils.getElement('#taskDetailModal'),
-      closeTaskDetailBtn: Utils.getElement('#closeTaskDetail'),
       taskList: Utils.getElement('#taskList'), // 修正: IDに変更
-      filterSelect: Utils.getElement('#taskFilter') // フィルター機能追加
+      filterSelect: Utils.getElement('#taskFilter'), // フィルター機能追加
+      deleteTaskBtn: Utils.getElement("#deleteTask")
     };
 
     // デバッグ用ログ
@@ -169,39 +168,28 @@ export class TaskManager {
   }
 
   setupModalEvents(elements) {
-    const { addBtn, modal, closeBtn, cancelBtn, taskDetailModal, closeTaskDetailBtn } = elements;
+    const { addBtn, modals, closeBtns, deleteTaskBtn } = elements;
 
     if (addBtn) {
       addBtn.addEventListener('click', () => {
         this.resetEditState();
         const form = Utils.getElement('#taskForm');
         if (form) form.reset();
-        this.openModal();
+        this.openModal("#taskModal");
       });
     }
 
-    if (closeBtn) closeBtn.addEventListener('click', () => this.closeModal());
-    if (cancelBtn) cancelBtn.addEventListener('click', () => this.closeModal());
-    if (closeTaskDetailBtn) {
-      closeTaskDetailBtn.addEventListener('click', () => {
-        if (taskDetailModal) taskDetailModal.style.display = 'none';
-      });
-    }
+    if (closeBtns) closeBtns.forEach(closeBtn => closeBtn.addEventListener('click', () => this.closeModal()));
 
     // モーダル外クリック
-    if (modal) {
+    if (modals) {
+      modals.forEach(modal =>
       modal.addEventListener('click', (e) => {
         if (e.target === modal) this.closeModal();
-      });
+      }));
     }
 
-    if (taskDetailModal) {
-      taskDetailModal.addEventListener('click', (e) => {
-        if (e.target === taskDetailModal) {
-          taskDetailModal.style.display = 'none';
-        }
-      });
-    }
+    if (deleteTaskBtn) deleteTaskBtn.addEventListener('click', async () => await this.deleteTask());
   }
 
   async handleTaskListClick(e) {
@@ -213,7 +201,8 @@ export class TaskManager {
     if (!taskId) return;
 
     if (button.classList.contains('delete-task-btn')) {
-      await this.deleteTask(taskId);
+      this.openModal("#taskDeleteModal");
+      this.deletingTaskId = taskId;
     } else if (button.classList.contains('edit-task-btn')) {
       this.editTask(taskId);
     }
@@ -247,8 +236,9 @@ export class TaskManager {
     });
   }
 
-  openModal() {
-    const modal = Utils.getElement('#taskModal');
+  openModal(selector) {
+    console.log('selector: ' + selector);
+    const modal = Utils.getElement(selector);
     if (modal) {
       modal.style.display = 'block';
       document.body.style.overflow = 'hidden';
@@ -256,9 +246,11 @@ export class TaskManager {
   }
 
   closeModal() {
-    const modal = Utils.getElement('#taskModal');
-    if (modal) {
-      modal.style.display = 'none';
+    const modals = Utils.getElements(".modal");
+    if (modals) {
+      modals.forEach(modal => {
+        modal.style.display = 'none';
+      });
       document.body.style.overflow = 'auto';
       const form = Utils.getElement('#taskForm');
       if (form) form.reset();
@@ -346,7 +338,7 @@ export class TaskManager {
     this.editingTaskId = taskId;
     this.populateForm(task);
     this.updateModalForEdit();
-    this.openModal();
+    this.openModal("#taskModal");
   }
 
   populateForm(task) {
@@ -391,13 +383,14 @@ export class TaskManager {
     }
   }
 
-  async deleteTask(taskId) {
-    if (confirm('このタスクを削除しますか？')) {
-      this.tasks = this.tasks.filter(t => t.id !== taskId);
-      await this.saveTasks();
-      this.renderTasks();
-      Utils.showNotification('タスクが削除されました。', 'success');
-    }
+  async deleteTask() {
+    if (!this.deletingTaskId) return;
+    this.tasks = this.tasks.filter(t => t.id !== this.deletingTaskId);
+    await this.saveTasks();
+    this.renderTasks();
+    this.deletingTaskId = null;
+    this.closeModal();
+    Utils.showNotification('タスクが削除されました。', 'success');
   }
 
   renderTasks(filter = 'all') {
