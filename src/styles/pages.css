@@ -934,3 +934,22 @@ input:checked + .slider:before {
   color: var(--gray-800);
   font-weight: 600;
 }
+
+.task-delete-content {
+  display: block;
+  padding: 10px;
+}
+
+.task-delete-text {
+  margin-bottom: 5px;
+}
+
+.task-delete-button {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: var(--spacing-md);
+}
+
+.visible {
+  display: block;
+}
