@@ -39,7 +39,6 @@
   width: 360px;
   height: 120px;
   margin-bottom: 10px;
-  border-radius: 50%;
 }
 
 .login-header h1 {
@@ -229,7 +228,7 @@
 }
 
 /* レスポンシブデザイン */
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .login-container {
     padding: 10px;
   }
@@ -243,8 +242,8 @@
   }
   
   .login-logo {
-    width: 50px;
-    height: 50px;
+    width: 240px;
+    height: 80px;
   }
 }
 

@@ -98,6 +98,15 @@ input, select, textarea, button {
   background: var(--warning-dark);
 }
 
+.btn-danger {
+  background: var(--danger-color);
+  color: white;
+}
+
+.btn-danger:hover {
+  background: var(--danger-dark);
+}
+
 /* トグルボタン */
 .toggle-btn {
   position: fixed;
