@@ -941,7 +941,7 @@ input:checked + .slider:before {
 }
 
 .task-delete-text {
-  margin-bottom: 5px;
+  margin: 10px 5px 5px 10px;
 }
 
 .task-delete-button {
@@ -952,4 +952,15 @@ input:checked + .slider:before {
 
 .visible {
   display: block;
+}
+
+@media screen and (max-width: 768px) {
+  .task-delete-text {
+    margin: 10px 5px 10px 10px;
+  }
+
+  .task-delete-button {
+    display: flex;
+    flex-direction: column-reverse;
+  }
 }
