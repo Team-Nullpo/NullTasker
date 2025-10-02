@@ -8,43 +8,43 @@
     margin-left: 0;
     padding: var(--spacing-md);
   }
-  
+
   .sidebar {
     transform: translateX(-100%);
   }
-  
+
   .toggle-btn {
     display: flex;
   }
-  
+
   .task-header,
   .gantt-controls,
   .calendar-controls {
     flex-direction: column;
     gap: var(--spacing-lg);
   }
-  
+
   .gantt-chart {
     flex-direction: column;
     overflow-x: auto;
   }
-  
+
   .gantt-task-list {
     width: 100%;
     border-right: none;
     border-bottom: 1px solid var(--gray-200);
   }
-  
+
   .gantt-timeline {
     min-width: 600px;
   }
-  
+
   .calendar-container {
     flex-direction: column;
     height: auto;
     gap: var(--spacing-lg);
   }
-  
+
   .calendar-sidebar {
     width: 100%;
     order: -1;
@@ -60,7 +60,7 @@
     --spacing-lg: 14px;
     --spacing-xl: 18px;
     --spacing-xxl: 22px;
-    
+
     --font-size-xs: 11px;
     --font-size-sm: 13px;
     --font-size-base: 15px;
@@ -72,16 +72,16 @@
   .app-container {
     flex-direction: column;
   }
-  
+
   /* サイドバーを非表示 */
   .sidebar {
     display: none;
   }
-  
+
   .toggle-btn {
     display: none;
   }
-  
+
   /* メインコンテンツの調整 */
   .main-content {
     margin-left: 0;
@@ -91,7 +91,7 @@
     background-color: #fff;
     padding-bottom: 80px; /* ボトムナビゲーション分 */
   }
-  
+
   .main-header {
     margin-bottom: var(--spacing-lg);
     padding-top: var(--spacing-xl);
@@ -100,155 +100,155 @@
     border-radius: var(--border-radius-sm);
     border: 2px solid var(--primary-color);
   }
-  
+
   .main-header h1 {
     font-size: var(--font-size-xl);
     color: var(--gray-800);
     margin: 0;
   }
-  
+
   .main-body {
     background-color: #f9f9f9;
     padding: var(--spacing-lg);
     border-radius: var(--border-radius-sm);
     border: 2px solid var(--success-color);
   }
-  
+
   .main-body p {
     color: var(--gray-800);
     font-size: var(--font-size-base);
     margin: 0;
   }
-  
+
   /* ボトムナビゲーションを表示 */
   .bottom-navigation {
     display: flex;
   }
-  
+
   /* タスクページのモバイル対応 */
   .task-container {
     max-width: 100%;
   }
-  
+
   .task-header {
     flex-direction: column;
     gap: var(--spacing-lg);
     padding: var(--spacing-lg);
     margin-bottom: var(--spacing-xl);
   }
-  
+
   .add-task-btn {
     width: 100%;
     justify-content: center;
     padding: var(--spacing-lg);
     font-size: var(--font-size-base);
   }
-  
+
   .task-filters {
     width: 100%;
   }
-  
+
   .filter-select {
     width: 100%;
     padding: var(--spacing-md);
     font-size: var(--font-size-base);
   }
-  
+
   .task-item {
     flex-direction: column;
     gap: var(--spacing-md);
     padding: var(--spacing-lg);
   }
-  
+
   .task-checkbox {
     align-self: flex-start;
   }
-  
+
   .task-content h3 {
     font-size: var(--font-size-base);
   }
-  
+
   .task-content p {
     font-size: var(--font-size-sm);
   }
-  
+
   .task-meta {
     gap: var(--spacing-md);
   }
-  
+
   .task-priority,
   .task-status {
     font-size: 11px;
     padding: var(--spacing-sm) var(--spacing-md);
   }
-  
+
   .task-actions {
     align-self: flex-end;
     gap: var(--spacing-md);
   }
-  
+
   .task-btn {
     padding: var(--spacing-md);
     font-size: var(--font-size-base);
   }
-  
+
   /* モーダルのモバイル対応 */
   .modal-content {
     margin: 5% auto;
     width: 95%;
     max-width: none;
   }
-  
+
   .modal-header {
     padding: var(--spacing-lg) var(--spacing-xl);
   }
-  
+
   .modal-header h2 {
     font-size: var(--font-size-lg);
   }
-  
-  .task-form {
+
+  .modal-form {
     padding: var(--spacing-xl);
   }
-  
+
   .form-group {
     margin-bottom: var(--spacing-lg);
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
     gap: 0;
   }
-  
+
   .form-group label {
     font-size: var(--font-size-sm);
     margin-bottom: var(--spacing-sm);
   }
-  
+
   .form-group input,
   .form-group select,
   .form-group textarea {
     padding: var(--spacing-lg);
     font-size: var(--font-size-base);
   }
-  
+
   .form-group textarea {
     min-height: 100px;
   }
-  
+
   .form-actions {
     flex-direction: column;
     gap: var(--spacing-md);
     margin-top: var(--spacing-xl);
   }
-  
+
   .btn-primary,
   .btn-secondary {
     width: 100%;
     padding: var(--spacing-lg);
     font-size: var(--font-size-base);
   }
-  
+
   /* 設定ページのモバイル対応 */
   .settings-container {
     max-width: 100%;
@@ -331,7 +331,7 @@
     padding: var(--spacing-md) var(--spacing-lg);
     font-size: var(--font-size-sm);
   }
-  
+
   /* ガントチャートのモバイル対応 */
   .gantt-controls {
     flex-direction: column;
@@ -365,7 +365,7 @@
   .current-period {
     min-width: auto;
   }
-  
+
   /* カレンダーのモバイル対応 */
   .calendar-container {
     flex-direction: column;
@@ -395,20 +395,20 @@
     font-size: var(--font-size-lg);
     min-width: auto;
   }
-  
+
   /* ユーティリティクラス */
   .mobile-hidden {
     display: none !important;
   }
-  
+
   .mobile-only {
     display: block !important;
   }
-  
+
   .mobile-full-width {
     width: 100% !important;
   }
-  
+
   .mobile-center {
     text-align: center !important;
   }
@@ -424,36 +424,36 @@
     --spacing-xl: 16px;
     --spacing-xxl: 20px;
   }
-  
+
   .main-content {
     padding: var(--spacing-md);
   }
-  
+
   .main-header,
   .main-body {
     padding: var(--spacing-md);
   }
-  
+
   .settings-section,
   .task-item {
     padding: var(--spacing-md);
   }
-  
+
   .modal-content {
     width: 98%;
     margin: 2% auto;
   }
-  
-  .task-form {
+
+  .modal-form {
     padding: var(--spacing-lg);
   }
-  
+
   .form-group input,
   .form-group select,
   .form-group textarea {
     padding: var(--spacing-md);
   }
-  
+
   .btn {
     padding: var(--spacing-md) var(--spacing-lg);
   }
@@ -469,23 +469,23 @@
   button {
     display: none !important;
   }
-  
+
   .main-content {
     margin-left: 0 !important;
     padding: 0 !important;
   }
-  
+
   .app-container {
     display: block;
   }
-  
+
   .task-item,
   .settings-section {
     border: 1px solid #000 !important;
     page-break-inside: avoid;
     margin-bottom: var(--spacing-lg) !important;
   }
-  
+
   .gantt-chart,
   .calendar-view {
     page-break-inside: avoid;
@@ -503,7 +503,7 @@
     --gray-700: #222222;
     --gray-800: #111111;
   }
-  
+
   .task-priority,
   .task-status,
   .badge {
@@ -519,7 +519,7 @@
   .legend-color.high {
     background-color: #0066cc; /* 青系に変更 */
   }
-  
+
   .task-priority.medium,
   .gantt-bar.medium,
   .calendar-task.medium,
