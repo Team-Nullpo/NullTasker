@@ -1,47 +1,4 @@
 {
-  "tasks": [
-    {
-      "id": "task_1759370815247_29",
-      "title": "asdfgh",
-      "description": "",
-      "assignee": "admin",
-      "startDate": "2025-10-10",
-      "dueDate": "2025-10-25",
-      "priority": "medium",
-      "category": "設計",
-      "status": "in_progress",
-      "progress": 0,
-      "createdAt": "2025-10-02T02:06:55.247Z",
-      "updatedAt": "2025-10-02T02:06:55.247Z"
-    },
-    {
-      "id": "task_1759370990713_128",
-      "title": "er",
-      "description": "",
-      "assignee": "admin",
-      "startDate": "2025-10-02",
-      "dueDate": "2025-10-18",
-      "priority": "high",
-      "category": "設計",
-      "status": "review",
-      "progress": 0,
-      "createdAt": "2025-10-02T02:09:50.713Z",
-      "updatedAt": "2025-10-02T02:09:50.713Z"
-    },
-    {
-      "id": "task_1759390077679_624",
-      "title": "ewr",
-      "description": "",
-      "assignee": "admin",
-      "startDate": "2025-10-02",
-      "dueDate": "2025-10-18",
-      "priority": "high",
-      "category": "開発",
-      "status": "in_progress",
-      "progress": 0,
-      "createdAt": "2025-10-02T07:27:57.679Z",
-      "updatedAt": "2025-10-02T07:27:57.679Z"
-    }
-  ],
-  "lastUpdated": "2025-10-02T07:27:57.686Z"
+  "tasks": [],
+  "lastUpdated": "2025-10-02T07:36:40.267Z"
 }

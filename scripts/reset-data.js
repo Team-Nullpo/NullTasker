@@ -40,11 +40,53 @@ const INITIAL_DATA = {
         members: ["admin"],
         admins: ["admin"],
         settings: {
-          categories: ["開発", "デザイン", "テスト", "その他"],
-          priorities: ["低", "中", "高", "緊急"],
-          statuses: ["未着手", "進行中", "レビュー中", "完了"],
-          notifications: true,
-          autoAssign: false
+          "categories": [
+          "開発",
+          "デザイン",
+          "テスト",
+          "その他"
+        ],
+        "priorities": [
+          {
+            "value": "high",
+            "label": "高優先度",
+            "color": "#c62828"
+          },
+          {
+            "value": "medium",
+            "label": "中優先度",
+            "color": "#ef6c00"
+          },
+          {
+            "value": "low",
+            "label": "低優先度",
+            "color": "#2e7d32"
+          }
+        ],
+        "statuses": [
+          {
+            "value": "todo",
+            "label": "未着手",
+            "color": "#666"
+          },
+          {
+            "value": "in_progress",
+            "label": "進行中",
+            "color": "#1976d2"
+          },
+          {
+            "value": "review",
+            "label": "レビュー中",
+            "color": "#f57c00"
+          },
+          {
+            "value": "done",
+            "label": "完了",
+            "color": "#388e3c"
+          }
+        ],
+        "notifications": true,
+        "autoAssign": false
         },
         createdAt: "2025-09-01T00:00:00.000Z",
         lastUpdated: "2025-09-07T00:00:00.000Z"
