@@ -24,7 +24,7 @@ export class SidebarManager {
     this.hideBtn = Utils.getElement('#hideSidebar'); // 修正: HTMLのIDに合わせる
     
     // デバッグ用ログ
-    console.log('サイドバー要素:', {
+    Utils.debugLog('サイドバー要素:', {
       sidebar: !!this.sidebar,
       toggleBtn: !!this.toggleBtn,
       hideBtn: !!this.hideBtn
@@ -121,7 +121,7 @@ export class SidebarManager {
 
   toggle() {
     if (Utils.isMobile()) return;
-    console.log('サイドバートグル実行:', this.sidebarVisible);
+    Utils.debugLog('サイドバートグル実行:', this.sidebarVisible);
     this.sidebarVisible = !this.sidebarVisible;
     this.applySidebarState();
   }
@@ -131,7 +131,7 @@ export class SidebarManager {
     
     this.sidebarVisible = true;
     this.applySidebarState();
-    console.log('サイドバー強制表示実行');
+    Utils.debugLog('サイドバー強制表示実行');
     
     if (this.toggleBtn) {
       this.toggleBtn.style.transform = 'scale(1.2)';
@@ -143,7 +143,7 @@ export class SidebarManager {
 
   hide() {
     if (Utils.isMobile()) return;
-    console.log('サイドバー非表示実行');
+    Utils.debugLog('サイドバー非表示実行');
     this.sidebarVisible = false;
     this.applySidebarState();
   }
@@ -153,7 +153,7 @@ export class SidebarManager {
     if (this.toggleBtn) {
       this.toggleBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        console.log('トグルボタンクリック');
+        Utils.debugLog('トグルボタンクリック');
         this.toggle();
       });
       
@@ -174,7 +174,7 @@ export class SidebarManager {
     if (this.hideBtn) {
       this.hideBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        console.log('非表示ボタンクリック');
+        Utils.debugLog('非表示ボタンクリック');
         this.hide();
       });
     } else {
@@ -210,7 +210,7 @@ export class SidebarManager {
     try {
       SimpleAuth.initUserIcon();
     } catch (error) {
-      console.error('ユーザーアイコン初期化エラー:', error);
+      console.error('ユーザーアイコン初期化エラー:', error.message);
     }
   }
 }
@@ -220,7 +220,7 @@ export function updateActiveNavigation() {
   const currentPath = window.location.pathname;
   const currentFile = currentPath.split('/').pop() || 'index.html';
   
-  console.log('現在のパス:', currentPath, 'ファイル:', currentFile);
+  Utils.debugLog('現在のパス:', currentPath, 'ファイル:', currentFile);
   
   const sidebarLinks = Utils.getElements('.menu a');
   const bottomNavLinks = Utils.getElements('.bottom-navigation .nav-item');
@@ -236,7 +236,7 @@ export function updateActiveNavigation() {
         (currentFile === '' && linkHref === 'index.html') ||
         (currentPath.includes('index') && linkHref === 'index.html')) {
       link.classList.add('active');
-      console.log('サイドバーアクティブ設定:', linkHref);
+      Utils.debugLog('サイドバーアクティブ設定:', linkHref);
     }
   });
   
@@ -246,7 +246,7 @@ export function updateActiveNavigation() {
         (currentFile === '' && linkHref === 'index.html') ||
         (currentPath.includes('index') && linkHref === 'index.html')) {
       link.classList.add('active');
-      console.log('ボトムナビアクティブ設定:', linkHref);
+      Utils.debugLog('ボトムナビアクティブ設定:', linkHref);
     }
   });
 }

@@ -1,16 +1,18 @@
 // 簡易認証チェック用モジュール
+import { STORAGE_KEYS, USER_ROLE } from './constants.js';
+
 export class SimpleAuth {
   static getToken() {
-    return localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+    return localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN) || sessionStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
   }
   
   static getCurrentUser() {
-    const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+    const userStr = localStorage.getItem(STORAGE_KEYS.USER) || sessionStorage.getItem(STORAGE_KEYS.USER);
     if (userStr) {
       try {
         return JSON.parse(userStr);
       } catch (e) {
-        console.error('ユーザー情報の解析エラー:', e);
+        console.error('ユーザー情報の解析エラー:', e.message);
         return null;
       }
     }
@@ -26,7 +28,7 @@ export class SimpleAuth {
   static requireAuth() {
     if (!this.isLoggedIn()) {
       // 無限ループ防止フラグを設定
-      sessionStorage.setItem('redirectedFromMain', 'true');
+      sessionStorage.setItem(STORAGE_KEYS.REDIRECTED_FROM_MAIN, 'true');
       window.location.href = '/src/pages/login.html';
       return false;
     }
@@ -48,7 +50,7 @@ export class SimpleAuth {
   
   static updateCurrentUser(updatedUser) {
     if (updatedUser) {
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updatedUser));
     }
   }
   
@@ -63,7 +65,9 @@ export class SimpleAuth {
     // ドロップダウンメニューを作成
     this.createUserDropdown(userIcon, user);
     
-    console.log('ユーザーアイコン初期化完了');
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      console.log('ユーザーアイコン初期化完了');
+    }
   }
 
   static createUserDropdown(userIcon, user) {

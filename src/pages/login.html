@@ -67,6 +67,19 @@
     document.addEventListener('DOMContentLoaded', () => {
       const loginForm = document.getElementById('loginForm');
       const errorMessage = document.getElementById('errorMessage');
+      const passwordInput = document.getElementById('password');
+      const passwordToggle = document.getElementById('passwordToggle');
+      
+      // パスワード表示/非表示切り替え
+      if (passwordToggle) {
+        passwordToggle.addEventListener('click', () => {
+          const type = passwordInput.type === 'password' ? 'text' : 'password';
+          passwordInput.type = type;
+          
+          const icon = passwordToggle.querySelector('i');
+          icon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+        });
+      }
       
       // 無限ループ防止: リダイレクトフラグをチェック
       const redirectFromMain = sessionStorage.getItem('redirectedFromMain');

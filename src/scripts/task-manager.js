@@ -1,5 +1,7 @@
 import { Utils } from './utils.js';
 import { SimpleAuth } from './simple-auth.js';
+import { TASK_PROGRESS, TASK_PROGRESS_OPTIONS, TASK_PRIORITY, TASK_STATUS } from './constants.js';
+import { AppConfig } from './config.js';
 import { ProjectManager } from './project-manager.js';
 
 // タスク管理クラス
@@ -54,21 +56,7 @@ export class TaskManager {
     }
   }
   getDefaultSettings() {
-    return {
-      categories: ['企画', '開発', 'デザイン', 'テスト', 'ドキュメント', '会議', 'その他'],
-      users: [], // 初期値を空配列に
-      priorities: [
-        { value: 'high', label: '高優先度', color: '#c62828' },
-        { value: 'medium', label: '中優先度', color: '#ef6c00' },
-        { value: 'low', label: '低優先度', color: '#2e7d32' }
-      ],
-      statuses: [
-        { value: 'todo', label: '未着手', color: '#666' },
-        { value: 'in_progress', label: '進行中', color: '#1976d2' },
-        { value: 'review', label: 'レビュー中', color: '#f57c00' },
-        { value: 'done', label: '完了', color: '#388e3c' }
-      ]
-    };
+    return AppConfig.getDefaultSettings();
   }
 
   async loadUsers() {
@@ -102,6 +90,8 @@ export class TaskManager {
 
   async loadTasks() {
     try {
+      Utils.debugLog('タスク読み込み開始...');
+      
       // APIからタスクデータを取得
       const response = await fetch('/api/tasks', {
         headers: SimpleAuth.getAuthHeaders()
@@ -112,16 +102,37 @@ export class TaskManager {
       }
       
       const data = await response.json();
-      this.tasks = data.tasks || [];
+      Utils.debugLog('APIレスポンス:', data);
+      
+      // 配列であることを保証
+      if (Array.isArray(data.tasks)) {
+        this.tasks = data.tasks;
+      } else if (Array.isArray(data)) {
+        this.tasks = data;
+      } else {
+        console.warn('APIレスポンスが配列ではありません:', data);
+        this.tasks = [];
+      }
+      
+      Utils.debugLog('タスク読み込み完了:', this.tasks.length, '件');
     } catch (error) {
-      console.error('タスクの読み込みに失敗しました:', error);
+      console.error('タスクの読み込みに失敗しました:', error.message);
       // フォールバック：ローカルストレージから読み込み
-      this.tasks = Utils.getFromStorage('tasks', []);
+      const storedTasks = Utils.getFromStorage('tasks', []);
+      this.tasks = Array.isArray(storedTasks) ? storedTasks : [];
+      Utils.debugLog('ローカルストレージから読み込み:', this.tasks.length, '件');
     }
   }
 
   async saveTasks() {
     try {
+      Utils.debugLog('タスク保存開始:', this.tasks.length, '件');
+      
+      // データの妥当性チェック
+      if (!Array.isArray(this.tasks)) {
+        throw new Error('タスクデータが配列ではありません');
+      }
+      
       // APIにタスクデータを保存
       const response = await fetch('/api/tasks', {
         method: 'POST',
@@ -129,16 +140,37 @@ export class TaskManager {
         body: JSON.stringify({ tasks: this.tasks })
       });
       
+      Utils.debugLog('レスポンスステータス:', response.status, response.statusText);
+      
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('サーバーエラーレスポンス:', errorText);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
       const result = await response.json();
-      console.log('タスク保存成功:', result.message);
-    } catch (error) {
-      console.error('タスクの保存に失敗しました:', error);
-      // フォールバック：ローカルストレージに保存
+      Utils.debugLog('タスク保存成功:', result);
+      
+      // ローカルストレージにもバックアップ
       Utils.saveToStorage('tasks', this.tasks);
+      
+      return true; // 成功を返す
+    } catch (error) {
+      console.error('タスクの保存に失敗しました:', error.message);
+      
+      // フォールバック：ローカルストレージに保存
+      try {
+        const saved = Utils.saveToStorage('tasks', this.tasks);
+        if (saved) {
+          Utils.debugLog('ローカルストレージへの保存は成功しました');
+        } else {
+          console.error('ローカルストレージへの保存も失敗しました');
+        }
+      } catch (storageError) {
+        console.error('ローカルストレージエラー:', storageError.message);
+      }
+      
+      throw error; // エラーを再スローして呼び出し元に伝える
     }
   }
 
@@ -154,7 +186,7 @@ export class TaskManager {
     };
 
     // デバッグ用ログ
-    console.log('タスク要素:', {
+    Utils.debugLog('タスク要素:', {
       addBtn: !!elements.addBtn,
       modal: !!elements.modal,
       form: !!elements.form,
@@ -192,7 +224,12 @@ export class TaskManager {
       addBtn.addEventListener('click', () => {
         this.resetEditState();
         const form = Utils.getElement('#taskForm');
-        if (form) form.reset();
+        if (form) {
+          form.reset();
+          // デフォルト値を設定
+          const progressSelect = Utils.getElement('#taskProgress');
+          if (progressSelect) progressSelect.value = String(TASK_PROGRESS.NOT_STARTED);
+        }
         this.openModal("#taskModal");
       });
     }
@@ -227,6 +264,18 @@ export class TaskManager {
   }
 
   populateFormOptions() {
+    // 進捗率の選択肢を動的に生成
+    const progressSelect = Utils.getElement('#taskProgress');
+    if (progressSelect) {
+      progressSelect.innerHTML = '';
+      TASK_PROGRESS_OPTIONS.forEach(progress => {
+        const option = document.createElement('option');
+        option.value = String(progress.value);
+        option.textContent = progress.label;
+        progressSelect.appendChild(option);
+      });
+    }
+
     const selectors = [
       { id: '#taskAssignee', options: this.settings.users, hasValue: true },
       { id: '#taskCategory', options: this.settings.categories },
@@ -237,7 +286,7 @@ export class TaskManager {
     selectors.forEach(({ id, options, hasValue }) => {
       const select = Utils.getElement(id);
       if (select && options) {
-        // 既存のオプション（"選択してください"以外）をクリア
+        // 既存のオプション("選択してください"以外)をクリア
         const firstOption = select.querySelector('option[value=""]');
         select.innerHTML = '';
         if (firstOption) {
@@ -255,7 +304,7 @@ export class TaskManager {
   }
 
   openModal(selector) {
-    console.log('selector: ' + selector);
+    Utils.debugLog('selector: ' + selector);
     const modal = Utils.getElement(selector);
     if (modal) {
       modal.style.display = 'block';
@@ -277,28 +326,38 @@ export class TaskManager {
   }
 
   async handleFormSubmit() {
-    const form = Utils.getElement('#taskForm');
-    if (!form) return;
+    try {
+      const form = Utils.getElement('#taskForm');
+      if (!form) {
+        console.error('フォームが見つかりません');
+        return;
+      }
 
-    const formData = new FormData(form);
-    const payload = {
-      title: formData.get('title'),
-      description: formData.get('description') || '',
-      assignee: formData.get('assignee'),
-      startDate: formData.get('startDate'),
-      dueDate: formData.get('dueDate'),
-      priority: formData.get('priority'),
-      category: formData.get('category'),
-      status: formData.get('status'),
-      progress: parseInt(formData.get('progress')) || 0
-    };
+      const formData = new FormData(form);
+      const payload = {
+        title: formData.get('title'),
+        description: formData.get('description') || '',
+        assignee: formData.get('assignee'),
+        startDate: formData.get('startDate'),
+        dueDate: formData.get('dueDate'),
+        priority: formData.get('priority'),
+        category: formData.get('category'),
+        status: formData.get('status'),
+        progress: parseInt(formData.get('progress')) || 0
+      };
 
-    if (!this.validateTaskData(payload)) return;
+      Utils.debugLog('フォーム送信データ:', payload);
 
-    if (this.editingTaskId) {
-      await this.updateTask(payload);
-    } else {
-      await this.addTask(payload);
+      if (!this.validateTaskData(payload)) return;
+
+      if (this.editingTaskId) {
+        await this.updateTask(payload);
+      } else {
+        await this.addTask(payload);
+      }
+    } catch (error) {
+      console.error('フォーム送信エラー:', error);
+      Utils.showNotification('フォームの送信に失敗しました。', 'error');
     }
   }
 
@@ -320,32 +379,69 @@ export class TaskManager {
   }
 
   async addTask(payload) {
-    const task = {
-      id: Utils.generateId('task'),
-      ...payload,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
+    // タスク追加前の状態を保存（ロールバック用）
+    const previousTasks = [...this.tasks];
+    
+    try {
+      const task = {
+        id: Utils.generateId('task'),
+        ...payload,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
 
-    this.tasks.push(task);
-    await this.saveTasks();
-    this.renderTasks();
-    this.closeModal();
-    Utils.showNotification('タスクが正常に追加されました。', 'success');
+      Utils.debugLog('新規タスク作成:', task);
+
+      // タスク配列が初期化されているか確認
+      if (!Array.isArray(this.tasks)) {
+        console.warn('タスク配列が初期化されていません。空配列で初期化します。');
+        this.tasks = [];
+      }
+
+      this.tasks.push(task);
+      Utils.debugLog('タスク追加後の配列:', this.tasks.length, '件');
+      
+      await this.saveTasks();
+      this.renderTasks();
+      this.closeModal();
+      Utils.showNotification('タスクが正常に追加されました。', 'success');
+    } catch (error) {
+      console.error('タスク追加エラー:', error);
+      // エラー時はロールバック
+      this.tasks = previousTasks;
+      this.renderTasks();
+      Utils.showNotification('タスクの追加に失敗しました。', 'error');
+    }
   }
 
   async updateTask(payload) {
-    const index = this.tasks.findIndex(t => t.id === this.editingTaskId);
-    if (index !== -1) {
+    // 更新前の状態を保存（ロールバック用）
+    const previousTasks = [...this.tasks];
+    
+    try {
+      const index = this.tasks.findIndex(t => t.id === this.editingTaskId);
+      if (index === -1) {
+        throw new Error('更新対象のタスクが見つかりません');
+      }
+
+      Utils.debugLog('タスク更新:', this.editingTaskId);
+
       this.tasks[index] = { 
         ...this.tasks[index], 
         ...payload, 
         updatedAt: new Date().toISOString() 
       };
+      
       await this.saveTasks();
       this.renderTasks();
       this.closeModal();
       Utils.showNotification('タスクを更新しました。', 'success');
+    } catch (error) {
+      console.error('タスク更新エラー:', error);
+      // エラー時はロールバック
+      this.tasks = previousTasks;
+      this.renderTasks();
+      Utils.showNotification('タスクの更新に失敗しました。', 'error');
     }
   }
 
@@ -402,13 +498,18 @@ export class TaskManager {
   }
 
   async deleteTask() {
-    if (!this.deletingTaskId) return;
-    this.tasks = this.tasks.filter(t => t.id !== this.deletingTaskId);
-    await this.saveTasks();
-    this.renderTasks();
-    this.deletingTaskId = null;
-    this.closeModal();
-    Utils.showNotification('タスクが削除されました。', 'success');
+    try {
+      if (!this.deletingTaskId) return;
+      this.tasks = this.tasks.filter(t => t.id !== this.deletingTaskId);
+      await this.saveTasks();
+      this.renderTasks();
+      this.deletingTaskId = null;
+      this.closeModal();
+      Utils.showNotification('タスクが削除されました。', 'success');
+    } catch (error) {
+      console.error('タスク削除エラー:', error);
+      Utils.showNotification('タスクの削除に失敗しました。', 'error');
+    }
   }
 
   renderTasks(filter = 'all') {
@@ -450,7 +551,7 @@ export class TaskManager {
   }
 
   filterTasks(filter) {
-    console.log('タスクフィルター適用:', filter);
+    Utils.debugLog('タスクフィルター適用:', filter);
     this.renderTasks(filter);
   }
 
@@ -462,6 +563,7 @@ export class TaskManager {
     const progressText = this.getProgressText(task.progress);
     const priorityText = this.getPriorityText(task.priority);
     const statusText = this.getStatusText(task.status);
+    const assigneeText = this.getAssigneeText(task.assignee);
     
     taskDiv.innerHTML = `
       <div class="task-checkbox">
@@ -475,7 +577,7 @@ export class TaskManager {
           <span class="task-priority ${task.priority}">${priorityText}</span>
           <span class="task-status ${task.status}">${statusText}</span>
           <span class="task-due">期限: ${Utils.formatDate(task.dueDate)}</span>
-          <span class="task-assignee">担当: ${task.assignee}</span>
+          <span class="task-assignee">担当: ${assigneeText}</span>
           <span class="task-category">分類: ${task.category}</span>
           <span class="task-progress">進捗: ${progressText}</span>
         </div>
@@ -502,16 +604,17 @@ export class TaskManager {
   async toggleTaskStatus(taskId, isDone) {
     const task = this.tasks.find(t => t.id === taskId);
     if (task) {
-      task.status = isDone ? 'done' : 'todo';
-      task.progress = isDone ? 100 : 0;
+      task.status = isDone ? TASK_STATUS.DONE : TASK_STATUS.TODO;
+      task.progress = isDone ? TASK_PROGRESS.COMPLETED : TASK_PROGRESS.NOT_STARTED;
       await this.saveTasks();
       this.renderTasks();
     }
   }
 
   getProgressText(progress) {
-    const progressMap = { 0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%' };
-    return progressMap[progress] || '0%';
+    // 定数から進捗テキストを取得
+    const progressEntry = TASK_PROGRESS_OPTIONS.find(p => p.value === progress);
+    return progressEntry ? progressEntry.label : '0%';
   }
 
   getPriorityText(priority) {
@@ -522,5 +625,10 @@ export class TaskManager {
   getStatusText(statusValue) {
     const status = this.settings.statuses.find(s => s.value === statusValue);
     return status ? status.label : '不明';
+  }
+
+  getAssigneeText(assigneeValue) {
+    const assignee = this.settings.users.find(u => u.value === assigneeValue);
+    return assignee ? assignee.label : assigneeValue;
   }
 }
