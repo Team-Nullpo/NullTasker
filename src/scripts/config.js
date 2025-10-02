@@ -19,6 +19,8 @@ export class AppConfig {
     return {
       users: [],
       categories: [...DEFAULT_CATEGORIES],
+      priorities: this.getPriorities(),
+      statuses: this.getStatuses(),
       projectName: 'NullTasker Project',
       projectDescription: 'チームでのタスク管理を効率化するプロジェクトです。',
       notifications: {
