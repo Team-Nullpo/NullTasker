@@ -1148,6 +1148,21 @@ app.post('/api/backup', authenticateToken, async (req, res) => {
   }
 });
 
+app.get('/api/projects/:projectId', authenticateToken, async (req, res) => {
+    try {
+        const data = await fs.readFile(USERS_FILE, 'utf8');
+        const projects = JSON.parse(data).projects;
+        const project = projects.find(p => p.id === req.params.projectId);
+        if (!project) {
+            return res.status(404).json({ error: 'プロジェクトが見つかりません'});
+        }
+        res.json(project);
+    } catch (error) {
+        console.error('プロジェクトデータの取得に失敗: ', error);
+        res.status(500).json({ error: 'プロジェクトデータ取得に失敗しました'});
+    }
+});
+
 // サーバー起動
 app.listen(PORT, () => {
   console.log(`サーバーが起動しました: http://localhost:${PORT}`);

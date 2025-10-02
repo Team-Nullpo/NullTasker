@@ -610,8 +610,12 @@ input:checked + .slider:before {
 }
 
 .gantt-progress-bar {
-  background: linear-gradient(45deg, rgba(255,255,255,0.2), rgba(255,255,255,0.4));
-  border-right: 2px solid rgba(255,255,255,0.6);
+  background: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.4)
+  );
+  border-right: 2px solid rgba(255, 255, 255, 0.6);
 }
 
 .gantt-legend {
@@ -911,7 +915,7 @@ input:checked + .slider:before {
 }
 
 /* タスク詳細モーダル */
-.task-form {
+.modal-form {
   padding: var(--spacing-xxl);
 }
 

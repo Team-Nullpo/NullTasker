@@ -2,7 +2,6 @@
 import { TaskManager } from './task-manager.js';
 import { CalendarManager } from './calendar-manager.js';
 import { GanttManager } from './gantt-manager.js';
-import { SettingsManager } from './settings-manager.js';
 import { SidebarManager } from './sidebar.js';
 import { Utils } from './utils.js';
 import { SimpleAuth } from './simple-auth.js';

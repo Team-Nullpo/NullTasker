@@ -5,7 +5,7 @@
       "loginId": "admin",
       "displayName": "管理者",
       "email": "admin@nulltasker.com",
-      "password": "$2b$10$Sg000UE6P66/EVMB628m2O61XRyG9crqifGbr6BEFStK84sXIhWhS",
+      "password": "$2b$10$32Eqm02zx03Zx/aXG2oO5uTC0x0VQBuT3svir9mmuVtuVKyg0wSoK",
       "role": "system_admin",
       "projects": [
         "default"
@@ -34,16 +34,43 @@
           "その他"
         ],
         "priorities": [
-          "低",
-          "中",
-          "高",
-          "緊急"
+          {
+            "value": "high",
+            "label": "高優先度",
+            "color": "#c62828"
+          },
+          {
+            "value": "medium",
+            "label": "中優先度",
+            "color": "#ef6c00"
+          },
+          {
+            "value": "low",
+            "label": "低優先度",
+            "color": "#2e7d32"
+          }
         ],
         "statuses": [
-          "未着手",
-          "進行中",
-          "レビュー中",
-          "完了"
+          {
+            "value": "todo",
+            "label": "未着手",
+            "color": "#666"
+          },
+          {
+            "value": "in_progress",
+            "label": "進行中",
+            "color": "#1976d2"
+          },
+          {
+            "value": "review",
+            "label": "レビュー中",
+            "color": "#f57c00"
+          },
+          {
+            "value": "done",
+            "label": "完了",
+            "color": "#388e3c"
+          }
         ],
         "notifications": true,
         "autoAssign": false
@@ -52,5 +79,5 @@
       "lastUpdated": "2025-09-07T00:00:00.000Z"
     }
   ],
-  "lastUpdated": "2025-10-01T06:37:25.984Z"
+  "lastUpdated": "2025-10-02T07:36:40.266Z"
 }
