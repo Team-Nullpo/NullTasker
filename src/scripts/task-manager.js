@@ -1,5 +1,6 @@
 import { Utils } from './utils.js';
 import { SimpleAuth } from './simple-auth.js';
+import { ProjectManager } from './project-manager.js';
 
 // タスク管理クラス
 export class TaskManager {
@@ -29,12 +30,29 @@ export class TaskManager {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       this.settings = await response.json();
+      const projectId = ProjectManager.getCurrentProject();
+      const projectResponse = await fetch(`/api/projects/${projectId}`, {
+        headers: SimpleAuth.getAuthHeaders()
+      });
+      if (!projectResponse.ok) {
+        throw new Error(`HTTP error! status: ${a.status}`);
+      }
+      const data = await projectResponse.json();
+      this.settings = this.getSettings(data);
+
     } catch (error) {
       console.error('設定の読み込みに失敗しました:', error);
       this.settings = this.getDefaultSettings();
     }
   }
 
+  getSettings(json) {
+    return {
+        categories: json.settings.categories,
+        priorities: json.settings.priorities,
+        statuses: json.settings.statuses
+    }
+  }
   getDefaultSettings() {
     return {
       categories: ['企画', '開発', 'デザイン', 'テスト', 'ドキュメント', '会議', 'その他'],
