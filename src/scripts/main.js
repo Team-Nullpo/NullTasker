@@ -10,23 +10,23 @@ import { SimpleAuth } from './simple-auth.js';
 // アプリケーション初期化
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    console.log('アプリケーション初期化開始');
+    Utils.debugLog('アプリケーション初期化開始');
 
     // ログインページかチェック
     const currentPath = window.location.pathname;
     const isLoginPage = currentPath.includes('login.html');
-    console.log('Current path:', currentPath, 'Is login page:', isLoginPage);
+    Utils.debugLog('Current path:', currentPath, 'Is login page:', isLoginPage);
     
     // ログインページ以外で認証チェック
     if (!isLoginPage) {
       // SimpleAuthを使った簡単な認証チェック
       if (!SimpleAuth.isLoggedIn()) {
-        console.log('認証データがありません。ログインページにリダイレクト');
+        Utils.debugLog('認証データがありません。ログインページにリダイレクト');
         SimpleAuth.requireAuth();
         return;
       }
       
-      console.log('認証OK。アプリケーション初期化を継続');
+      Utils.debugLog('認証OK。アプリケーション初期化を継続');
     }
 
     // サイドバー管理（ログインページ以外）
@@ -36,27 +36,27 @@ document.addEventListener('DOMContentLoaded', async () => {
           console.warn('SidebarManager が見つかりません - スキップします');
         } else {
           window.sidebarManager = new SidebarManager();
-          console.log('サイドバー管理初期化完了');
+          Utils.debugLog('サイドバー管理初期化完了');
         }
       } catch (sidebarError) {
-        console.error('サイドバー管理初期化エラー:', sidebarError);
+        console.error('サイドバー管理初期化エラー:', sidebarError.message);
       }
 
       // 現在のページに応じて適切なマネージャーを初期化
       const currentPage = getCurrentPage();
-      console.log('現在のページ:', currentPage);
+      Utils.debugLog('現在のページ:', currentPage);
 
       await initializePageManager(currentPage);
       
       // 共通機能の初期化
       initializeCommonFeatures();
     } else {
-      console.log('ログインページのため、他の初期化をスキップ');
+      Utils.debugLog('ログインページのため、他の初期化をスキップ');
     }
     
-    console.log('アプリケーション初期化完了');
+    Utils.debugLog('アプリケーション初期化完了');
   } catch (error) {
-    console.error('アプリケーション初期化エラー:', error);
+    console.error('アプリケーション初期化エラー:', error.message);
     
     // 簡易通知表示
     const notification = document.createElement('div');
@@ -97,7 +97,7 @@ async function initializePageManager(page) {
   try {
     switch (page) {
       case 'task':
-        console.log('タスク管理を初期化中...');
+        Utils.debugLog('タスク管理を初期化中...');
         if (typeof TaskManager !== 'undefined') {
           window.taskManager = new TaskManager();
         } else {
@@ -106,7 +106,7 @@ async function initializePageManager(page) {
         break;
         
       case 'calendar':
-        console.log('カレンダー管理を初期化中...');
+        Utils.debugLog('カレンダー管理を初期化中...');
         if (typeof CalendarManager !== 'undefined') {
           window.calendarManager = new CalendarManager();
         } else {
@@ -115,7 +115,7 @@ async function initializePageManager(page) {
         break;
         
       case 'gantt':
-        console.log('ガントチャート管理を初期化中...');
+        Utils.debugLog('ガントチャート管理を初期化中...');
         if (typeof GanttManager !== 'undefined') {
           window.ganttManager = new GanttManager();
         } else {
@@ -124,7 +124,7 @@ async function initializePageManager(page) {
         break;
         
       case 'settings':
-        console.log('設定管理を初期化中...');
+        Utils.debugLog('設定管理を初期化中...');
         if (typeof SettingsManager !== 'undefined') {
           window.settingsManager = new SettingsManager();
         } else {
@@ -134,13 +134,13 @@ async function initializePageManager(page) {
         
       case 'dashboard':
       default:
-        console.log('ダッシュボードを初期化中...');
+        Utils.debugLog('ダッシュボードを初期化中...');
         await initializeDashboard();
         break;
     }
-    console.log(`${page}ページの初期化完了`);
+    Utils.debugLog(`${page}ページの初期化完了`);
   } catch (error) {
-    console.error(`${page}ページの初期化エラー:`, error);
+    console.error(`${page}ページの初期化エラー:`, error.message);
     // エラーが発生してもアプリケーションを停止させない
   }
 }

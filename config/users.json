@@ -11,7 +11,33 @@
         "default"
       ],
       "createdAt": "2025-09-01T00:00:00.000Z",
-      "lastLogin": null
+      "lastLogin": "2025-10-02T07:23:14.087Z"
+    },
+    {
+      "id": "test",
+      "loginId": "test",
+      "displayName": "テスターくん",
+      "email": "inabashigeyuki@japanet.net",
+      "password": "$2b$10$lHltdfwyyCRkMqgxUn7IKuKVvClP6SjjrX2.1lb0VI77FC2YvPYg.",
+      "role": "user",
+      "projects": [
+        "default"
+      ],
+      "createdAt": "2025-10-02T01:52:35.757Z",
+      "lastLogin": "2025-10-02T01:52:50.952Z"
+    },
+    {
+      "id": "Test",
+      "loginId": "Test",
+      "displayName": "test",
+      "email": "aaas@gmail.com",
+      "password": "$2b$10$dTahH8k5tQQiQVBTXj.XPuBsV1bRD4N2E9f5/acf/ifrb2t.vQss6",
+      "role": "user",
+      "projects": [
+        "default"
+      ],
+      "createdAt": "2025-10-02T02:48:41.082Z",
+      "lastLogin": "2025-10-02T02:48:50.283Z"
     }
   ],
   "projects": [
@@ -21,7 +47,9 @@
       "description": "初期プロジェクト",
       "owner": "admin",
       "members": [
-        "admin"
+        "admin",
+        "test",
+        "Test"
       ],
       "admins": [
         "admin"
@@ -49,8 +77,8 @@
         "autoAssign": false
       },
       "createdAt": "2025-09-01T00:00:00.000Z",
-      "lastUpdated": "2025-09-07T00:00:00.000Z"
+      "lastUpdated": "2025-10-02T02:48:41.082Z"
     }
   ],
-  "lastUpdated": "2025-10-01T06:37:25.984Z"
+  "lastUpdated": "2025-10-02T07:23:14.087Z"
 }

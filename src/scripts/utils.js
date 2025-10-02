@@ -1,5 +1,19 @@
 // 共通ユーティリティ関数
+import { NOTIFICATION_COLORS, NOTIFICATION_TYPE } from './constants.js';
+
 export class Utils {
+  // デバッグモード判定（開発環境のみログ出力）
+  static get DEBUG_MODE() {
+    return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  }
+
+  // デバッグログ（開発環境のみ）
+  static debugLog(...args) {
+    if (this.DEBUG_MODE) {
+      console.log(...args);
+    }
+  }
+
   // モバイル判定
   static isMobile() {
     return window.innerWidth <= 768;
@@ -41,24 +55,20 @@ export class Utils {
   }
 
   // 通知表示
-  static showNotification(message, type = 'info') {
+  static showNotification(message, type = NOTIFICATION_TYPE.INFO) {
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.textContent = message;
     
-    const colors = {
-      success: '#28a745',
-      warning: '#ffc107',
-      error: '#dc3545',
-      info: '#007bff'
-    };
+    const backgroundColor = NOTIFICATION_COLORS[type] || NOTIFICATION_COLORS[NOTIFICATION_TYPE.INFO];
+    const textColor = type === NOTIFICATION_TYPE.WARNING ? '#212529' : 'white';
     
     notification.style.cssText = `
       position: fixed;
       top: 20px;
       right: 20px;
-      background-color: ${colors[type] || colors.info};
-      color: ${type === 'warning' ? '#212529' : 'white'};
+      background-color: ${backgroundColor};
+      color: ${textColor};
       padding: 15px 20px;
       border-radius: 6px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
@@ -120,8 +130,20 @@ export class Utils {
 
   // 日付バリデーション
   static validateDates(startDate, endDate) {
+    if (!startDate || !endDate) return false;
     const start = new Date(startDate);
     const end = new Date(endDate);
     return start <= end;
+  }
+
+  // 安全な数値変換
+  static toSafeInteger(value, defaultValue = 0) {
+    const parsed = parseInt(value);
+    return isNaN(parsed) ? defaultValue : parsed;
+  }
+
+  // 安全な配列変換
+  static toSafeArray(value, defaultValue = []) {
+    return Array.isArray(value) ? value : defaultValue;
   }
 }

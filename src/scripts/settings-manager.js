@@ -1,4 +1,5 @@
 import { Utils } from './utils.js';
+import { AppConfig } from './config.js';
 
 // 設定管理クラス
 export class SettingsManager {
@@ -8,22 +9,7 @@ export class SettingsManager {
   }
 
   getDefaultSettings() {
-    return {
-      users: ['田中太郎', '佐藤花子', '山田次郎', '鈴木美咲', '高橋健一'],
-      categories: ['企画', '開発', 'デザイン', 'テスト', 'ドキュメント', '会議', 'その他'],
-      projectName: 'NullTasker Project',
-      projectDescription: 'チームでのタスク管理を効率化するプロジェクトです。',
-      notifications: {
-        email: true,
-        desktop: false,
-        taskReminder: true
-      },
-      display: {
-        theme: 'light',
-        language: 'ja',
-        tasksPerPage: 20
-      }
-    };
+    return AppConfig.getDefaultSettings();
   }
 
   init() {
@@ -49,21 +35,10 @@ export class SettingsManager {
   }
 
   updateGlobalSettings() {
-    const globalSettings = {
-      categories: this.settings.categories,
-      users: this.settings.users,
-      priorities: [
-        { value: 'high', label: '高優先度', color: '#c62828' },
-        { value: 'medium', label: '中優先度', color: '#ef6c00' },
-        { value: 'low', label: '低優先度', color: '#2e7d32' }
-      ],
-      statuses: [
-        { value: 'todo', label: '未着手', color: '#666' },
-        { value: 'in_progress', label: '進行中', color: '#1976d2' },
-        { value: 'review', label: 'レビュー中', color: '#f57c00' },
-        { value: 'done', label: '完了', color: '#388e3c' }
-      ]
-    };
+    const globalSettings = AppConfig.createGlobalSettings(
+      this.settings.categories,
+      this.settings.users
+    );
     
     if (window.taskManager) {
       window.taskManager.settings = globalSettings;
@@ -239,7 +214,7 @@ export class SettingsManager {
     const addMemberBtn = Utils.getElement('#addMemberBtn');
     const memberInput = Utils.getElement('#memberInput');
     
-    console.log('メンバー管理要素:', { addMemberBtn: !!addMemberBtn, memberInput: !!memberInput });
+    Utils.debugLog('メンバー管理要素:', { addMemberBtn: !!addMemberBtn, memberInput: !!memberInput });
     
     if (addMemberBtn) {
       addMemberBtn.addEventListener('click', () => this.addMember());
@@ -258,7 +233,7 @@ export class SettingsManager {
     const addCategoryBtn = Utils.getElement('#addCategoryBtn');
     const categoryInput = Utils.getElement('#categoryInput');
     
-    console.log('カテゴリー管理要素:', { addCategoryBtn: !!addCategoryBtn, categoryInput: !!categoryInput });
+    Utils.debugLog('カテゴリー管理要素:', { addCategoryBtn: !!addCategoryBtn, categoryInput: !!categoryInput });
     
     if (addCategoryBtn) {
       addCategoryBtn.addEventListener('click', () => this.addCategory());
