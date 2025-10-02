@@ -198,8 +198,8 @@ document.addEventListener('DOMContentLoaded', function() {
       showError('パスワードは8文字以上で入力してください。');
       return false;
     }
-    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]/.test(data.password)) {
-      showError('パスワードは大文字・小文字・数字をそれぞれ1文字以上含む必要があります。');
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&_-]+$/.test(data.password)) {
+      showError('パスワードは8文字以上で、大文字・小文字・数字をそれぞれ1文字以上含む必要があります。');
       return false;
     }
 

@@ -5,13 +5,13 @@
       "loginId": "admin",
       "displayName": "管理者",
       "email": "admin@nulltasker.com",
-      "password": "$2b$10$32Eqm02zx03Zx/aXG2oO5uTC0x0VQBuT3svir9mmuVtuVKyg0wSoK",
+      "password": "$2b$10$47kmc1ZCtyuFWuAwPxet1uJIjTUpkavn/zJ.BmcVKpB32VLqtHqJi",
       "role": "system_admin",
       "projects": [
         "default"
       ],
       "createdAt": "2025-09-01T00:00:00.000Z",
-      "lastLogin": null
+      "lastLogin": "2025-10-02T08:19:01.449Z"
     }
   ],
   "projects": [
@@ -28,9 +28,12 @@
       ],
       "settings": {
         "categories": [
+          "企画",
           "開発",
           "デザイン",
           "テスト",
+          "ドキュメント",
+          "会議",
           "その他"
         ],
         "priorities": [
@@ -79,5 +82,5 @@
       "lastUpdated": "2025-09-07T00:00:00.000Z"
     }
   ],
-  "lastUpdated": "2025-10-02T07:36:40.266Z"
+  "lastUpdated": "2025-10-02T08:19:01.449Z"
 }

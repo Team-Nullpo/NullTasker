@@ -7,9 +7,30 @@ const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const { body, validationResult } = require('express-validator');
+const {
+  VALIDATION,
+  JWT_EXPIRY,
+  RATE_LIMIT: RATE_LIMIT_CONFIG,
+  DEFAULT_SETTINGS,
+  TASK_PROGRESS,
+  TASK_STATUS,
+  getValidProgressValues,
+  getValidStatusValues,
+  getPrioritiesArray,
+  getStatusesArray
+} = require('./server-constants');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const DEBUG_MODE = NODE_ENV === 'development';
+
+// デバッグログ用のヘルパー関数
+const debugLog = (...args) => {
+  if (DEBUG_MODE) {
+    console.log(...args);
+  }
+};
 
 // JWT秘密鍵（本番環境では必ず環境変数を使用）
 const JWT_SECRET = process.env.JWT_SECRET || generateSecureSecret();
@@ -50,8 +71,8 @@ app.use(express.json({ limit: '10mb' }));
 
 // レート制限設定
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15分
-  max: 5, // 最大5回の試行
+  windowMs: RATE_LIMIT_CONFIG.WINDOW_MS,
+  max: RATE_LIMIT_CONFIG.LOGIN_MAX_REQUESTS,
   message: {
     success: false,
     message: 'ログイン試行回数が上限に達しました。15分後に再試行してください。'
@@ -61,8 +82,8 @@ const authLimiter = rateLimit({
 });
 
 const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15分
-  max: 100, // 最大100リクエスト
+  windowMs: RATE_LIMIT_CONFIG.WINDOW_MS,
+  max: RATE_LIMIT_CONFIG.MAX_REQUESTS,
   message: {
     error: 'リクエスト制限に達しました。しばらく時間をおいて再試行してください。'
   }
@@ -75,32 +96,31 @@ app.use('/api', generalLimiter);
 // バリデーションルール
 const loginValidation = [
   body('loginId')
-    .isLength({ min: 3, max: 20 })
-    .matches(/^[a-zA-Z0-9_-]+$/)
-    .withMessage('ログインIDは3-20文字の英数字、アンダースコア、ハイフンのみ使用可能です'),
+    .isLength({ min: VALIDATION.LOGIN_ID.MIN_LENGTH, max: VALIDATION.LOGIN_ID.MAX_LENGTH })
+    .matches(VALIDATION.LOGIN_ID.PATTERN)
+    .withMessage(VALIDATION.LOGIN_ID.ERROR_MESSAGE),
   body('password')
-    .isLength({ min: 8, max: 128 })
-    .withMessage('パスワードは8-128文字で入力してください')
+    .isLength({ min: VALIDATION.PASSWORD.MIN_LENGTH })
+    .withMessage(VALIDATION.PASSWORD.ERROR_MESSAGE)
 ];
 
 const registerValidation = [
   body('loginId')
-    .isLength({ min: 3, max: 20 })
-    .matches(/^[a-zA-Z0-9_-]+$/)
-    .withMessage('ログインIDは3-20文字の英数字、アンダースコア、ハイフンのみ使用可能です'),
-  body('displayName')
-    .isLength({ min: 1, max: 50 })
-    .trim()
-    .escape()
-    .withMessage('表示名は1-50文字で入力してください'),
-  body('email')
-    .isEmail()
-    .normalizeEmail()
-    .withMessage('有効なメールアドレスを入力してください'),
+    .isLength({ min: VALIDATION.LOGIN_ID.MIN_LENGTH, max: VALIDATION.LOGIN_ID.MAX_LENGTH })
+    .matches(VALIDATION.LOGIN_ID.PATTERN)
+    .withMessage(VALIDATION.LOGIN_ID.ERROR_MESSAGE),
   body('password')
-    .isLength({ min: 8, max: 128 })
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]/)
-        .withMessage('パスワードは8文字以上で、大文字・小文字・数字をそれぞれ1文字以上含む必要があります')
+    .isLength({ min: VALIDATION.PASSWORD.MIN_LENGTH, max: VALIDATION.PASSWORD.MAX_LENGTH })
+    .matches(VALIDATION.PASSWORD.PATTERN)
+    .withMessage(VALIDATION.PASSWORD.ERROR_MESSAGE),
+  body('displayName')
+    .optional()
+    .isLength({ min: VALIDATION.DISPLAY_NAME.MIN_LENGTH, max: VALIDATION.DISPLAY_NAME.MAX_LENGTH })
+    .withMessage(VALIDATION.DISPLAY_NAME.ERROR_MESSAGE),
+  body('email')
+    .optional()
+    .matches(VALIDATION.EMAIL.PATTERN)
+    .withMessage(VALIDATION.EMAIL.ERROR_MESSAGE)
 ];
 
 // 認証ミドルウェア
@@ -357,7 +377,7 @@ app.post('/api/login', loginValidation, async (req, res) => {
       });
     }
 
-    // JWTトークンを生成（有効期間短縮）
+    // JWTトークンを生成（有効期間を1時間に延長）
     const accessToken = jwt.sign(
       { 
         id: user.id,
@@ -368,14 +388,14 @@ app.post('/api/login', loginValidation, async (req, res) => {
         projects: user.projects || ['default']
       },
       JWT_SECRET,
-      { expiresIn: '15m' } // アクセストークンは15分
+      { expiresIn: JWT_EXPIRY.ACCESS_TOKEN }
     );
 
     // リフレッシュトークンを生成
     const refreshToken = jwt.sign(
       { id: user.id, type: 'refresh' },
       JWT_SECRET,
-      { expiresIn: rememberMe ? '30d' : '7d' } // リフレッシュトークンのみ長期間
+      { expiresIn: rememberMe ? '30d' : JWT_EXPIRY.REFRESH_TOKEN }
     );
 
     // 最終ログイン時間を更新
@@ -395,7 +415,7 @@ app.post('/api/login', loginValidation, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('ログインエラー:', error.message); // 詳細は隠す
+    console.error('ログインエラー:', NODE_ENV === 'development' ? error : error.message);
     res.status(500).json({ 
       success: false, 
       message: 'サーバーエラーが発生しました' 
@@ -477,12 +497,15 @@ app.post('/api/refresh', async (req, res) => {
     // 新しいアクセストークンを発行
     const newAccessToken = jwt.sign(
       { 
-        id: user.id, 
+        id: user.id,
+        loginId: user.loginId || user.id,
         displayName: user.displayName, 
-        email: user.email 
+        email: user.email,
+        role: user.role || 'user',
+        projects: user.projects || ['default']
       },
       JWT_SECRET,
-      { expiresIn: '15m' }
+      { expiresIn: JWT_EXPIRY.ACCESS_TOKEN }
     );
 
     res.json({
@@ -858,9 +881,9 @@ app.post('/api/admin/projects', authenticateToken, requireSystemAdmin, async (re
       members: [owner],
       admins: [owner],
       settings: {
-        categories: ['開発', 'デザイン', 'テスト', 'その他'],
-        priorities: ['低', '中', '高', '緊急'],
-        statuses: ['未着手', '進行中', 'レビュー中', '完了'],
+        categories: DEFAULT_SETTINGS.categories,
+        priorities: getPrioritiesArray(),
+        statuses: getStatusesArray(),
         notifications: true,
         autoAssign: false
       },
@@ -1087,12 +1110,37 @@ app.post('/api/admin/restore', authenticateToken, requireSystemAdmin, async (req
 // タスクデータを取得
 app.get('/api/tasks', authenticateToken, async (req, res) => {
   try {
+    debugLog('タスク取得リクエスト受信:', req.user?.id);
+    
     const data = await fs.readFile(TICKETS_FILE, 'utf8');
+    
+    // 空ファイルチェック
+    if (!data || data.trim() === '') {
+      console.warn('tickets.jsonが空です。空のタスク配列を返します。');
+      return res.json({ tasks: [], lastUpdated: new Date().toISOString() });
+    }
+    
     const tickets = JSON.parse(data);
+    
+    // データ構造の検証
+    if (!tickets.tasks || !Array.isArray(tickets.tasks)) {
+      console.warn('無効なデータ構造。修正して返します。');
+      return res.json({ tasks: [], lastUpdated: tickets.lastUpdated || new Date().toISOString() });
+    }
+    
+    debugLog('タスク取得成功:', tickets.tasks.length, '件');
     res.json(tickets);
   } catch (error) {
-    console.error('タスク読み込みエラー:', error);
-    res.status(500).json({ error: 'タスクの読み込みに失敗しました' });
+    console.error('タスク読み込みエラー:', error.message);
+    // JSONパースエラーの場合は空のデータを返す
+    if (error instanceof SyntaxError) {
+      console.error('JSON解析エラー。空のタスク配列を返します。');
+      return res.json({ tasks: [], lastUpdated: new Date().toISOString() });
+    }
+    res.status(500).json({ 
+      success: false,
+      error: 'タスクの読み込みに失敗しました'
+    });
   }
 });
 
@@ -1113,8 +1161,18 @@ app.post('/api/tasks', authenticateToken, async (req, res) => {
   try {
     const { tasks } = req.body;
     
+    debugLog('タスク保存リクエスト受信:', {
+      taskCount: tasks ? tasks.length : 'undefined',
+      isArray: Array.isArray(tasks),
+      user: req.user?.id
+    });
+    
     if (!tasks || !Array.isArray(tasks)) {
-      return res.status(400).json({ error: '無効なタスクデータです' });
+      console.error('無効なタスクデータ:', typeof tasks);
+      return res.status(400).json({ 
+        success: false,
+        error: '無効なタスクデータです'
+      });
     }
 
     const updatedData = {
@@ -1125,12 +1183,24 @@ app.post('/api/tasks', authenticateToken, async (req, res) => {
     // ファイルに書き込み
     await fs.writeFile(TICKETS_FILE, JSON.stringify(updatedData, null, 2), 'utf8');
     
-    console.log('タスクが正常に保存されました:', new Date().toISOString());
-    res.json({ success: true, message: 'タスクが正常に保存されました' });
+    debugLog('タスクが正常に保存されました:', {
+      count: tasks.length,
+      time: new Date().toISOString()
+    });
+    
+    res.json({ 
+      success: true, 
+      message: 'タスクが正常に保存されました',
+      taskCount: tasks.length,
+      timestamp: new Date().toISOString()
+    });
     
   } catch (error) {
-    console.error('タスク保存エラー:', error);
-    res.status(500).json({ error: 'タスクの保存に失敗しました' });
+    console.error('タスク保存エラー:', error.message);
+    res.status(500).json({ 
+      success: false,
+      error: 'タスクの保存に失敗しました'
+    });
   }
 });
 

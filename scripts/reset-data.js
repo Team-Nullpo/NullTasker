@@ -41,10 +41,13 @@ const INITIAL_DATA = {
         admins: ["admin"],
         settings: {
           "categories": [
-          "開発",
-          "デザイン",
-          "テスト",
-          "その他"
+          '企画',
+          '開発',
+          'デザイン',
+          'テスト',
+          'ドキュメント',
+          '会議',
+          'その他'
         ],
         "priorities": [
           {

@@ -34,7 +34,7 @@ export class CalendarManager {
       dailyTaskList: Utils.getElement('#dailyTaskList') // 追加
     };
 
-    console.log('カレンダー要素:', {
+    Utils.debugLog('カレンダー要素:', {
       prevBtn: !!elements.prevBtn,
       nextBtn: !!elements.nextBtn,
       quickInput: !!elements.quickInput,

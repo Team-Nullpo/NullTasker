@@ -78,5 +78,9 @@ temp/
 config/backup/*
 !config/backup/.gitkeep
 
+config/settings.json
+config/tickets.json
+config/users.json
+
 # etc
 memo.md
