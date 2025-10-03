@@ -5,82 +5,27 @@
       "loginId": "admin",
       "displayName": "管理者",
       "email": "admin@nulltasker.com",
-      "password": "$2b$10$FyKOBqZKEkaOvxXFdvnQXOs.NOxPEwjW3oyh.QHtGS9ZlCOIxyg66",
+      "password": "$2b$10$yaKeRkCR8IMnb7diKAV79ean0hBqklF/1mdGsdESL18yuYfYJpE.y",
       "role": "system_admin",
       "projects": [
         "default"
       ],
       "createdAt": "2025-09-01T00:00:00.000Z",
-      "lastLogin": "2025-10-03T04:40:03.986Z"
-    }
-  ],
-  "projects": [
+      "lastLogin": "2025-10-03T05:21:44.391Z"
+    },
     {
-      "id": "default",
-      "name": "デフォルトプロジェクト",
-      "description": "初期プロジェクト",
-      "owner": "admin",
-      "members": [
-        "admin"
+      "id": "treme",
+      "loginId": "treme",
+      "displayName": "aef",
+      "email": "mor@sute.jp",
+      "password": "$2b$10$QMRl126prJSj3jjr9r.0R.CvxIx3ZZWyH.Uzt.1.IZAzx7hbN3TmS",
+      "role": "user",
+      "projects": [
+        "default"
       ],
-      "admins": [
-        "admin"
-      ],
-      "settings": {
-        "categories": [
-          "企画",
-          "開発",
-          "デザイン",
-          "テスト",
-          "ドキュメント",
-          "会議",
-          "その他"
-        ],
-        "priorities": [
-          {
-            "value": "high",
-            "label": "高優先度",
-            "color": "#c62828"
-          },
-          {
-            "value": "medium",
-            "label": "中優先度",
-            "color": "#ef6c00"
-          },
-          {
-            "value": "low",
-            "label": "低優先度",
-            "color": "#2e7d32"
-          }
-        ],
-        "statuses": [
-          {
-            "value": "todo",
-            "label": "未着手",
-            "color": "#666"
-          },
-          {
-            "value": "in_progress",
-            "label": "進行中",
-            "color": "#1976d2"
-          },
-          {
-            "value": "review",
-            "label": "レビュー中",
-            "color": "#f57c00"
-          },
-          {
-            "value": "done",
-            "label": "完了",
-            "color": "#388e3c"
-          }
-        ],
-        "notifications": true,
-        "autoAssign": false
-      },
-      "createdAt": "2025-09-01T00:00:00.000Z",
-      "lastUpdated": "2025-09-07T00:00:00.000Z"
+      "createdAt": "2025-10-03T05:36:55.153Z",
+      "lastLogin": null
     }
   ],
-  "lastUpdated": "2025-10-03T04:40:03.986Z"
+  "lastUpdated": "2025-10-03T05:36:55.153Z"
 }
