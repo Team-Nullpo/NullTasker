@@ -5,6 +5,8 @@ import { GanttManager } from './gantt-manager.js';
 import { SidebarManager } from './sidebar.js';
 import { Utils } from './utils.js';
 import { SimpleAuth } from './simple-auth.js';
+import { SettingsManager } from './settings-manager.js';
+import { ProjectManager } from './project-manager.js';
 
 // アプリケーション初期化
 document.addEventListener('DOMContentLoaded', async () => {
@@ -41,6 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('サイドバー管理初期化エラー:', sidebarError.message);
       }
 
+      await ProjectManager.getCurrentProjectSettings();
       // 現在のページに応じて適切なマネージャーを初期化
       const currentPage = getCurrentPage();
       Utils.debugLog('現在のページ:', currentPage);

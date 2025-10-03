@@ -24,28 +24,7 @@ export class TaskManager {
   }
 
   async loadSettings() {
-    try {
-      const response = await fetch('/api/settings', {
-        headers: SimpleAuth.getAuthHeaders()
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      this.settings = await response.json();
-      const projectId = ProjectManager.getCurrentProject();
-      const projectResponse = await fetch(`/api/projects/${projectId}`, {
-        headers: SimpleAuth.getAuthHeaders()
-      });
-      if (!projectResponse.ok) {
-        throw new Error(`HTTP error! status: ${a.status}`);
-      }
-      const data = await projectResponse.json();
-      this.settings = this.getSettings(data);
-
-    } catch (error) {
-      console.error('設定の読み込みに失敗しました:', error);
-      this.settings = this.getDefaultSettings();
-    }
+    this.settings = ProjectManager.currentProjectSettings.settings;
   }
 
   getSettings(json) {
