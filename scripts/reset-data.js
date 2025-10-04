@@ -8,12 +8,14 @@
 const fs = require('fs').promises;
 const path = require('path');
 const bcrypt = require('bcrypt');
+const { CONNREFUSED } = require('dns');
 
 // ファイルパス
 const CONFIG_DIR = path.join(__dirname, '..', 'config');
 const USERS_FILE = path.join(CONFIG_DIR, 'users.json');
 const TICKETS_FILE = path.join(CONFIG_DIR, 'tickets.json');
 const SETTINGS_FILE = path.join(CONFIG_DIR, 'settings.json');
+const PROJECTS_FILE = path.join(CONFIG_DIR, 'projects.json')
 
 // 初期データ
 const INITIAL_DATA = {
@@ -29,70 +31,6 @@ const INITIAL_DATA = {
         projects: ["default"],
         createdAt: "2025-09-01T00:00:00.000Z",
         lastLogin: null
-      }
-    ],
-    projects: [
-      {
-        id: "default",
-        name: "デフォルトプロジェクト",
-        description: "初期プロジェクト",
-        owner: "admin",
-        members: ["admin"],
-        admins: ["admin"],
-        settings: {
-          "categories": [
-          '企画',
-          '開発',
-          'デザイン',
-          'テスト',
-          'ドキュメント',
-          '会議',
-          'その他'
-        ],
-        "priorities": [
-          {
-            "value": "high",
-            "label": "高優先度",
-            "color": "#c62828"
-          },
-          {
-            "value": "medium",
-            "label": "中優先度",
-            "color": "#ef6c00"
-          },
-          {
-            "value": "low",
-            "label": "低優先度",
-            "color": "#2e7d32"
-          }
-        ],
-        "statuses": [
-          {
-            "value": "todo",
-            "label": "未着手",
-            "color": "#666"
-          },
-          {
-            "value": "in_progress",
-            "label": "進行中",
-            "color": "#1976d2"
-          },
-          {
-            "value": "review",
-            "label": "レビュー中",
-            "color": "#f57c00"
-          },
-          {
-            "value": "done",
-            "label": "完了",
-            "color": "#388e3c"
-          }
-        ],
-        "notifications": true,
-        "autoAssign": false
-        },
-        createdAt: "2025-09-01T00:00:00.000Z",
-        lastUpdated: "2025-09-07T00:00:00.000Z"
       }
     ],
     lastUpdated: new Date().toISOString()
@@ -115,6 +53,74 @@ const INITIAL_DATA = {
       backupEnabled: true
     },
     lastUpdated: new Date().toISOString()
+  },
+
+  projects: {
+    projects: [
+        {
+          id: "default",
+          name: "デフォルトプロジェクト",
+          description: "初期プロジェクト",
+          owner: "admin",
+          members: ["admin"],
+          admins: ["admin"],
+          settings: {
+            "categories": [
+            '企画',
+            '開発',
+            'デザイン',
+            'テスト',
+            'ドキュメント',
+            '会議',
+            'その他'
+          ],
+          "priorities": [
+            {
+              "value": "high",
+              "label": "高優先度",
+              "color": "#c62828"
+            },
+            {
+              "value": "medium",
+              "label": "中優先度",
+              "color": "#ef6c00"
+            },
+            {
+              "value": "low",
+              "label": "低優先度",
+              "color": "#2e7d32"
+            }
+          ],
+          "statuses": [
+            {
+              "value": "todo",
+              "label": "未着手",
+              "color": "#666"
+            },
+            {
+              "value": "in_progress",
+              "label": "進行中",
+              "color": "#1976d2"
+            },
+            {
+              "value": "review",
+              "label": "レビュー中",
+              "color": "#f57c00"
+            },
+            {
+              "value": "done",
+              "label": "完了",
+              "color": "#388e3c"
+            }
+          ],
+          "notifications": true,
+          "autoAssign": false
+          },
+          createdAt: "2025-09-01T00:00:00.000Z",
+          lastUpdated: "2025-09-07T00:00:00.000Z"
+        },
+      ],
+      lastUpdated: new Date().toISOString()
   }
 };
 
@@ -144,6 +150,12 @@ async function resetSettings() {
   console.log('✅ 設定データをリセットしました');
 }
 
+async function resetProjects() {
+    console.log('プロジェクトデータをリセット中...');
+    
+    await fs.writeFile(PROJECTS_FILE, JSON.stringify(INITIAL_DATA.projects, null, 2));
+}
+
 async function createBackup() {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const backupDir = path.join(CONFIG_DIR, 'backups');
@@ -152,7 +164,7 @@ async function createBackup() {
     await fs.mkdir(backupDir, { recursive: true });
     
     // 既存ファイルのバックアップ
-    const files = ['users.json', 'tickets.json', 'settings.json'];
+    const files = ['users.json', 'tickets.json', 'settings.json', 'projects.json'];
     for (const file of files) {
       const sourcePath = path.join(CONFIG_DIR, file);
       const backupPath = path.join(backupDir, `${file}.backup.${timestamp}`);
@@ -179,6 +191,7 @@ async function main() {
     users: args.includes('--users') || args.includes('-u'),
     tickets: args.includes('--tickets') || args.includes('-t'),
     settings: args.includes('--settings') || args.includes('-s'),
+    projects: args.includes('--projects') || args.includes('-p'),
     backup: !args.includes('--no-backup'),
     help: args.includes('--help') || args.includes('-h')
   };
@@ -195,6 +208,7 @@ NullTasker データリセットスクリプト
   --users, -u      ユーザーデータのみリセット
   --tickets, -t    タスクデータのみリセット  
   --settings, -s   設定データのみリセット
+  --projects, -p   プロジェクトデータのみリセット
   --no-backup      バックアップを作成しない
   --help, -h       このヘルプを表示
 
@@ -234,6 +248,10 @@ NullTasker データリセットスクリプト
     if (resetAll || options.settings) {
       await resetSettings();
     }
+
+    if (resetAll || options.projects) {
+        await resetProjects();
+    }
     
     console.log('\n🎉 データリセットが完了しました！');
     
@@ -254,4 +272,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { resetUsers, resetTickets, resetSettings, createBackup };
+module.exports = { resetUsers, resetTickets, resetSettings, resetProjects, createBackup };
