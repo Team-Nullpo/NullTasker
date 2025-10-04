@@ -716,7 +716,7 @@ app.get('/api/admin/users', authenticateToken, requireSystemAdmin, async (req, r
     res.json({
       users: usersWithoutPasswords,
       projects: projects.projects || [],
-      lastUpdated: data.lastUpdated
+      lastUpdated: users.lastUpdated
     });
 
   } catch (error) {

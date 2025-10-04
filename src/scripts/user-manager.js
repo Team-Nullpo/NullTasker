@@ -1,7 +1,7 @@
 export class UserManager {
   static users = {};
 
-  static async getUsers() {
+  static async fetchUsers() {
     this.getCurrentProject();
     try {
       const res = await fetch(`/api/users`, {

@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('サイドバー管理初期化エラー:', sidebarError.message);
       }
 
-      await ProjectManager.getCurrentProjectSettings();
+      await ProjectManager.fetchCurrentProjectSettings();
       // 現在のページに応じて適切なマネージャーを初期化
       const currentPage = getCurrentPage();
       Utils.debugLog('現在のページ:', currentPage);

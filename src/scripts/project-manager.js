@@ -28,7 +28,7 @@ export class ProjectManager {
     this.currentProject = null;
     console.log("現在のプロジェクトをクリアしました");
   }
-  static async getCurrentProjectSettings() {
+  static async fetchCurrentProjectSettings() {
     this.getCurrentProject();
     try {
       const res = await fetch(`/api/projects/${this.currentProject}`, {
