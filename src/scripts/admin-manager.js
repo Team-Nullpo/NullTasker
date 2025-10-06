@@ -1,8 +1,9 @@
 // admin-manager.js - システム管理機能
 import { Utils } from './utils.js';
 import { SimpleAuth } from './simple-auth.js';
+import { ProjectManager } from './project-manager.js';
 
-class AdminManager {
+export class AdminManager {
   constructor() {
     this.users = [];
     this.projects = [];
@@ -22,6 +23,7 @@ class AdminManager {
       await this.loadData();
       this.setupEventListeners();
       this.updateDashboardStats();
+      this.populateProjectForm();
       
     } catch (error) {
       console.error('初期化エラー:', error);
@@ -75,11 +77,47 @@ class AdminManager {
       restoreFile.addEventListener('change', this.handleFileRestore.bind(this));
     }
 
+    // プロジェクト遷移
+    const projectChange = document.getElementById('projectSelect');
+    if (projectChange) {
+      projectChange.addEventListener('change', this.changeProject);
+    }
+
     // モーダル外クリックで閉じる
     window.addEventListener('click', (event) => {
       if (event.target.classList.contains('modal')) {
         event.target.style.display = 'none';
       }
+    });
+  }
+
+  async changeProject() {
+    const projectChange = document.getElementById('projectSelect');
+    const destination = projectChange.value;
+    const projects = ProjectManager.projectSettings.projects.map(project => project.id);
+    if (!projects.filter(project => project.id !== destination)) {
+        console.error("指定のプロジェクトが見つかりません");
+        return;
+    }
+    ProjectManager.setCurrentProject(destination);
+    await ProjectManager.fetchProjectSettings();
+  }
+
+  populateProjectForm() {
+    const projectForm = document.getElementById('projectSelect');
+    if (!projectForm) {
+        console.error("プロジェクト移動メニューが見つかりません");
+        return;
+    }
+    const projects = ProjectManager.projectSettings;
+    console.log(projects);
+    projectForm.innerHTML = '';
+    projects.projects.forEach(project => {
+        const option = document.createElement('option');
+        option.value = project.id;
+        option.label = project.name;
+        option.selected = project.id === ProjectManager.currentProject;
+        projectForm.appendChild(option);
     });
   }
 
@@ -680,8 +718,8 @@ window.downloadSettingsBackup = () => {
 };
 
 // ページ読み込み時に初期化
-document.addEventListener('DOMContentLoaded', () => {
-  window.adminManager = new AdminManager();
-});
+// document.addEventListener('DOMContentLoaded', () => {
+//   window.adminManager = new AdminManager();
+// });
 
-export { AdminManager };
+// export { AdminManager };
