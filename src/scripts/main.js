@@ -8,6 +8,7 @@ import { SimpleAuth } from './simple-auth.js';
 import { SettingsManager } from './settings-manager.js';
 import { ProjectManager } from './project-manager.js';
 import { UserManager } from './user-manager.js';
+import { AdminManager } from './admin-manager.js';
 
 // アプリケーション初期化
 document.addEventListener('DOMContentLoaded', async () => {
@@ -31,6 +32,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       Utils.debugLog('認証OK。アプリケーション初期化を継続');
     }
 
+    await ProjectManager.fetchProjectSettings();
+    await UserManager.fetchUsers();
+
     // サイドバー管理（ログインページ以外）
     if (!isLoginPage) {
       try {
@@ -44,8 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('サイドバー管理初期化エラー:', sidebarError.message);
       }
 
-      await ProjectManager.fetchCurrentProjectSettings();
-      await UserManager.fetchUsers();
+      
       // 現在のページに応じて適切なマネージャーを初期化
       const currentPage = getCurrentPage();
       Utils.debugLog('現在のページ:', currentPage);
@@ -94,6 +97,7 @@ function getCurrentPage() {
   if (filename.includes('calendar')) return 'calendar';
   if (filename.includes('gantt')) return 'gantt';
   if (filename.includes('setting')) return 'settings';
+  if (filename.includes('admin')) return 'admin';
   return 'dashboard';
 }
 
@@ -133,6 +137,14 @@ async function initializePageManager(page) {
           window.settingsManager = new SettingsManager();
         } else {
           console.warn('SettingsManager が見つかりません');
+        }
+        break;
+      case 'admin':
+        Utils.debugLog('管理者設定画面を初期化中...');
+        if (typeof AdminManager !== 'undefined') {
+          window.settingsManager = new AdminManager();
+        } else {
+          console.warn('AdminManager が見つかりません');
         }
         break;
         

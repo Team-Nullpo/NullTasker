@@ -8,11 +8,12 @@
       "password": "$2b$10$bhqVn2g1lVsBywoxSP/ZnOETO1fGD9yI6HrS9vrO2pLMnpx.sCfPW",
       "role": "system_admin",
       "projects": [
-        "default"
+        "default",
+        "windows_1759739836996"
       ],
       "createdAt": "2025-09-01T00:00:00.000Z",
-      "lastLogin": "2025-10-06T05:34:12.886Z"
+      "lastLogin": "2025-10-06T09:17:53.406Z"
     }
   ],
-  "lastUpdated": "2025-10-06T05:34:19.655Z"
+  "lastUpdated": "2025-10-06T09:17:53.406Z"
 }
