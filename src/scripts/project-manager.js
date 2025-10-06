@@ -4,6 +4,7 @@ export class ProjectManager {
   static STORAGE_KEY = "currentProject";
   static currentProject = null;
   static currentProjectSettings = null;
+  static projectSettings = null;
 
   static setCurrentProject(project) {
     localStorage.setItem(this.STORAGE_KEY, project);
@@ -28,20 +29,25 @@ export class ProjectManager {
     this.currentProject = null;
     console.log("現在のプロジェクトをクリアしました");
   }
-  static async fetchCurrentProjectSettings() {
+  static async fetchProjectSettings() {
     this.getCurrentProject();
     try {
-      const res = await fetch(`/api/projects/${this.currentProject}`, {
+      const res = await fetch(`/api/projects`, {
         headers: SimpleAuth.getAuthHeaders(),
       });
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-      this.currentProjectSettings = await res.json();
+      const data = await res.json();
+      this.projectSettings = data;
+      this.currentProjectSettings = data.projects.find(p => p.id === this.currentProject);
+
     } catch (error) {
       console.error("設定の読み込みに失敗しました:", error);
       this.currentProjectSettings = AppConfig.getDefaultSettings();
     }
+    console.log(this.currentProject);
+    console.log(this.projectSettings);
     console.log(this.currentProjectSettings);
   }
 }
