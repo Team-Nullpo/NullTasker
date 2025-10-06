@@ -55,7 +55,7 @@ export class TaskManager {
       
       // 配列であることを保証
       if (Array.isArray(data.tasks)) {
-        this.tasks = data.tasks;
+        this.tasks = data.tasks.filter(task => task.project === ProjectManager.currentProject);
       } else if (Array.isArray(data)) {
         this.tasks = data;
       } else {
@@ -292,7 +292,8 @@ export class TaskManager {
         priority: formData.get('priority'),
         category: formData.get('category'),
         status: formData.get('status'),
-        progress: parseInt(formData.get('progress')) || 0
+        progress: parseInt(formData.get('progress')) || 0,
+        project: ProjectManager.currentProject
       };
 
       Utils.debugLog('フォーム送信データ:', payload);

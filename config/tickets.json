@@ -7,13 +7,28 @@
       "assignee": "admin",
       "startDate": "2025-10-03",
       "dueDate": "2025-10-04",
-      "priority": "medium",
-      "category": "設計",
+      "priority": "high",
+      "category": "その他",
       "status": "done",
       "progress": 0,
       "createdAt": "2025-10-06T04:42:41.693Z",
-      "updatedAt": "2025-10-06T04:42:41.693Z"
+      "updatedAt": "2025-10-06T05:07:34.454Z"
+    },
+    {
+      "id": "task_1759728270361_601",
+      "title": "ert",
+      "description": "",
+      "assignee": "admin",
+      "startDate": "2025-10-06",
+      "dueDate": "2025-10-11",
+      "priority": "medium",
+      "category": "ドキュメント",
+      "status": "done",
+      "progress": 0,
+      "project": "default",
+      "createdAt": "2025-10-06T05:24:30.362Z",
+      "updatedAt": "2025-10-06T05:24:30.362Z"
     }
   ],
-  "lastUpdated": "2025-10-06T04:42:41.701Z"
+  "lastUpdated": "2025-10-06T05:24:30.371Z"
 }
