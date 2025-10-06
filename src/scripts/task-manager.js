@@ -3,6 +3,7 @@ import { SimpleAuth } from './simple-auth.js';
 import { TASK_PROGRESS, TASK_PROGRESS_OPTIONS, TASK_PRIORITY, TASK_STATUS } from './constants.js';
 import { AppConfig } from './config.js';
 import { ProjectManager } from './project-manager.js';
+import { UserManager } from './user-manager.js';
 
 // タスク管理クラス
 export class TaskManager {
@@ -15,56 +16,25 @@ export class TaskManager {
   }
 
   async init() {
-    await this.loadSettings();
-    await this.loadUsers(); // ユーザーリストを読み込み
+    this.loadSettings();
+    this.loadUsers(); // ユーザーリストを読み込み
     await this.loadTasks();
     this.setupEventListeners();
     this.populateFormOptions();
     this.renderTasks();
   }
 
-  async loadSettings() {
-    this.settings = ProjectManager.currentProjectSettings.settings;
+  loadSettings() {
+    this.settings = ProjectManager.currentProjectSettings;
   }
 
-  getSettings(json) {
-    return {
-        categories: json.settings.categories,
-        priorities: json.settings.priorities,
-        statuses: json.settings.statuses
-    }
-  }
-  getDefaultSettings() {
-    return AppConfig.getDefaultSettings();
-  }
-
-  async loadUsers() {
-    try {
-      const response = await fetch('/api/users', {
-        headers: SimpleAuth.getAuthHeaders()
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      // ユーザーリストを設定に追加
-      this.settings.users = data.users.map(user => ({
-        value: user.id,
-        label: user.displayName || user.loginId
-      }));
-      
-    } catch (error) {
-      console.error('ユーザーの読み込みに失敗しました:', error);
-      // フォールバック：管理者と現在のユーザーのみ
-      const currentUser = SimpleAuth.getCurrentUser();
-      this.settings.users = [
-        { value: 'admin', label: '管理者' },
-        { value: currentUser?.id || 'current', label: currentUser?.displayName || 'あなた' }
-      ];
-    }
+  loadUsers() {
+    console.log(this.settings);
+    const projectUsers = UserManager.users.filter(user => this.settings.members.includes(user.id));
+    this.settings.users = projectUsers.map(user => ({
+    value: user.id,
+    label: user.displayName || user.loginId
+    }));
   }
 
   async loadTasks() {
@@ -257,9 +227,9 @@ export class TaskManager {
 
     const selectors = [
       { id: '#taskAssignee', options: this.settings.users, hasValue: true },
-      { id: '#taskCategory', options: this.settings.categories },
-      { id: '#taskPriority', options: this.settings.priorities, hasValue: true },
-      { id: '#taskStatus', options: this.settings.statuses, hasValue: true }
+      { id: '#taskCategory', options: this.settings.settings.categories },
+      { id: '#taskPriority', options: this.settings.settings.priorities, hasValue: true },
+      { id: '#taskStatus', options: this.settings.settings.statuses, hasValue: true }
     ];
 
     selectors.forEach(({ id, options, hasValue }) => {
@@ -597,12 +567,12 @@ export class TaskManager {
   }
 
   getPriorityText(priority) {
-    const priorityObj = this.settings.priorities.find(p => p.value === priority);
+    const priorityObj = this.settings.settings.priorities.find(p => p.value === priority);
     return priorityObj ? priorityObj.label : '中優先度';
   }
 
   getStatusText(statusValue) {
-    const status = this.settings.statuses.find(s => s.value === statusValue);
+    const status = this.settings.settings.statuses.find(s => s.value === statusValue);
     return status ? status.label : '不明';
   }
 

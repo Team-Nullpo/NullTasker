@@ -5,27 +5,14 @@
       "loginId": "admin",
       "displayName": "管理者",
       "email": "admin@nulltasker.com",
-      "password": "$2b$10$yaKeRkCR8IMnb7diKAV79ean0hBqklF/1mdGsdESL18yuYfYJpE.y",
+      "password": "$2b$10$bhqVn2g1lVsBywoxSP/ZnOETO1fGD9yI6HrS9vrO2pLMnpx.sCfPW",
       "role": "system_admin",
       "projects": [
         "default"
       ],
       "createdAt": "2025-09-01T00:00:00.000Z",
-      "lastLogin": "2025-10-04T03:16:34.132Z"
-    },
-    {
-      "id": "treme",
-      "loginId": "treme",
-      "displayName": "aef",
-      "email": "mor@sute.jp",
-      "password": "$2b$10$QMRl126prJSj3jjr9r.0R.CvxIx3ZZWyH.Uzt.1.IZAzx7hbN3TmS",
-      "role": "user",
-      "projects": [
-        "default"
-      ],
-      "createdAt": "2025-10-03T05:36:55.153Z",
-      "lastLogin": null
+      "lastLogin": "2025-10-06T04:14:30.395Z"
     }
   ],
-  "lastUpdated": "2025-10-04T03:16:34.132Z"
+  "lastUpdated": "2025-10-06T04:14:30.395Z"
 }

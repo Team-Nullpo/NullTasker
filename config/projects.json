@@ -5,8 +5,12 @@
       "name": "デフォルトプロジェクト",
       "description": "初期プロジェクト",
       "owner": "admin",
-      "members": ["admin", "treme"],
-      "admins": ["admin"],
+      "members": [
+        "admin"
+      ],
+      "admins": [
+        "admin"
+      ],
       "settings": {
         "categories": [
           "企画",
@@ -60,8 +64,8 @@
         "autoAssign": false
       },
       "createdAt": "2025-09-01T00:00:00.000Z",
-      "lastUpdated": "2025-10-03T05:36:55.153Z"
+      "lastUpdated": "2025-09-07T00:00:00.000Z"
     }
   ],
-  "lastUpdated": "2025-10-03T05:36:55.153Z"
+  "lastUpdated": "2025-10-04T03:43:27.074Z"
 }

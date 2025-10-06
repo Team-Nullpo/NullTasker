@@ -1,8 +1,9 @@
+import { SimpleAuth } from "./simple-auth.js";
+
 export class UserManager {
   static users = {};
 
   static async fetchUsers() {
-    this.getCurrentProject();
     try {
       const res = await fetch(`/api/users`, {
         headers: SimpleAuth.getAuthHeaders(),
@@ -10,7 +11,9 @@ export class UserManager {
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-      this.users = await res.json();
+      const data = await res.json();
+      this.users = data.users;
+      console.log(this.users);
     } catch (error) {
       console.error("設定の読み込みに失敗しました:", error);
     }
