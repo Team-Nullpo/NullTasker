@@ -1,20 +1,4 @@
 {
-  "tasks": [
-    {
-      "id": "task_1759742969167_143",
-      "title": "treme",
-      "description": "",
-      "assignee": "admin",
-      "startDate": "2025-10-06",
-      "dueDate": "2025-10-07",
-      "priority": "medium",
-      "category": "デザイン",
-      "status": "todo",
-      "progress": 0,
-      "project": "windows_1759739836996",
-      "createdAt": "2025-10-06T09:29:29.167Z",
-      "updatedAt": "2025-10-06T09:29:29.167Z"
-    }
-  ],
-  "lastUpdated": "2025-10-06T09:29:29.172Z"
+  "tasks": [],
+  "lastUpdated": "2025-10-06T09:46:34.047Z"
 }

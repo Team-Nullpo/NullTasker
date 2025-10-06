@@ -55,7 +55,7 @@ export class TaskManager {
       
       // 配列であることを保証
       if (Array.isArray(data.tasks)) {
-        this.tasks = data.tasks.filter(task => task.project === ProjectManager.currentProject);
+        this.tasks = data.tasks;
       } else if (Array.isArray(data)) {
         this.tasks = data;
       } else {
@@ -486,17 +486,18 @@ export class TaskManager {
   }
 
   getFilteredTasks(filter) {
+    const tasks = this.tasks.filter(task => task.project === ProjectManager.currentProject);
     switch (filter) {
       case 'todo':
-        return this.tasks.filter(task => task.status !== 'done');
+        return tasks.filter(task => task.status !== 'done');
       case 'in_progress':
-        return this.tasks.filter(task => task.status === 'in_progress');
+        return tasks.filter(task => task.status === 'in_progress');
       case 'review':
-        return this.tasks.filter(task => task.status === 'review');
+        return tasks.filter(task => task.status === 'review');
       case 'done':
-        return this.tasks.filter(task => task.status === 'done');
+        return tasks.filter(task => task.status === 'done');
       default:
-        return this.tasks;
+        return tasks;
     }
   }
 

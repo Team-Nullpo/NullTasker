@@ -1,4 +1,5 @@
 import { Utils } from './utils.js';
+import { ProjectManager } from './project-manager.js';
 
 // ガントチャート管理クラス
 export class GanttManager {
@@ -19,7 +20,8 @@ export class GanttManager {
   }
 
   loadTasks() {
-    this.tasks = Utils.getFromStorage('tasks', []);
+    const tasks = Utils.getFromStorage('tasks', []);
+    this.tasks = tasks.filter(task => task.project === ProjectManager.currentProject);
   }
 
   setupEventListeners() {
