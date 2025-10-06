@@ -991,7 +991,7 @@ app.delete('/api/admin/projects/:projectId', authenticateToken, requireSystemAdm
     }
 
     const userData = await fs.readFile(USERS_FILE, 'utf8');
-    const data = JSON.parse(userData);
+    const users = JSON.parse(userData);
     const projectData = await fs.readFile(PROJECTS_FILE, 'utf8');
     const projects = JSON.parse(projectData);
     
@@ -1013,8 +1013,8 @@ app.delete('/api/admin/projects/:projectId', authenticateToken, requireSystemAdm
     users.lastUpdated = new Date().toISOString();
     projects.lastUpdated = new Date().toISOString();
 
-    await fs.writeFile(USERS_FILE, JSON.stringify(data, null, 2));
-    await fs.writeFile(PROJECTS_FILE, JSON.stringify(data, null, 2));
+    await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2));
+    await fs.writeFile(PROJECTS_FILE, JSON.stringify(projects, null, 2));
 
     res.json({ success: true, message: 'プロジェクトを削除しました' });
 

@@ -8,12 +8,11 @@
       "password": "$2b$10$bhqVn2g1lVsBywoxSP/ZnOETO1fGD9yI6HrS9vrO2pLMnpx.sCfPW",
       "role": "system_admin",
       "projects": [
-        "default",
-        "ewty_1759728517876"
+        "default"
       ],
       "createdAt": "2025-09-01T00:00:00.000Z",
-      "lastLogin": "2025-10-06T05:23:12.610Z"
+      "lastLogin": "2025-10-06T05:34:12.886Z"
     }
   ],
-  "lastUpdated": "2025-10-06T05:28:37.891Z"
+  "lastUpdated": "2025-10-06T05:34:19.655Z"
 }
