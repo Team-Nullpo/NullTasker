@@ -968,3 +968,143 @@ input:checked + .slider:before {
     flex-direction: column-reverse;
   }
 }
+
+/* ==========================================================================
+   Dark Theme Page Styles - ダークテーマページスタイル
+   ========================================================================== */
+
+/* タスクページ - ダークテーマ */
+body.theme-dark .task-item {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+body.theme-dark .task-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+body.theme-dark .task-content h3 {
+  color: var(--text-primary);
+}
+
+body.theme-dark .task-content p {
+  color: var(--text-secondary);
+}
+
+body.theme-dark .task-header {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+
+body.theme-dark .filter-select {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+/* カレンダーページ - ダークテーマ */
+body.theme-dark .calendar-header {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+body.theme-dark .calendar-grid {
+  border-color: var(--border-color);
+}
+
+body.theme-dark .calendar-day {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+body.theme-dark .calendar-day:hover {
+  background-color: var(--bg-tertiary);
+}
+
+body.theme-dark .calendar-day.today {
+  background-color: rgba(0, 123, 255, 0.2);
+  border-color: var(--primary-color);
+}
+
+/* 設定ページ - ダークテーマ */
+body.theme-dark .settings-section {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+
+body.theme-dark .settings-section h2 {
+  color: var(--text-primary);
+}
+
+body.theme-dark .notification-settings {
+  color: var(--text-primary);
+}
+
+body.theme-dark .storage-info h3 {
+  color: var(--text-primary);
+}
+
+body.theme-dark .storage-info p {
+  color: var(--text-secondary);
+}
+
+body.theme-dark .action-buttons .btn {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Ganttチャート - ダークテーマ */
+body.theme-dark .gantt-chart {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+body.theme-dark .gantt-header {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+body.theme-dark .gantt-row {
+  border-color: var(--border-color);
+}
+
+body.theme-dark .gantt-row:hover {
+  background-color: var(--bg-tertiary);
+}
+
+body.theme-dark .gantt-task-name {
+  color: var(--text-primary);
+}
+
+/* ダッシュボード - ダークテーマ */
+body.theme-dark .stat-card {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+body.theme-dark .stat-card h3 {
+  color: var(--text-secondary);
+}
+
+body.theme-dark .stat-card .stat-value {
+  color: var(--text-primary);
+}
+
+body.theme-dark .recent-task-item {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+body.theme-dark .recent-task-item:hover {
+  background-color: var(--bg-tertiary);
+}
+
+body.theme-dark .recent-task-item h4 {
+  color: var(--text-primary);
+}
+
+body.theme-dark .recent-task-item p {
+  color: var(--text-secondary);
+}
