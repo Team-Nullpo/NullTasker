@@ -41,6 +41,11 @@ export class ProjectManager {
       const data = await res.json();
       this.projectSettings = data;
       this.currentProjectSettings = data.projects.find(p => p.id === this.currentProject);
+      if (!this.currentProjectSettings) {
+        this.currentProjectSettings = data.projects.find(p => p.id === 'default');
+        console.warn(`プロジェクト${this.currentProject}が見つかりません。デフォルトプロジェクトを読み込みます。`);
+        this.setCurrentProject('default');
+      }
 
     } catch (error) {
       console.error("設定の読み込みに失敗しました:", error);
