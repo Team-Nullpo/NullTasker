@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     Utils.debugLog('アプリケーション初期化開始');
 
+    // テーマを最初に初期化（全ページで実行）
+    initializeTheme();
+
     // ログインページかチェック
     const currentPath = window.location.pathname;
     const isLoginPage = currentPath.includes('login.html');
@@ -244,6 +247,42 @@ function getStatusText(status) {
   };
   return map[status] || '未着手';
 }
+
+function initializeTheme() {
+  try {
+    // 保存されているテーマを取得
+    const savedTheme = Utils.getFromStorage('userTheme') || 'light';
+    
+    // テーマを適用
+    applyThemeGlobal(savedTheme);
+    
+    Utils.debugLog('テーマを適用しました:', savedTheme);
+  } catch (error) {
+    console.error('テーマ初期化エラー:', error);
+  }
+}
+
+function applyThemeGlobal(theme) {
+  // 既存のテーマクラスを削除
+  document.body.className = document.body.className.replace(/theme-\w+/g, '');
+  
+  if (theme === 'auto') {
+    // システムのテーマ設定を検出
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.body.classList.add(prefersDark ? 'theme-dark' : 'theme-light');
+  } else {
+    // 指定されたテーマを適用
+    document.body.classList.add(`theme-${theme}`);
+  }
+}
+
+// システムのカラースキーム変更を監視（autoモード用）
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+  const savedTheme = Utils.getFromStorage('userTheme');
+  if (savedTheme === 'auto') {
+    applyThemeGlobal('auto');
+  }
+});
 
 function initializeCommonFeatures() {
   // 通知システムの初期化

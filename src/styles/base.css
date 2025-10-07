@@ -70,3 +70,113 @@ body, html {
   background-color: #fff;
   position: relative;
 }
+
+/* ==========================================================================
+   Theme Support - テーマサポート
+   ========================================================================== */
+
+/* ライトテーマ（デフォルト） */
+body.theme-light,
+body:not([class*="theme-"]) {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #e9ecef;
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --text-tertiary: #adb5bd;
+  --border-color: #dee2e6;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+/* ダークテーマ */
+body.theme-dark {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --bg-tertiary: #3a3a3a;
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --text-tertiary: #808080;
+  --border-color: #404040;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  
+  --light-bg: #2d2d2d;
+  --gray-100: #3a3a3a;
+  --gray-200: #404040;
+  --gray-300: #4a4a4a;
+  --gray-400: #5a5a5a;
+  --gray-500: #707070;
+  --gray-600: #909090;
+  --gray-700: #b0b0b0;
+  --gray-800: #d0d0d0;
+  --gray-900: #e0e0e0;
+}
+
+body.theme-dark {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+body.theme-dark .app-container {
+  background-color: var(--bg-primary);
+}
+
+body.theme-dark .sidebar {
+  background-color: var(--bg-secondary);
+  border-right-color: var(--border-color);
+}
+
+body.theme-dark .main-content {
+  background-color: var(--bg-primary);
+}
+
+body.theme-dark .card,
+body.theme-dark .settings-section,
+body.theme-dark .modal-content,
+body.theme-dark .dashboard-card {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+body.theme-dark input,
+body.theme-dark select,
+body.theme-dark textarea {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+body.theme-dark input:focus,
+body.theme-dark select:focus,
+body.theme-dark textarea:focus {
+  background-color: var(--bg-secondary);
+  border-color: var(--primary-color);
+}
+
+body.theme-dark .btn-secondary {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+body.theme-dark .btn-secondary:hover {
+  background-color: var(--bg-secondary);
+}
+
+body.theme-dark .data-table {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+body.theme-dark .data-table thead {
+  background-color: var(--bg-tertiary);
+}
+
+body.theme-dark .data-table tbody tr:hover {
+  background-color: var(--bg-tertiary);
+}
+
+body.theme-dark .data-table td,
+body.theme-dark .data-table th {
+  border-color: var(--border-color);
+}
