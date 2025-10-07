@@ -977,11 +977,12 @@ input:checked + .slider:before {
 body.theme-dark .task-item {
   background-color: var(--bg-secondary);
   border-color: var(--border-color);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 body.theme-dark .task-item:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.7);
+  border-color: #636366;
 }
 
 body.theme-dark .task-content h3 {
@@ -998,9 +999,22 @@ body.theme-dark .task-header {
 }
 
 body.theme-dark .filter-select {
-  background-color: var(--bg-tertiary);
-  border-color: var(--border-color);
+  background-color: #2c2c2e;
+  border: 1.5px solid var(--border-color);
   color: var(--text-primary);
+}
+
+body.theme-dark .filter-select:focus {
+  border-color: #0a84ff;
+  box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.3);
+}
+
+body.theme-dark .add-task-btn {
+  background-color: #30d158;
+}
+
+body.theme-dark .add-task-btn:hover {
+  background-color: #32d760;
 }
 
 /* カレンダーページ - ダークテーマ */
@@ -1009,23 +1023,150 @@ body.theme-dark .calendar-header {
   border-color: var(--border-color);
 }
 
+body.theme-dark .calendar-controls {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+
+body.theme-dark .current-month {
+  color: var(--text-primary);
+}
+
+body.theme-dark .calendar-view {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+
+body.theme-dark .calendar-sidebar {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+
 body.theme-dark .calendar-grid {
   border-color: var(--border-color);
 }
 
+body.theme-dark .calendar-day-header {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-right-color: var(--border-color);
+  font-weight: 600;
+}
+
 body.theme-dark .calendar-day {
-  background-color: var(--bg-secondary);
-  border-color: var(--border-color);
+  background-color: #2c2c2e;
+  border-right: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
   color: var(--text-primary);
 }
 
 body.theme-dark .calendar-day:hover {
-  background-color: var(--bg-tertiary);
+  background-color: #3a3a3c;
+  border-color: #636366;
 }
 
 body.theme-dark .calendar-day.today {
-  background-color: rgba(0, 123, 255, 0.2);
-  border-color: var(--primary-color);
+  background-color: rgba(10, 132, 255, 0.15);
+  border: 2px solid #0a84ff;
+  box-shadow: inset 0 0 0 1px #0a84ff;
+}
+
+body.theme-dark .calendar-day.today .day-number {
+  color: #0a84ff;
+  font-weight: 700;
+  font-size: 1.1em;
+}
+
+body.theme-dark .calendar-day.selected {
+  background-color: rgba(48, 209, 88, 0.15);
+  border-color: #30d158;
+}
+
+body.theme-dark .calendar-day.other-month {
+  background-color: #1c1c1e;
+  color: var(--text-tertiary);
+  opacity: 0.5;
+}
+
+body.theme-dark .day-number {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+body.theme-dark .calendar-task {
+  background-color: #0a84ff;
+  color: #ffffff;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+body.theme-dark .calendar-task:hover {
+  background-color: #409cff;
+  transform: translateX(2px);
+}
+
+body.theme-dark .calendar-task.high {
+  background-color: #ff453a;
+}
+
+body.theme-dark .calendar-task.high:hover {
+  background-color: #ff6961;
+}
+
+body.theme-dark .calendar-task.medium {
+  background-color: #ff9f0a;
+  color: #ffffff;
+}
+
+body.theme-dark .calendar-task.medium:hover {
+  background-color: #ffb340;
+}
+
+body.theme-dark .calendar-task.low {
+  background-color: #30d158;
+}
+
+body.theme-dark .calendar-task.low:hover {
+  background-color: #32d760;
+}
+
+body.theme-dark .calendar-task.completed {
+  background-color: #636366;
+  opacity: 0.7;
+}
+
+body.theme-dark .sidebar-header {
+  border-bottom-color: var(--border-color);
+}
+
+body.theme-dark .sidebar-header h3 {
+  color: var(--text-primary);
+}
+
+body.theme-dark .selected-date {
+  color: var(--text-secondary);
+}
+
+body.theme-dark .daily-task {
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+}
+
+body.theme-dark .daily-task:hover {
+  background-color: #3a3a3c;
+  border-color: #636366;
+}
+
+body.theme-dark .task-title {
+  color: var(--text-primary);
+}
+
+body.theme-dark .task-time {
+  color: var(--text-secondary);
+}
+
+body.theme-dark .has-tasks {
+  background-color: rgba(10, 132, 255, 0.1);
 }
 
 /* 設定ページ - ダークテーマ */
@@ -1036,6 +1177,10 @@ body.theme-dark .settings-section {
 
 body.theme-dark .settings-section h2 {
   color: var(--text-primary);
+}
+
+body.theme-dark .settings-section h2 i {
+  color: #0a84ff;
 }
 
 body.theme-dark .notification-settings {
@@ -1050,8 +1195,17 @@ body.theme-dark .storage-info p {
   color: var(--text-secondary);
 }
 
+body.theme-dark .storage-bar {
+  background-color: #3a3a3c;
+  border: 1px solid var(--border-color);
+}
+
+body.theme-dark .storage-used {
+  background: linear-gradient(90deg, #0a84ff 0%, #409cff 100%);
+}
+
 body.theme-dark .action-buttons .btn {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
 }
 
 /* Ganttチャート - ダークテーマ */
@@ -1061,7 +1215,7 @@ body.theme-dark .gantt-chart {
 }
 
 body.theme-dark .gantt-header {
-  background-color: var(--bg-tertiary);
+  background-color: #1c1c1e;
   border-color: var(--border-color);
   color: var(--text-primary);
 }
@@ -1071,17 +1225,27 @@ body.theme-dark .gantt-row {
 }
 
 body.theme-dark .gantt-row:hover {
-  background-color: var(--bg-tertiary);
+  background-color: rgba(110, 118, 129, 0.1);
 }
 
 body.theme-dark .gantt-task-name {
   color: var(--text-primary);
 }
 
+body.theme-dark .gantt-bar {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
 /* ダッシュボード - ダークテーマ */
 body.theme-dark .stat-card {
   background-color: var(--bg-secondary);
-  border-color: var(--border-color);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+body.theme-dark .stat-card:hover {
+  border-color: #484f58;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.7);
 }
 
 body.theme-dark .stat-card h3 {
@@ -1090,15 +1254,17 @@ body.theme-dark .stat-card h3 {
 
 body.theme-dark .stat-card .stat-value {
   color: var(--text-primary);
+  font-weight: 700;
 }
 
 body.theme-dark .recent-task-item {
   background-color: var(--bg-secondary);
-  border-color: var(--border-color);
+  border: 1px solid var(--border-color);
 }
 
 body.theme-dark .recent-task-item:hover {
-  background-color: var(--bg-tertiary);
+  background-color: #3a3a3c;
+  border-color: #636366;
 }
 
 body.theme-dark .recent-task-item h4 {

@@ -95,25 +95,25 @@ body:not([class*="theme-"]) .main-content {
 
 /* ダークテーマ */
 body.theme-dark {
-  --bg-primary: #1e1e1e;
-  --bg-secondary: #252525;
-  --bg-tertiary: #2d2d2d;
-  --text-primary: #e4e4e4;
-  --text-secondary: #b8b8b8;
-  --text-tertiary: #8a8a8a;
-  --border-color: #3a3a3a;
-  --shadow-color: rgba(0, 0, 0, 0.5);
+  --bg-primary: #1c1c1e;
+  --bg-secondary: #2c2c2e;
+  --bg-tertiary: #3a3a3c;
+  --text-primary: #f5f5f7;
+  --text-secondary: #d1d1d6;
+  --text-tertiary: #98989d;
+  --border-color: #48484a;
+  --shadow-color: rgba(0, 0, 0, 0.6);
   
-  --light-bg: #2a2a2a;
-  --gray-100: #2d2d2d;
-  --gray-200: #3a3a3a;
-  --gray-300: #484848;
-  --gray-400: #5a5a5a;
-  --gray-500: #707070;
-  --gray-600: #9a9a9a;
-  --gray-700: #b8b8b8;
-  --gray-800: #d4d4d4;
-  --gray-900: #e4e4e4;
+  --light-bg: #2c2c2e;
+  --gray-100: #3a3a3c;
+  --gray-200: #48484a;
+  --gray-300: #636366;
+  --gray-400: #8e8e93;
+  --gray-500: #aeaeb2;
+  --gray-600: #c7c7cc;
+  --gray-700: #d1d1d6;
+  --gray-800: #e5e5ea;
+  --gray-900: #f5f5f7;
 }
 
 body.theme-dark {
@@ -205,23 +205,25 @@ body.theme-dark li {
 
 /* ダークテーマ - リンクとメニュー */
 body.theme-dark .menu a {
-  color: var(--text-primary);
+  color: var(--text-secondary);
 }
 
 body.theme-dark .menu a:hover {
-  background-color: rgba(0, 123, 255, 0.2);
-  color: var(--primary-color);
+  background-color: rgba(10, 132, 255, 0.15);
+  color: #0a84ff;
 }
 
 body.theme-dark .menu a.active {
-  background-color: rgba(0, 123, 255, 0.25);
-  color: #4da3ff;
+  background-color: rgba(10, 132, 255, 0.2);
+  color: #0a84ff;
+  font-weight: 600;
 }
 
 /* ダークテーマ - サイドバー改善 */
 body.theme-dark .sidebar {
-  background-color: #1a1a1a;
-  border-right-color: #2a2a2a;
+  background-color: #1c1c1e;
+  border-right-color: #48484a;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.4);
 }
 
 body.theme-dark .logo {
@@ -233,34 +235,67 @@ body.theme-dark .user-icon i {
 }
 
 body.theme-dark #projectSelect {
-  background-color: var(--bg-tertiary);
-  border-color: var(--border-color);
+  background-color: #2c2c2e;
+  border: 1.5px solid var(--border-color);
   color: var(--text-primary);
 }
 
 body.theme-dark #projectSelect:hover {
-  background-color: var(--bg-secondary);
+  background-color: #3a3a3c;
+  border-color: #636366;
+}
+
+body.theme-dark #projectSelect option {
+  background-color: #2c2c2e;
+  color: var(--text-primary);
 }
 
 /* ダークテーマ - ボタン改善 */
 body.theme-dark .btn-secondary {
-  background-color: #3a3a3a;
+  background-color: #21262d;
   color: var(--text-primary);
   border: 1px solid var(--border-color);
 }
 
 body.theme-dark .btn-secondary:hover {
-  background-color: #484848;
-  border-color: #555;
+  background-color: #30363d;
+  border-color: #484f58;
 }
 
 body.theme-dark .btn-warning {
-  background-color: #c89000;
+  background-color: #bb8009;
   color: #ffffff;
 }
 
 body.theme-dark .btn-warning:hover {
-  background-color: #d39e00;
+  background-color: #d29922;
+}
+
+body.theme-dark .btn-primary {
+  background-color: #0a84ff;
+  color: #ffffff;
+}
+
+body.theme-dark .btn-primary:hover {
+  background-color: #409cff;
+}
+
+body.theme-dark .btn-success {
+  background-color: #30d158;
+  color: #ffffff;
+}
+
+body.theme-dark .btn-success:hover {
+  background-color: #32d760;
+}
+
+body.theme-dark .btn-danger {
+  background-color: #da3633;
+  color: #ffffff;
+}
+
+body.theme-dark .btn-danger:hover {
+  background-color: #f85149;
 }
 
 /* ダークテーマ - カードとセクション改善 */
@@ -271,73 +306,95 @@ body.theme-dark .dashboard-card {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+body.theme-dark .card:hover,
+body.theme-dark .dashboard-card:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+  border-color: #484f58;
 }
 
 body.theme-dark .card-header,
 body.theme-dark .modal-header {
-  background-color: var(--bg-tertiary);
+  background-color: #1c1c1e;
   border-bottom-color: var(--border-color);
+  color: var(--text-primary);
 }
 
 /* ダークテーマ - 入力フィールド改善 */
 body.theme-dark input,
 body.theme-dark select,
 body.theme-dark textarea {
-  background-color: #2a2a2a;
-  border: 1px solid var(--border-color);
+  background-color: #2c2c2e;
+  border: 1.5px solid var(--border-color);
   color: var(--text-primary);
 }
 
 body.theme-dark input::placeholder,
 body.theme-dark textarea::placeholder {
   color: var(--text-tertiary);
+  opacity: 0.8;
 }
 
 body.theme-dark input:focus,
 body.theme-dark select:focus,
 body.theme-dark textarea:focus {
-  background-color: var(--bg-tertiary);
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(77, 163, 255, 0.25);
+  background-color: #3a3a3c;
+  border-color: #0a84ff;
+  box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.3);
+  outline: none;
 }
 
 /* ダークテーマ - リストアイテム */
 body.theme-dark .list-item {
   border-bottom-color: var(--border-color);
+  background-color: transparent;
 }
 
 body.theme-dark .list-item:hover {
-  background-color: var(--bg-tertiary);
+  background-color: rgba(110, 118, 129, 0.1);
 }
 
 body.theme-dark .list-item span {
   color: var(--text-primary);
 }
 
+body.theme-dark .remove-btn {
+  background-color: transparent;
+  color: var(--text-tertiary);
+  border: 1px solid var(--border-color);
+}
+
+body.theme-dark .remove-btn:hover {
+  background-color: rgba(248, 81, 73, 0.15);
+  color: #ff7b72;
+  border-color: #da3633;
+}
+
 /* ダークテーマ - 通知とアラート */
 body.theme-dark .alert-success {
-  background-color: #1e3a1e;
-  border-color: #2d5a2d;
-  color: #7cd67c;
+  background-color: rgba(46, 160, 67, 0.15);
+  border-color: #238636;
+  color: #3fb950;
 }
 
 body.theme-dark .alert-warning {
-  background-color: #3a3220;
-  border-color: #5a4d30;
-  color: #f0ca8c;
+  background-color: rgba(187, 128, 9, 0.15);
+  border-color: #9e6a03;
+  color: #d29922;
 }
 
 body.theme-dark .alert-danger {
-  background-color: #3a1e1e;
-  border-color: #5a2d2d;
-  color: #f08c8c;
+  background-color: rgba(248, 81, 73, 0.15);
+  border-color: #da3633;
+  color: #ff7b72;
 }
 
 body.theme-dark .alert-info {
-  background-color: #1e2e3a;
-  border-color: #2d445a;
-  color: #8cc8f0;
+  background-color: rgba(56, 139, 253, 0.15);
+  border-color: #1f6feb;
+  color: #79c0ff;
 }
 
 /* ダークテーマ - テーブル改善 */
@@ -348,8 +405,9 @@ body.theme-dark .data-table {
 }
 
 body.theme-dark .data-table thead {
-  background-color: #1a1a1a;
+  background-color: #1c1c1e;
   color: var(--text-primary);
+  font-weight: 600;
 }
 
 body.theme-dark .data-table tbody tr {
@@ -357,13 +415,17 @@ body.theme-dark .data-table tbody tr {
 }
 
 body.theme-dark .data-table tbody tr:hover {
-  background-color: var(--bg-tertiary);
+  background-color: #3a3a3c;
 }
 
 body.theme-dark .data-table td,
 body.theme-dark .data-table th {
   border-color: var(--border-color);
   color: var(--text-primary);
+}
+
+body.theme-dark .data-table td {
+  color: var(--text-secondary);
 }
 
 /* ダークテーマ - トグルスイッチ */
@@ -457,12 +519,14 @@ body.theme-dark .modal-close:hover {
 
 /* ダークテーマ - main-header */
 body.theme-dark .main-header {
-  background-color: var(--bg-primary);
-  border-bottom-color: var(--border-color);
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 body.theme-dark .main-header h1 {
   color: var(--text-primary);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 /* ダークテーマ - 設定項目 */
@@ -480,15 +544,20 @@ body.theme-dark .form-help {
 
 /* ダークテーマ - ボトムナビゲーション */
 body.theme-dark .bottom-navigation {
-  background-color: #1a1a1a;
-  border-top-color: var(--border-color);
+  background-color: #1c1c1e;
+  border-top: 1px solid var(--border-color);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.4);
 }
 
 body.theme-dark .bottom-navigation .nav-item {
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
 }
 
-body.theme-dark .bottom-navigation .nav-item.active,
+body.theme-dark .bottom-navigation .nav-item.active {
+  color: #0a84ff;
+}
+
 body.theme-dark .bottom-navigation .nav-item:hover {
-  color: var(--primary-color);
+  color: var(--text-secondary);
+  background-color: rgba(10, 132, 255, 0.1);
 }
