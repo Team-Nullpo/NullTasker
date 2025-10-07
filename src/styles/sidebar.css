@@ -61,6 +61,11 @@
   flex: 1;
 }
 
+/* ダークテーマでロゴを白バージョンに切り替え */
+body.theme-dark .logo img {
+  content: url('../assets/logowhite.png');
+}
+
 /* サイドバー非表示ボタン */
 .sidebar-hide-btn {
   background-color: rgba(255, 255, 255, 0.9);
