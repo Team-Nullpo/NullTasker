@@ -5,82 +5,14 @@
       "loginId": "admin",
       "displayName": "管理者",
       "email": "admin@nulltasker.com",
-      "password": "$2b$10$PGKK4sAVKvRBETSwqlOG9.8AKI/oeYaqRRhXcxM8fl2nRRlmp5VLe",
+      "password": "$2b$10$B5ReGpb.zb3pGBwiIAMHuujPH40vFcXcVfZUVcrk3ltsRGQ3khJxW",
       "role": "system_admin",
       "projects": [
         "default"
       ],
       "createdAt": "2025-09-01T00:00:00.000Z",
-      "lastLogin": null
+      "lastLogin": "2025-10-07T05:44:04.822Z"
     }
   ],
-  "projects": [
-    {
-      "id": "default",
-      "name": "デフォルトプロジェクト",
-      "description": "初期プロジェクト",
-      "owner": "admin",
-      "members": [
-        "admin"
-      ],
-      "admins": [
-        "admin"
-      ],
-      "settings": {
-        "categories": [
-          "企画",
-          "開発",
-          "デザイン",
-          "テスト",
-          "ドキュメント",
-          "会議",
-          "その他"
-        ],
-        "priorities": [
-          {
-            "value": "high",
-            "label": "高優先度",
-            "color": "#c62828"
-          },
-          {
-            "value": "medium",
-            "label": "中優先度",
-            "color": "#ef6c00"
-          },
-          {
-            "value": "low",
-            "label": "低優先度",
-            "color": "#2e7d32"
-          }
-        ],
-        "statuses": [
-          {
-            "value": "todo",
-            "label": "未着手",
-            "color": "#666"
-          },
-          {
-            "value": "in_progress",
-            "label": "進行中",
-            "color": "#1976d2"
-          },
-          {
-            "value": "review",
-            "label": "レビュー中",
-            "color": "#f57c00"
-          },
-          {
-            "value": "done",
-            "label": "完了",
-            "color": "#388e3c"
-          }
-        ],
-        "notifications": true,
-        "autoAssign": false
-      },
-      "createdAt": "2025-09-01T00:00:00.000Z",
-      "lastUpdated": "2025-09-07T00:00:00.000Z"
-    }
-  ],
-  "lastUpdated": "2025-10-07T05:53:19.216Z"
+  "lastUpdated": "2025-10-07T05:44:04.822Z"
 }

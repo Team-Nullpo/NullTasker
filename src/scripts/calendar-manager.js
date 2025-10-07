@@ -1,4 +1,5 @@
 import { Utils } from './utils.js';
+import { ProjectManager } from './project-manager.js';
 
 // カレンダー管理クラス
 export class CalendarManager {
@@ -20,7 +21,8 @@ export class CalendarManager {
   }
 
   loadTasks() {
-    this.tasks = Utils.getFromStorage('tasks', []);
+    const tasks = Utils.getFromStorage('tasks', []);
+    this.tasks = tasks.filter(task => task.project === ProjectManager.currentProject);
   }
 
   setupEventListeners() {
