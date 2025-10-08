@@ -11,8 +11,21 @@
         "default"
       ],
       "createdAt": "2025-09-01T00:00:00.000Z",
+      "lastLogin": "2025-10-08T08:20:54.899Z"
+    },
+    {
+      "id": "e",
+      "loginId": "e",
+      "displayName": "y",
+      "email": "r@o",
+      "password": "$2b$10$oxHfZMqLGzn73DM32x8rZO9A26FYa528zGMunU5dY7o.HEl.BNPua",
+      "role": "member",
+      "projects": [
+        "default"
+      ],
+      "createdAt": "2025-10-08T08:37:43.126Z",
       "lastLogin": null
     }
   ],
-  "lastUpdated": "2025-10-07T07:07:00.592Z"
+  "lastUpdated": "2025-10-08T08:37:43.127Z"
 }

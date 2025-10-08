@@ -53,135 +53,66 @@ export class AdminManager {
   }
 
   setupEventListeners() {
+    const add = (selector, event, handler) => {
+      const el = typeof selector === 'string' ? document.querySelector(selector) : selector;
+      if (!el) return;
+      el.addEventListener(event, handler);
+    };
 
-    const userDashboard = document.getElementById('dashboardUser');
-    if (userDashboard) {
-        userDashboard.addEventListener('click', () => {
-            this.showSection("users");
-        });
-    }
+    const mappings = [
+      // ダッシュボード → 各セクション
+      ['#dashboardUser', 'click', () => this.showSection('users')],
+      ['#dashboardProject', 'click', () => this.showSection('projects')],
+      ['#dashboardSystem', 'click', () => this.showSection('system')],
+      ['#dashboardBackup', 'click', () => this.showSection('backup')],
 
-    const projectDashboard = document.getElementById('dashboardProject');
-    if (projectDashboard) {
-        projectDashboard.addEventListener('click', () => {
-            this.showSection("projects");
-        });
-    }
+      // 各フォーム送信
+      ['#userForm', 'submit', this.handleUserSubmit.bind(this)],
+      ['#projectForm', 'submit', this.handleProjectSubmit.bind(this)],
+      ['#systemSettingsForm', 'submit', this.handleSystemSettingsSubmit.bind(this)],
 
-    const systemDashboard = document.getElementById('dashboardSystem');
-    if (systemDashboard) {
-        systemDashboard.addEventListener('click', () => {
-            this.showSection("system");
-        });
-    }
+      // ファイル復元
+      ['#restoreFile', 'change', this.handleFileRestore.bind(this)],
 
-    const backupDashboard = document.getElementById('dashboardBackup');
-    if (backupDashboard) {
-        backupDashboard.addEventListener('click', () => {
-            this.showSection("backup");
-        });
-    }
+      // プロジェクト遷移
+      ['#projectSelect', 'change', this.changeProject],
 
-    // ユーザーフォーム
-    const userForm = document.getElementById('userForm');
-    if (userForm) {
-      userForm.addEventListener('submit', this.handleUserSubmit.bind(this));
-    }
+      // ユーザー管理セクション
+      ['#usersSection .section-actions .btn.btn-primary', 'click', () => this.showUserModal()],
+      ['#usersSection .section-actions .btn.btn-secondary', 'click', () => this.showSection('dashboard')],
 
-    // プロジェクトフォーム
-    const projectForm = document.getElementById('projectForm');
-    if (projectForm) {
-      projectForm.addEventListener('submit', this.handleProjectSubmit.bind(this));
-    }
+      // プロジェクト管理セクション
+      ['#projectsSection .section-actions .btn.btn-primary', 'click', () => this.showProjectModal()],
+      ['#projectsSection .section-actions .btn.btn-secondary', 'click', () => this.showSection('dashboard')],
 
-    // システム設定フォーム
-    const systemForm = document.getElementById('systemSettingsForm');
-    if (systemForm) {
-      systemForm.addEventListener('submit', this.handleSystemSettingsSubmit.bind(this));
-    }
+      // システム設定セクション
+      ['#systemSection .section-actions .btn.btn-secondary', 'click', () => this.showSection('dashboard')],
 
-    // ファイル復元
-    const restoreFile = document.getElementById('restoreFile');
-    if (restoreFile) {
-      restoreFile.addEventListener('change', this.handleFileRestore.bind(this));
-    }
+      // バックアップセクション
+      ['#backupSection .section-actions .btn.btn-primary', 'click', () => this.createBackup()],
+      ['#backupSection .section-actions .btn.btn-secondary', 'click', () => this.showSection('dashboard')],
 
-    // プロジェクト遷移
-    const projectChange = document.getElementById('projectSelect');
-    if (projectChange) {
-      projectChange.addEventListener('change', this.changeProject);
-    }
+      // データ/設定ダウンロード
+      ['#backupSection .backup-card:nth-of-type(1) .btn.btn-primary', 'click', () => this.downloadDataBackup()],
+      ['#backupSection .backup-card:nth-of-type(2) .btn.btn-primary', 'click', () => this.downloadSettingsBackup()],
 
-    // モーダル外クリックで閉じる
+      // モーダルのクローズ（×ボタン）
+      ['#userModal .modal-close', 'click', () => this.closeUserModal()],
+      ['#projectModal .modal-close', 'click', () => this.closeProjectModal()],
+
+      // モーダルのキャンセルボタン
+      ['#userModal .btn.btn-secondary', 'click', () => this.closeUserModal()],
+      ['#projectModal .btn.btn-secondary', 'click', () => this.closeProjectModal()],
+    ];
+
+    mappings.forEach(([selector, event, handler]) => add(selector, event, handler));
+
+    // モーダル外クリックで閉じる（ウィンドウ全体）
     window.addEventListener('click', (event) => {
-      if (event.target.classList.contains('modal')) {
+      if (event.target && event.target.classList && event.target.classList.contains('modal')) {
         event.target.style.display = 'none';
       }
     });
-
-    // === admin.html のインライン onClick をイベントリスナーに置き換え ===
-    // ダッシュボード → 各セクション
-    const usersCard = document.getElementById('dashboardUser');
-    if (usersCard) usersCard.addEventListener('click', () => this.showSection('users'));
-
-    const projectsCard = document.getElementById('dashboardProject');
-    if (projectsCard) projectsCard.addEventListener('click', () => this.showSection('projects'));
-
-    const systemCard = document.getElementById('dashboardSystem');
-    if (systemCard) systemCard.addEventListener('click', () => this.showSection('system'));
-
-    const backupCard = document.getElementById('dashboardBackup');
-    if (backupCard) backupCard.addEventListener('click', () => this.showSection('backup'));
-
-    // ユーザー管理セクションのボタン
-    const usersSectionNewBtn = document.querySelector('#usersSection .section-actions .btn.btn-primary');
-    if (usersSectionNewBtn) usersSectionNewBtn.addEventListener('click', () => this.showUserModal());
-
-    const usersSectionBackBtn = document.querySelector('#usersSection .section-actions .btn.btn-secondary');
-    if (usersSectionBackBtn) usersSectionBackBtn.addEventListener('click', () => this.showSection('dashboard'));
-
-    // プロジェクト管理セクションのボタン
-    const projectsSectionNewBtn = document.querySelector('#projectsSection .section-actions .btn.btn-primary');
-    if (projectsSectionNewBtn) projectsSectionNewBtn.addEventListener('click', () => this.showProjectModal());
-
-    const projectsSectionBackBtn = document.querySelector('#projectsSection .section-actions .btn.btn-secondary');
-    if (projectsSectionBackBtn) projectsSectionBackBtn.addEventListener('click', () => this.showSection('dashboard'));
-
-    // システム設定セクションの戻る
-    const systemSectionBackBtn = document.querySelector('#systemSection .section-actions .btn.btn-secondary');
-    if (systemSectionBackBtn) systemSectionBackBtn.addEventListener('click', () => this.showSection('dashboard'));
-
-    // バックアップセクションのボタン
-    const backupCreateBtn = document.querySelector('#backupSection .section-actions .btn.btn-primary');
-    if (backupCreateBtn) backupCreateBtn.addEventListener('click', () => this.createBackup());
-
-    const backupSectionBackBtn = document.querySelector('#backupSection .section-actions .btn.btn-secondary');
-    if (backupSectionBackBtn) backupSectionBackBtn.addEventListener('click', () => this.showSection('dashboard'));
-
-    // データ/設定ダウンロード（カード順に依存）
-    const backupCards = document.querySelectorAll('#backupSection .backup-card');
-    if (backupCards[0]) {
-      const dataDownloadBtn = backupCards[0].querySelector('.btn.btn-primary');
-      if (dataDownloadBtn) dataDownloadBtn.addEventListener('click', () => this.downloadDataBackup());
-    }
-    if (backupCards[1]) {
-      const settingsDownloadBtn = backupCards[1].querySelector('.btn.btn-primary');
-      if (settingsDownloadBtn) settingsDownloadBtn.addEventListener('click', () => this.downloadSettingsBackup());
-    }
-
-    // モーダルのクローズ（×ボタン）
-    const userModalClose = document.querySelector('#userModal .modal-close');
-    if (userModalClose) userModalClose.addEventListener('click', () => this.closeUserModal());
-
-    const projectModalClose = document.querySelector('#projectModal .modal-close');
-    if (projectModalClose) projectModalClose.addEventListener('click', () => this.closeProjectModal());
-
-    // モーダルのキャンセルボタン
-    const userModalCancel = document.querySelector('#userModal .btn.btn-secondary');
-    if (userModalCancel) userModalCancel.addEventListener('click', () => this.closeUserModal());
-
-    const projectModalCancel = document.querySelector('#projectModal .btn.btn-secondary');
-    if (projectModalCancel) projectModalCancel.addEventListener('click', () => this.closeProjectModal());
   }
 
   async changeProject() {
