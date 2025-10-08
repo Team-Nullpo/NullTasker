@@ -103,6 +103,9 @@ export class AdminManager {
       // モーダルのキャンセルボタン
       ['#userModal .btn.btn-secondary', 'click', () => this.closeUserModal()],
       ['#projectModal .btn.btn-secondary', 'click', () => this.closeProjectModal()],
+
+      //
+      ['#usersTableBody', 'click', (e) => this.handleUserTableClick(e)],
     ];
 
     mappings.forEach(([selector, event, handler]) => add(selector, event, handler));
@@ -113,6 +116,18 @@ export class AdminManager {
         event.target.style.display = 'none';
       }
     });
+  }
+
+  handleUserTableClick(e) {
+    const button = e.target.closest('button');
+    if (!button) return;
+
+    const container = button.closest('tr');
+    const userId = container?.dataset.user;
+    if (!userId) return;
+
+    if (button.classList.contains('btn-edit')) this.editUser(userId);
+    else if (button.classList.contains('btn-delete')) this.deleteUser(userId);
   }
 
   async changeProject() {
@@ -199,6 +214,7 @@ export class AdminManager {
 
     this.users.forEach(user => {
       const row = document.createElement('tr');
+      row.setAttribute('data-user', user.id);
       row.innerHTML = `
         <td>${user.loginId || user.id}</td>
         <td>${user.displayName}</td>
@@ -207,10 +223,10 @@ export class AdminManager {
         <td>${user.projects ? user.projects.join(', ') : '-'}</td>
         <td>${user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('ja-JP') : '未ログイン'}</td>
         <td>
-          <button class="btn btn-sm btn-primary" onclick="adminManager.editUser('${user.id}')">
+          <button class="btn btn-sm btn-primary btn-edit">
             <i class="fas fa-edit"></i>
           </button>
-          <button class="btn btn-sm btn-danger" onclick="adminManager.deleteUser('${user.id}')">
+          <button class="btn btn-sm btn-danger btn-delete">
             <i class="fas fa-trash"></i>
           </button>
         </td>
