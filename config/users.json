@@ -6,6 +6,7 @@
       "displayName": "管理者",
       "email": "admin@nulltasker.com",
       "password": "$2b$10$kTt6az55T5m01.GmeiApN./CmjRaYkQ5fnZZ7QqjscJv4qbEU2Z.G",
+
       "role": "system_admin",
       "projects": [
         "default"
