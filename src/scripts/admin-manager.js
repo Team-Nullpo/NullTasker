@@ -53,6 +53,35 @@ export class AdminManager {
   }
 
   setupEventListeners() {
+
+    const userDashboard = document.getElementById('dashboardUser');
+    if (userDashboard) {
+        userDashboard.addEventListener('click', () => {
+            this.showSection("users");
+        });
+    }
+
+    const projectDashboard = document.getElementById('dashboardProject');
+    if (projectDashboard) {
+        projectDashboard.addEventListener('click', () => {
+            this.showSection("projects");
+        });
+    }
+
+    const systemDashboard = document.getElementById('dashboardSystem');
+    if (systemDashboard) {
+        systemDashboard.addEventListener('click', () => {
+            this.showSection("system");
+        });
+    }
+
+    const backupDashboard = document.getElementById('dashboardBackup');
+    if (backupDashboard) {
+        backupDashboard.addEventListener('click', () => {
+            this.showSection("backup");
+        });
+    }
+
     // ユーザーフォーム
     const userForm = document.getElementById('userForm');
     if (userForm) {
@@ -89,6 +118,70 @@ export class AdminManager {
         event.target.style.display = 'none';
       }
     });
+
+    // === admin.html のインライン onClick をイベントリスナーに置き換え ===
+    // ダッシュボード → 各セクション
+    const usersCard = document.getElementById('dashboardUser');
+    if (usersCard) usersCard.addEventListener('click', () => this.showSection('users'));
+
+    const projectsCard = document.getElementById('dashboardProject');
+    if (projectsCard) projectsCard.addEventListener('click', () => this.showSection('projects'));
+
+    const systemCard = document.getElementById('dashboardSystem');
+    if (systemCard) systemCard.addEventListener('click', () => this.showSection('system'));
+
+    const backupCard = document.getElementById('dashboardBackup');
+    if (backupCard) backupCard.addEventListener('click', () => this.showSection('backup'));
+
+    // ユーザー管理セクションのボタン
+    const usersSectionNewBtn = document.querySelector('#usersSection .section-actions .btn.btn-primary');
+    if (usersSectionNewBtn) usersSectionNewBtn.addEventListener('click', () => this.showUserModal());
+
+    const usersSectionBackBtn = document.querySelector('#usersSection .section-actions .btn.btn-secondary');
+    if (usersSectionBackBtn) usersSectionBackBtn.addEventListener('click', () => this.showSection('dashboard'));
+
+    // プロジェクト管理セクションのボタン
+    const projectsSectionNewBtn = document.querySelector('#projectsSection .section-actions .btn.btn-primary');
+    if (projectsSectionNewBtn) projectsSectionNewBtn.addEventListener('click', () => this.showProjectModal());
+
+    const projectsSectionBackBtn = document.querySelector('#projectsSection .section-actions .btn.btn-secondary');
+    if (projectsSectionBackBtn) projectsSectionBackBtn.addEventListener('click', () => this.showSection('dashboard'));
+
+    // システム設定セクションの戻る
+    const systemSectionBackBtn = document.querySelector('#systemSection .section-actions .btn.btn-secondary');
+    if (systemSectionBackBtn) systemSectionBackBtn.addEventListener('click', () => this.showSection('dashboard'));
+
+    // バックアップセクションのボタン
+    const backupCreateBtn = document.querySelector('#backupSection .section-actions .btn.btn-primary');
+    if (backupCreateBtn) backupCreateBtn.addEventListener('click', () => this.createBackup());
+
+    const backupSectionBackBtn = document.querySelector('#backupSection .section-actions .btn.btn-secondary');
+    if (backupSectionBackBtn) backupSectionBackBtn.addEventListener('click', () => this.showSection('dashboard'));
+
+    // データ/設定ダウンロード（カード順に依存）
+    const backupCards = document.querySelectorAll('#backupSection .backup-card');
+    if (backupCards[0]) {
+      const dataDownloadBtn = backupCards[0].querySelector('.btn.btn-primary');
+      if (dataDownloadBtn) dataDownloadBtn.addEventListener('click', () => this.downloadDataBackup());
+    }
+    if (backupCards[1]) {
+      const settingsDownloadBtn = backupCards[1].querySelector('.btn.btn-primary');
+      if (settingsDownloadBtn) settingsDownloadBtn.addEventListener('click', () => this.downloadSettingsBackup());
+    }
+
+    // モーダルのクローズ（×ボタン）
+    const userModalClose = document.querySelector('#userModal .modal-close');
+    if (userModalClose) userModalClose.addEventListener('click', () => this.closeUserModal());
+
+    const projectModalClose = document.querySelector('#projectModal .modal-close');
+    if (projectModalClose) projectModalClose.addEventListener('click', () => this.closeProjectModal());
+
+    // モーダルのキャンセルボタン
+    const userModalCancel = document.querySelector('#userModal .btn.btn-secondary');
+    if (userModalCancel) userModalCancel.addEventListener('click', () => this.closeUserModal());
+
+    const projectModalCancel = document.querySelector('#projectModal .btn.btn-secondary');
+    if (projectModalCancel) projectModalCancel.addEventListener('click', () => this.closeProjectModal());
   }
 
   async changeProject() {

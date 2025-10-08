@@ -79,7 +79,7 @@
         <section class="admin-dashboard">
           <div class="dashboard-cards">
             
-            <div class="dashboard-card" onclick="showSection('users')">
+            <div class="dashboard-card" id="dashboardUser">
               <div class="card-icon">
                 <i class="fas fa-users"></i>
               </div>
@@ -90,7 +90,7 @@
               </div>
             </div>
 
-            <div class="dashboard-card" onclick="showSection('projects')">
+            <div class="dashboard-card" id="dashboardProject">
               <div class="card-icon">
                 <i class="fas fa-project-diagram"></i>
               </div>
@@ -101,7 +101,7 @@
               </div>
             </div>
 
-            <div class="dashboard-card" onclick="showSection('system')">
+            <div class="dashboard-card" id="dashboardSystem">
               <div class="card-icon">
                 <i class="fas fa-server"></i>
               </div>
@@ -112,7 +112,7 @@
               </div>
             </div>
 
-            <div class="dashboard-card" onclick="showSection('backup')">
+            <div class="dashboard-card" id="dashboardBackup">
               <div class="card-icon">
                 <i class="fas fa-download"></i>
               </div>
@@ -131,10 +131,10 @@
           <div class="section-header">
             <h2><i class="fas fa-users"></i> ユーザー管理</h2>
             <div class="section-actions">
-              <button class="btn btn-primary" onclick="showUserModal()">
+              <button class="btn btn-primary">
                 <i class="fas fa-plus"></i> 新規ユーザー
               </button>
-              <button class="btn btn-secondary" onclick="showSection('dashboard')">
+              <button class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> ダッシュボードに戻る
               </button>
             </div>
@@ -165,10 +165,10 @@
           <div class="section-header">
             <h2><i class="fas fa-project-diagram"></i> プロジェクト管理</h2>
             <div class="section-actions">
-              <button class="btn btn-primary" onclick="showProjectModal()">
+              <button class="btn btn-primary">
                 <i class="fas fa-plus"></i> 新規プロジェクト
               </button>
-              <button class="btn btn-secondary" onclick="showSection('dashboard')">
+              <button class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> ダッシュボードに戻る
               </button>
             </div>
@@ -199,7 +199,7 @@
           <div class="section-header">
             <h2><i class="fas fa-server"></i> システム設定</h2>
             <div class="section-actions">
-              <button class="btn btn-secondary" onclick="showSection('dashboard')">
+              <button class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> ダッシュボードに戻る
               </button>
             </div>
@@ -253,10 +253,10 @@
           <div class="section-header">
             <h2><i class="fas fa-download"></i> バックアップ管理</h2>
             <div class="section-actions">
-              <button class="btn btn-primary" onclick="createBackup()">
+              <button class="btn btn-primary">
                 <i class="fas fa-download"></i> バックアップ作成
               </button>
-              <button class="btn btn-secondary" onclick="showSection('dashboard')">
+              <button class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> ダッシュボードに戻る
               </button>
             </div>
@@ -266,7 +266,7 @@
             <div class="backup-card">
               <h3><i class="fas fa-database"></i> データバックアップ</h3>
               <p>ユーザー、プロジェクト、タスクデータをバックアップします。</p>
-              <button class="btn btn-primary" onclick="downloadDataBackup()">
+              <button class="btn btn-primary">
                 <i class="fas fa-download"></i> データをダウンロード
               </button>
             </div>
@@ -274,7 +274,7 @@
             <div class="backup-card">
               <h3><i class="fas fa-cog"></i> 設定バックアップ</h3>
               <p>システム設定をバックアップします。</p>
-              <button class="btn btn-primary" onclick="downloadSettingsBackup()">
+              <button class="btn btn-primary">
                 <i class="fas fa-download"></i> 設定をダウンロード
               </button>
             </div>
@@ -283,7 +283,7 @@
               <h3><i class="fas fa-upload"></i> データ復元</h3>
               <p>バックアップファイルからデータを復元します。</p>
               <input type="file" id="restoreFile" accept=".json" style="display: none;">
-              <button class="btn btn-warning" onclick="document.getElementById('restoreFile').click()">
+              <button class="btn btn-warning">
                 <i class="fas fa-upload"></i> ファイルを選択
               </button>
             </div>
@@ -298,7 +298,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h3 id="userModalTitle">新規ユーザー</h3>
-          <button class="modal-close" onclick="closeUserModal()">&times;</button>
+          <button class="modal-close">&times;</button>
         </div>
         <form id="userForm" class="modal-form">
           <input type="hidden" id="userId" name="userId">
@@ -337,7 +337,7 @@
             <button type="submit" class="btn btn-primary">
               <i class="fas fa-save"></i> 保存
             </button>
-            <button type="button" class="btn btn-secondary" onclick="closeUserModal()">
+            <button type="button" class="btn btn-secondary">
               <i class="fas fa-times"></i> キャンセル
             </button>
           </div>
@@ -350,7 +350,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h3 id="projectModalTitle">新規プロジェクト</h3>
-          <button class="modal-close" onclick="closeProjectModal()">&times;</button>
+          <button class="modal-close">&times;</button>
         </div>
         <form id="projectForm" class="modal-form">
           <input type="hidden" id="projectId" name="projectId">
@@ -376,7 +376,7 @@
             <button type="submit" class="btn btn-primary">
               <i class="fas fa-save"></i> 保存
             </button>
-            <button type="button" class="btn btn-secondary" onclick="closeProjectModal()">
+            <button type="button" class="btn btn-secondary">
               <i class="fas fa-times"></i> キャンセル
             </button>
           </div>
