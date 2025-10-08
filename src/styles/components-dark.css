@@ -1,0 +1,124 @@
+/* ==========================================================================
+   Dark Theme Components - ダークテーマコンポーネント
+   ========================================================================== */
+
+/* バッジ - ダークテーマ */
+body.theme-dark .badge-primary {
+  background-color: #0a84ff;
+  color: white;
+  font-weight: 600;
+}
+
+body.theme-dark .badge-success {
+  background-color: #30d158;
+  color: white;
+  font-weight: 600;
+}
+
+body.theme-dark .badge-warning {
+  background-color: #ff9f0a;
+  color: #1c1c1e;
+  font-weight: 600;
+}
+
+body.theme-dark .badge-danger {
+  background-color: #ff453a;
+  color: white;
+  font-weight: 600;
+}
+
+body.theme-dark .badge-secondary {
+  background-color: #636366;
+  color: white;
+  font-weight: 600;
+}
+
+/* カード - ダークテーマ */
+body.theme-dark .card {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+body.theme-dark .card-header {
+  background-color: var(--bg-tertiary);
+  border-bottom-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+body.theme-dark .card-title {
+  color: var(--text-primary);
+}
+
+body.theme-dark .card-content {
+  color: var(--text-primary);
+}
+
+body.theme-dark .card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+}
+
+/* リストアイテム - ダークテーマ */
+body.theme-dark .list-item {
+  border-bottom-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+body.theme-dark .list-item:hover {
+  background-color: var(--bg-tertiary);
+}
+
+/* プログレスバー - ダークテーマ */
+body.theme-dark .progress {
+  background-color: var(--bg-tertiary);
+}
+
+body.theme-dark .progress-bar {
+  background-color: #0a84ff;
+}
+
+/* ドロップダウン - ダークテーマ */
+body.theme-dark .dropdown {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+}
+
+body.theme-dark .dropdown-item {
+  color: var(--text-primary);
+}
+
+body.theme-dark .dropdown-item:hover {
+  background-color: rgba(10, 132, 255, 0.15);
+}
+
+body.theme-dark .dropdown-divider {
+  border-top-color: var(--border-color);
+}
+
+/* ユーザーメニュー - ダークテーマ */
+body.theme-dark .user-menu {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+}
+
+body.theme-dark .user-menu hr {
+  border-top-color: var(--border-color);
+}
+
+body.theme-dark .user-menu .menu-item {
+  color: var(--text-primary);
+}
+
+body.theme-dark .user-menu .menu-item:hover {
+  background-color: rgba(10, 132, 255, 0.15);
+}
+
+body.theme-dark .user-menu .logout-btn {
+  color: #ff453a;
+}
+
+body.theme-dark .user-menu .logout-btn:hover {
+  background-color: rgba(255, 69, 58, 0.15);
+}

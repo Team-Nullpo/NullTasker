@@ -1017,6 +1017,50 @@ body.theme-dark .add-task-btn:hover {
   background-color: #32d760;
 }
 
+/* 優先度タグ - ダークテーマ */
+body.theme-dark .task-priority.high {
+  background-color: rgba(255, 69, 58, 0.2);
+  color: #ff6961;
+  font-weight: 600;
+}
+
+body.theme-dark .task-priority.medium {
+  background-color: rgba(255, 159, 10, 0.2);
+  color: #ffb340;
+  font-weight: 600;
+}
+
+body.theme-dark .task-priority.low {
+  background-color: rgba(48, 209, 88, 0.2);
+  color: #5dd879;
+  font-weight: 600;
+}
+
+/* ステータスタグ - ダークテーマ */
+body.theme-dark .task-status.todo {
+  background-color: rgba(152, 152, 157, 0.2);
+  color: #98989d;
+  font-weight: 600;
+}
+
+body.theme-dark .task-status.in_progress {
+  background-color: rgba(10, 132, 255, 0.2);
+  color: #409cff;
+  font-weight: 600;
+}
+
+body.theme-dark .task-status.review {
+  background-color: rgba(255, 159, 10, 0.2);
+  color: #ffb340;
+  font-weight: 600;
+}
+
+body.theme-dark .task-status.done {
+  background-color: rgba(48, 209, 88, 0.2);
+  color: #5dd879;
+  font-weight: 600;
+}
+
 /* カレンダーページ - ダークテーマ */
 body.theme-dark .calendar-header {
   background-color: var(--bg-secondary);
