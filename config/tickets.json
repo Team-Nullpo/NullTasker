@@ -1,20 +1,4 @@
 {
-  "tasks": [
-    {
-      "id": "task_1759914453719_801",
-      "title": "sfd",
-      "description": "",
-      "assignee": "admin",
-      "startDate": "2025-10-09",
-      "dueDate": "2025-10-09",
-      "priority": "medium",
-      "category": "ドキュメント",
-      "status": "review",
-      "progress": 0,
-      "project": "default",
-      "createdAt": "2025-10-08T09:07:33.719Z",
-      "updatedAt": "2025-10-08T09:07:33.719Z"
-    }
-  ],
-  "lastUpdated": "2025-10-08T09:07:33.727Z"
+  "tasks": [],
+  "lastUpdated": "2025-10-08T09:53:20.278Z"
 }

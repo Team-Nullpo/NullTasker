@@ -5,14 +5,14 @@
       "loginId": "admin",
       "displayName": "管理者",
       "email": "admin@nulltasker.com",
-      "password": "$2b$10$7RZmVcxdvVPd6YP45k3ctO14JgGiz50i37tGxL8cD0aZ1cDfZQjPe",
+      "password": "$2b$10$dKN6Xi5kJ3jq7IDQb91OseulUsRtFxZRgDf540aCMmcdDgCeh1/uy",
       "role": "system_admin",
       "projects": [
         "default"
       ],
       "createdAt": "2025-09-01T00:00:00.000Z",
-      "lastLogin": "2025-10-08T09:27:01.387Z"
+      "lastLogin": null
     }
   ],
-  "lastUpdated": "2025-10-08T09:51:27.931Z"
+  "lastUpdated": "2025-10-08T09:53:20.278Z"
 }
