@@ -106,6 +106,7 @@ export class AdminManager {
 
       //
       ['#usersTableBody', 'click', (e) => this.handleUserTableClick(e)],
+      ['#projectsTableBody', 'click', (e) => this.handleProjectTableClick(e)],
     ];
 
     mappings.forEach(([selector, event, handler]) => add(selector, event, handler));
@@ -128,6 +129,18 @@ export class AdminManager {
 
     if (button.classList.contains('btn-edit')) this.editUser(userId);
     else if (button.classList.contains('btn-delete')) this.deleteUser(userId);
+  }
+
+  handleProjectTableClick(e) {
+    const button = e.target.closest('button');
+    if (!button) return;
+
+    const container = button.closest('tr');
+    const projectId = container?.dataset.project;
+    if (!projectId) return;
+
+    if (button.classList.contains('btn-edit')) this.editProject(projectId);
+    else if (button.classList.contains('btn-delete')) this.deleteProject(projectId);
   }
 
   async changeProject() {
@@ -244,6 +257,7 @@ export class AdminManager {
 
     this.projects.forEach(project => {
       const row = document.createElement('tr');
+      row.setAttribute('data-project', project.id);
       const ownerUser = this.users.find(u => u.id === project.owner);
       
       row.innerHTML = `
@@ -254,10 +268,10 @@ export class AdminManager {
         <td>${new Date(project.createdAt).toLocaleDateString('ja-JP')}</td>
         <td>${new Date(project.lastUpdated).toLocaleDateString('ja-JP')}</td>
         <td>
-          <button class="btn btn-sm btn-primary" onclick="adminManager.editProject('${project.id}')">
+          <button class="btn btn-sm btn-primary btn-edit">
             <i class="fas fa-edit"></i>
           </button>
-          <button class="btn btn-sm btn-danger" onclick="adminManager.deleteProject('${project.id}')">
+          <button class="btn btn-sm btn-danger btn-delete">
             <i class="fas fa-trash"></i>
           </button>
         </td>
