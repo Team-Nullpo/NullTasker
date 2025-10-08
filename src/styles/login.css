@@ -41,11 +41,6 @@
   margin-bottom: 10px;
 }
 
-/* ダークテーマでロゴを白バージョンに切り替え */
-body.theme-dark .login-logo {
-  content: url('../assets/logowhite.png');
-}
-
 .login-header h1 {
   color: #333;
   margin: 10px 0 5px 0;

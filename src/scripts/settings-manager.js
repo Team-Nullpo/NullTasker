@@ -28,7 +28,6 @@ export class SettingsManager {
 
   init() {
     this.loadSettings();
-    this.loadAndApplyTheme(); // テーマを初期化時に適用
     
     if (Utils.getElement('.settings-container')) {
       this.renderSettings();
@@ -224,51 +223,16 @@ export class SettingsManager {
   }
 
   setupDisplaySettings() {
-    const displaySettings = ['theme', 'language', 'tasksPerPage'];
+    const displaySettings = ['language', 'tasksPerPage'];
     
     displaySettings.forEach(setting => {
       const element = Utils.getElement(`#${setting}`);
       if (element) {
         element.addEventListener('change', (e) => {
           this.settings.display[setting] = e.target.value;
-          
-          // テーマ変更時にすぐに適用
-          if (setting === 'theme') {
-            this.applyTheme(e.target.value);
-          }
         });
       }
     });
-  }
-
-  // テーマを適用するメソッド
-  applyTheme(theme) {
-    // 既存のテーマクラスを削除
-    document.body.className = document.body.className.replace(/theme-\w+/g, '');
-    
-    if (theme === 'auto') {
-      // システムのテーマ設定を検出
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      document.body.classList.add(prefersDark ? 'theme-dark' : 'theme-light');
-    } else {
-      // 指定されたテーマを適用
-      document.body.classList.add(`theme-${theme}`);
-    }
-    
-    // ローカルストレージに保存
-    Utils.saveToStorage('userTheme', theme);
-  }
-
-  // 初期テーマを読み込んで適用
-  loadAndApplyTheme() {
-    const savedTheme = Utils.getFromStorage('userTheme') || this.settings.display.theme;
-    this.applyTheme(savedTheme);
-    
-    // テーマ選択を更新
-    const themeSelect = Utils.getElement('#theme');
-    if (themeSelect) {
-      themeSelect.value = savedTheme;
-    }
   }
 
   setupMemberManagement() {

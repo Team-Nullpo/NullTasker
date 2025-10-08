@@ -107,3 +107,52 @@
   font-size: 24px;
   color: #667eea;
 }
+
+/* ==========================================================================
+   Dark Theme User Dropdown - ダークテーマユーザードロップダウン
+   ========================================================================== */
+
+/* ドロップダウンメニュー - ダークテーマ */
+body.theme-dark .user-dropdown {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
+}
+
+body.theme-dark .user-dropdown-user-info {
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+body.theme-dark .user-dropdown-user-name {
+  color: var(--text-primary);
+}
+
+body.theme-dark .user-dropdown-user-email,
+body.theme-dark .user-dropdown-user-role {
+  color: var(--text-secondary);
+}
+
+body.theme-dark .user-dropdown-item {
+  color: var(--text-primary);
+}
+
+body.theme-dark .user-dropdown-item:hover {
+  background-color: rgba(10, 132, 255, 0.15);
+}
+
+body.theme-dark .user-dropdown-separator {
+  background: var(--border-color);
+}
+
+body.theme-dark .user-dropdown-logout {
+  color: #ff453a;
+}
+
+body.theme-dark .user-dropdown-logout:hover {
+  background-color: rgba(255, 69, 58, 0.15);
+}
+
+body.theme-dark .user-icon i {
+  color: #0a84ff;
+}

@@ -194,7 +194,10 @@ class UserProfileManager {
     };
 
     try {
-      // ローカルストレージに保存
+      // テーマをローカルストレージに保存
+      Utils.saveToStorage('userTheme', settingsData.theme);
+      
+      // その他の設定もローカルストレージに保存
       localStorage.setItem('userPersonalSettings', JSON.stringify(settingsData));
       
       // サーバーにも保存（オプション）
@@ -222,33 +225,63 @@ class UserProfileManager {
 
   loadPersonalSettings() {
     try {
+      // テーマ設定を読み込み
+      const savedTheme = Utils.getFromStorage('userTheme') || 'light';
+      const themeSelect = document.getElementById('theme');
+      if (themeSelect) {
+        themeSelect.value = savedTheme;
+      }
+      
+      // その他の設定を読み込み
       const savedSettings = localStorage.getItem('userPersonalSettings');
       if (savedSettings) {
         const settings = JSON.parse(savedSettings);
         
         // フォームに値を設定
-        if (settings.theme) document.getElementById('theme').value = settings.theme;
         if (settings.language) document.getElementById('language').value = settings.language;
         if (settings.timezone) document.getElementById('timezone').value = settings.timezone;
         
         document.getElementById('emailNotifications').checked = settings.emailNotifications || false;
         document.getElementById('browserNotifications').checked = settings.browserNotifications || false;
         
-        // 設定を適用
-        this.applyPersonalSettings(settings);
+        // 言語設定を適用
+        if (settings.language) {
+          document.documentElement.lang = settings.language;
+        }
+      }
+      
+      // テーマ変更のイベントリスナーを追加
+      if (themeSelect) {
+        themeSelect.addEventListener('change', (e) => {
+          this.applyTheme(e.target.value);
+        });
       }
     } catch (error) {
       console.error('個人設定読み込みエラー:', error);
     }
   }
 
+  applyTheme(theme) {
+    // 既存のテーマクラスを削除
+    document.body.className = document.body.className.replace(/theme-\w+/g, '');
+    
+    if (theme === 'auto') {
+      // システムのテーマ設定を検出
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.body.classList.add(prefersDark ? 'theme-dark' : 'theme-light');
+    } else {
+      // 指定されたテーマを適用
+      document.body.classList.add(`theme-${theme}`);
+    }
+    
+    // ローカルストレージに保存
+    Utils.saveToStorage('userTheme', theme);
+  }
+
   applyPersonalSettings(settings) {
     // テーマ適用
     if (settings.theme) {
-      document.body.className = document.body.className.replace(/theme-\w+/g, '');
-      if (settings.theme !== 'auto') {
-        document.body.classList.add(`theme-${settings.theme}`);
-      }
+      this.applyTheme(settings.theme);
     }
 
     // 言語設定（今後の多言語対応用）
