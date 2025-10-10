@@ -5,6 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ログイン - NullTasker</title>
   <link rel="icon" type="image/x-icon" href="../assets/favicon.ico" />
+  <!-- テーマ適用スクリプト（ちらつき防止のため最初に実行） -->
+  <script>
+    (function() {
+      try {
+        const savedTheme = localStorage.getItem('userTheme');
+        const theme = savedTheme ? JSON.parse(savedTheme) : 'light';
+        
+        if (theme === 'auto') {
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          document.documentElement.classList.add(prefersDark ? 'theme-dark' : 'theme-light');
+        } else {
+          document.documentElement.classList.add('theme-' + theme);
+        }
+      } catch (e) {
+        document.documentElement.classList.add('theme-light');
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="../styles/base.css" />
   <link rel="stylesheet" href="../styles/layout.css" />
   <link rel="stylesheet" href="../styles/components.css" />
