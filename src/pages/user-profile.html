@@ -12,14 +12,28 @@
         const savedTheme = localStorage.getItem('userTheme');
         const theme = savedTheme ? JSON.parse(savedTheme) : 'light';
         
+        let isDark = false;
         if (theme === 'auto') {
-          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          document.documentElement.classList.add(prefersDark ? 'theme-dark' : 'theme-light');
+          isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         } else {
-          document.documentElement.classList.add('theme-' + theme);
+          isDark = theme === 'dark';
+        }
+        
+        const themeClass = isDark ? 'theme-dark' : 'theme-light';
+        document.documentElement.classList.add(themeClass);
+        
+        // インラインスタイルで即座に背景色を設定（CSSロード前のちらつき防止）
+        if (isDark) {
+          document.documentElement.style.backgroundColor = '#1c1c1e';
+          document.documentElement.style.color = '#f5f5f7';
+        } else {
+          document.documentElement.style.backgroundColor = '#ffffff';
+          document.documentElement.style.color = '#212529';
         }
       } catch (e) {
         document.documentElement.classList.add('theme-light');
+        document.documentElement.style.backgroundColor = '#ffffff';
+        document.documentElement.style.color = '#212529';
       }
     })();
   </script>

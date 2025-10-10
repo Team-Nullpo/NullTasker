@@ -9,6 +9,13 @@
   padding: 0;
 }
 
+/* HTMLとBodyの高さを100%に設定 */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 /* ベースフォント・カラー設定 */
 :root {
   --primary-color: #007bff;
@@ -59,9 +66,10 @@
 body, html {
   height: 100%;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background-color: #f0f0f0;
-  color: var(--gray-800);
+  background-color: #ffffff; /* デフォルトはライトモード */
+  color: #212529;
   line-height: 1.5;
+  /* ページ遷移時のちらつき防止のため、transitionは使用しない */
 }
 
 .app-container {
