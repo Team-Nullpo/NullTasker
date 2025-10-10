@@ -223,7 +223,7 @@ export class SettingsManager {
   }
 
   setupDisplaySettings() {
-    const displaySettings = ['theme', 'language', 'tasksPerPage'];
+    const displaySettings = ['language', 'tasksPerPage'];
     
     displaySettings.forEach(setting => {
       const element = Utils.getElement(`#${setting}`);
@@ -417,6 +417,10 @@ export class SettingsManager {
 
   saveAllSettings() {
     this.saveSettings();
+    // テーマの変更をすぐに保存
+    const theme = this.settings.display.theme;
+    Utils.saveToStorage('userTheme', theme);
+    this.applyTheme(theme);
     Utils.showNotification('設定が保存されました', 'success');
   }
 

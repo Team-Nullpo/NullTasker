@@ -433,3 +433,185 @@
     font-size: 0.7rem;
   }
 }
+
+/* ==========================================================================
+   Dark Theme Admin - ダークテーマ管理画面
+   ========================================================================== */
+
+/* ダッシュボードカード - ダークテーマ */
+body.theme-dark .dashboard-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+body.theme-dark .dashboard-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  border-color: #0a84ff;
+}
+
+body.theme-dark .dashboard-card .card-icon i {
+  color: #0a84ff;
+}
+
+body.theme-dark .dashboard-card .card-content h3 {
+  color: var(--text-primary);
+}
+
+body.theme-dark .dashboard-card .card-count {
+  color: #0a84ff;
+}
+
+body.theme-dark .dashboard-card .card-description {
+  color: var(--text-secondary);
+}
+
+/* 管理セクション - ダークテーマ */
+body.theme-dark .admin-section {
+  background: var(--bg-secondary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+body.theme-dark .section-header h2 {
+  color: var(--text-primary);
+}
+
+/* データテーブル - ダークテーマ */
+body.theme-dark .data-table-container {
+  border: 1px solid var(--border-color);
+}
+
+body.theme-dark .data-table {
+  background: var(--bg-secondary);
+}
+
+body.theme-dark .data-table th {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+body.theme-dark .data-table td {
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+body.theme-dark .data-table tbody tr:hover {
+  background: var(--bg-tertiary);
+}
+
+/* 権限バッジ - ダークテーマ */
+body.theme-dark .role-badge.role-system_admin {
+  background: #ff453a;
+}
+
+body.theme-dark .role-badge.role-project_admin {
+  background: #0a84ff;
+}
+
+body.theme-dark .role-badge.role-member {
+  background: #30d158;
+}
+
+/* モーダル - ダークテーマ */
+body.theme-dark .modal {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+body.theme-dark .modal-content {
+  background: var(--bg-secondary);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+body.theme-dark .modal-header {
+  border-bottom: 1px solid var(--border-color);
+}
+
+body.theme-dark .modal-header h3 {
+  color: var(--text-primary);
+}
+
+body.theme-dark .modal-close {
+  color: var(--text-secondary);
+}
+
+body.theme-dark .modal-close:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+/* バックアップカード - ダークテーマ */
+body.theme-dark .backup-card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+}
+
+body.theme-dark .backup-card h3 {
+  color: var(--text-primary);
+}
+
+body.theme-dark .backup-card p {
+  color: var(--text-secondary);
+}
+
+/* アラート - ダークテーマ */
+body.theme-dark .alert.alert-success {
+  background: rgba(48, 209, 88, 0.15);
+  color: #30d158;
+  border: 1px solid rgba(48, 209, 88, 0.3);
+}
+
+body.theme-dark .alert.alert-error {
+  background: rgba(255, 69, 58, 0.15);
+  color: #ff453a;
+  border: 1px solid rgba(255, 69, 58, 0.3);
+}
+
+/* パスワード強度 - ダークテーマ */
+body.theme-dark .strength-meter {
+  background: var(--bg-tertiary);
+}
+
+body.theme-dark .strength-bar.strength-weak {
+  background: #ff453a;
+}
+
+body.theme-dark .strength-bar.strength-fair {
+  background: #ff9f0a;
+}
+
+body.theme-dark .strength-bar.strength-good {
+  background: #64d2ff;
+}
+
+body.theme-dark .strength-bar.strength-strong {
+  background: #30d158;
+}
+
+body.theme-dark .strength-text {
+  color: var(--text-secondary);
+}
+
+/* チェックボックス - ダークテーマ */
+body.theme-dark .checkmark {
+  border: 2px solid var(--border-color);
+  background: var(--bg-tertiary);
+}
+
+body.theme-dark .checkbox-label input[type="checkbox"]:checked + .checkmark {
+  background: #0a84ff;
+  border-color: #0a84ff;
+}
+
+body.theme-dark .checkbox-label {
+  color: var(--text-primary);
+}
+
+/* パスワードトグル - ダークテーマ */
+body.theme-dark .password-toggle {
+  color: var(--text-secondary);
+}
+
+body.theme-dark .password-toggle:hover {
+  color: var(--text-primary);
+}

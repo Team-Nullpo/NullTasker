@@ -450,7 +450,6 @@ export class AdminManager {
     const formData = new FormData(event.target);
     const settingsData = {
       systemName: formData.get('systemName'),
-      defaultTheme: formData.get('defaultTheme'),
       defaultLanguage: formData.get('defaultLanguage'),
       allowUserRegistration: formData.has('allowUserRegistration'),
       enableNotifications: formData.has('enableNotifications')

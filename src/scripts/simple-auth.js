@@ -80,36 +80,19 @@ export class SimpleAuth {
     // ドロップダウンメニューを作成
     const dropdown = document.createElement('div');
     dropdown.className = 'user-dropdown';
-    dropdown.style.cssText = `
-      position: absolute;
-      bottom: calc(100% + 8px);
-      right: -8px;
-      background: white;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      min-width: 220px;
-      z-index: 1000;
-      display: none;
-    `;
 
     // ユーザー情報セクション
     const userInfo = document.createElement('div');
-    userInfo.style.cssText = `
-      padding: 12px 16px;
-      border-bottom: 1px solid #eee;
-      background: #f8f9fa;
-      border-radius: 8px 8px 0 0;
-    `;
+    userInfo.className = 'user-dropdown-user-info';
     userInfo.innerHTML = `
-      <div style="font-weight: bold; color: #333; margin-bottom: 4px;">${user.displayName || user.id}</div>
-      <div style="font-size: 12px; color: #666;">${user.email || ''}</div>
-      <div style="font-size: 11px; color: #888; margin-top: 2px;">権限: ${this.getRoleDisplayName(user.role)}</div>
+      <div class="user-dropdown-user-name">${user.displayName || user.id}</div>
+      <div class="user-dropdown-user-email">${user.email || ''}</div>
+      <div class="user-dropdown-user-role">権限: ${this.getRoleDisplayName(user.role)}</div>
     `;
 
     // メニュー項目
     const menuItems = document.createElement('div');
-    menuItems.style.cssText = 'padding: 8px 0;';
+    menuItems.className = 'user-dropdown-menu';
 
     // 基本メニュー項目
     const basicMenuItems = [
@@ -131,23 +114,9 @@ export class SimpleAuth {
     // メニュー項目を追加
     [...basicMenuItems, ...adminMenuItems].forEach(item => {
       const menuItem = document.createElement('div');
-      menuItem.style.cssText = `
-        padding: 10px 16px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        transition: background-color 0.2s;
-        color: #333;
-      `;
-      menuItem.innerHTML = `<i class="${item.icon}" style="width: 16px;"></i> ${item.text}`;
+      menuItem.className = 'user-dropdown-item';
+      menuItem.innerHTML = `<i class="${item.icon}"></i> ${item.text}`;
       
-      menuItem.addEventListener('mouseenter', () => {
-        menuItem.style.backgroundColor = '#f5f5f5';
-      });
-      menuItem.addEventListener('mouseleave', () => {
-        menuItem.style.backgroundColor = 'transparent';
-      });
       menuItem.addEventListener('click', () => {
         dropdown.style.display = 'none';
         item.action();
@@ -158,29 +127,14 @@ export class SimpleAuth {
 
     // 区切り線
     const separator = document.createElement('div');
-    separator.style.cssText = 'height: 1px; background: #eee; margin: 8px 0;';
+    separator.className = 'user-dropdown-separator';
     menuItems.appendChild(separator);
 
     // ログアウトメニュー
     const logoutItem = document.createElement('div');
-    logoutItem.style.cssText = `
-      padding: 10px 16px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      transition: background-color 0.2s;
-      color: #dc3545;
-      border-radius: 0 0 8px 8px;
-    `;
-    logoutItem.innerHTML = '<i class="fas fa-sign-out-alt" style="width: 16px;"></i> ログアウト';
+    logoutItem.className = 'user-dropdown-logout';
+    logoutItem.innerHTML = '<i class="fas fa-sign-out-alt"></i> ログアウト';
     
-    logoutItem.addEventListener('mouseenter', () => {
-      logoutItem.style.backgroundColor = '#f8d7da';
-    });
-    logoutItem.addEventListener('mouseleave', () => {
-      logoutItem.style.backgroundColor = 'transparent';
-    });
     logoutItem.addEventListener('click', () => {
       this.logout();
     });

@@ -208,3 +208,44 @@
   align-items: center;
   justify-content: center;
 }
+
+/* ==========================================================================
+   Dark Theme Sidebar Styles - ダークテーマサイドバー
+   ========================================================================== */
+
+/* ロゴ - ダークテーマ */
+body.theme-dark .logo img {
+  content: url('../assets/logowhite.png');
+}
+
+/* サイドバー非表示ボタン - ダークテーマ */
+body.theme-dark .sidebar-hide-btn {
+  background-color: rgba(60, 60, 67, 0.9);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+body.theme-dark .sidebar-hide-btn:hover {
+  background-color: var(--bg-tertiary);
+}
+
+/* トグルボタン - ダークテーマ */
+body.theme-dark .toggle-btn {
+  background-color: #0a84ff;
+  border: 1px solid #0a84ff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+body.theme-dark .toggle-btn:hover {
+  background-color: #409cff;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.7);
+}
+
+/* ユーザーアイコン - ダークテーマ */
+body.theme-dark .user-icon:hover {
+  background-color: rgba(10, 132, 255, 0.15);
+}
+
+body.theme-dark .user-icon i {
+  color: var(--text-primary);
+}
