@@ -76,6 +76,8 @@ body, html {
    ========================================================================== */
 
 /* ライトテーマ（デフォルト） */
+:root,
+html.theme-light,
 body.theme-light,
 body:not([class*="theme-"]) {
   --bg-primary: #ffffff;
@@ -94,6 +96,7 @@ body:not([class*="theme-"]) .main-content {
 }
 
 /* ダークテーマ */
+html.theme-dark,
 body.theme-dark {
   --bg-primary: #1c1c1e;
   --bg-secondary: #2c2c2e;
@@ -116,24 +119,33 @@ body.theme-dark {
   --gray-900: #f5f5f7;
 }
 
+html.theme-dark,
+html.theme-dark body,
 body.theme-dark {
   background-color: var(--bg-primary);
   color: var(--text-primary);
 }
 
+html.theme-dark .app-container,
 body.theme-dark .app-container {
   background-color: var(--bg-primary);
 }
 
+html.theme-dark .sidebar,
 body.theme-dark .sidebar {
   background-color: var(--bg-secondary);
   border-right-color: var(--border-color);
 }
 
+html.theme-dark .main-content,
 body.theme-dark .main-content {
   background-color: var(--bg-primary);
 }
 
+html.theme-dark .card,
+html.theme-dark .settings-section,
+html.theme-dark .modal-content,
+html.theme-dark .dashboard-card,
 body.theme-dark .card,
 body.theme-dark .settings-section,
 body.theme-dark .modal-content,
