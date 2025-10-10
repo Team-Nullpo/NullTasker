@@ -262,16 +262,21 @@ class UserProfileManager {
   }
 
   applyTheme(theme) {
-    // 既存のテーマクラスを削除
+    // 既存のテーマクラスを削除（htmlとbodyの両方から）
+    document.documentElement.className = document.documentElement.className.replace(/theme-\w+/g, '');
     document.body.className = document.body.className.replace(/theme-\w+/g, '');
     
     if (theme === 'auto') {
       // システムのテーマ設定を検出
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      document.body.classList.add(prefersDark ? 'theme-dark' : 'theme-light');
+      const themeClass = prefersDark ? 'theme-dark' : 'theme-light';
+      document.documentElement.classList.add(themeClass);
+      document.body.classList.add(themeClass);
     } else {
       // 指定されたテーマを適用
-      document.body.classList.add(`theme-${theme}`);
+      const themeClass = `theme-${theme}`;
+      document.documentElement.classList.add(themeClass);
+      document.body.classList.add(themeClass);
     }
     
     // ローカルストレージに保存
