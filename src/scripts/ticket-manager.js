@@ -27,7 +27,13 @@ export class TicketManager {
 
   static async addTicket(ticket) {
     const previousTask = [...this.tasks];
-    this.tasks.push(ticket);
+    const newTicket = {
+      id: Utils.generateId("task"),
+      ...ticket,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    this.tasks.push(newTicket);
     try {
       await this.saveTickets();
     } catch (error) {
