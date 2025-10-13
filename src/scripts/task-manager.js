@@ -51,60 +51,6 @@ export class TaskManager {
     );
   }
 
-  async saveTasks() {
-    try {
-      Utils.debugLog("タスク保存開始:", this.tasks.length, "件");
-
-      // データの妥当性チェック
-      if (!Array.isArray(this.tasks)) {
-        throw new Error("タスクデータが配列ではありません");
-      }
-
-      // APIにタスクデータを保存
-      const response = await fetch("/api/tasks", {
-        method: "POST",
-        headers: SimpleAuth.getAuthHeaders(),
-        body: JSON.stringify({ tasks: this.tasks }),
-      });
-
-      Utils.debugLog(
-        "レスポンスステータス:",
-        response.status,
-        response.statusText
-      );
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("サーバーエラーレスポンス:", errorText);
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
-      Utils.debugLog("タスク保存成功:", result);
-
-      // ローカルストレージにもバックアップ
-      Utils.saveToStorage("tasks", this.tasks);
-
-      return true; // 成功を返す
-    } catch (error) {
-      console.error("タスクの保存に失敗しました:", error.message);
-
-      // フォールバック：ローカルストレージに保存
-      try {
-        const saved = Utils.saveToStorage("tasks", this.tasks);
-        if (saved) {
-          Utils.debugLog("ローカルストレージへの保存は成功しました");
-        } else {
-          console.error("ローカルストレージへの保存も失敗しました");
-        }
-      } catch (storageError) {
-        console.error("ローカルストレージエラー:", storageError.message);
-      }
-
-      throw error; // エラーを再スローして呼び出し元に伝える
-    }
-  }
-
   setupEventListeners() {
     const elements = {
       addBtn: Utils.getElement("#addTaskBtn"), // 修正: IDに変更
@@ -348,75 +294,6 @@ export class TaskManager {
     }
 
     return true;
-  }
-
-  async addTask(payload) {
-    // タスク追加前の状態を保存（ロールバック用）
-    const previousTasks = [...this.tasks];
-
-    try {
-      const task = {
-        id: Utils.generateId("task"),
-        ...payload,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      Utils.debugLog("新規タスク作成:", task);
-
-      // タスク配列が初期化されているか確認
-      if (!Array.isArray(this.tasks)) {
-        console.warn(
-          "タスク配列が初期化されていません。空配列で初期化します。"
-        );
-        this.tasks = [];
-      }
-
-      this.tasks.push(task);
-      Utils.debugLog("タスク追加後の配列:", this.tasks.length, "件");
-
-      await this.saveTasks();
-      this.renderTasks();
-      this.closeModal();
-      Utils.showNotification("タスクが正常に追加されました。", "success");
-    } catch (error) {
-      console.error("タスク追加エラー:", error);
-      // エラー時はロールバック
-      this.tasks = previousTasks;
-      this.renderTasks();
-      Utils.showNotification("タスクの追加に失敗しました。", "error");
-    }
-  }
-
-  async updateTask(payload) {
-    // 更新前の状態を保存（ロールバック用）
-    const previousTasks = [...this.tasks];
-
-    try {
-      const index = this.tasks.findIndex((t) => t.id === this.editingTaskId);
-      if (index === -1) {
-        throw new Error("更新対象のタスクが見つかりません");
-      }
-
-      Utils.debugLog("タスク更新:", this.editingTaskId);
-
-      this.tasks[index] = {
-        ...this.tasks[index],
-        ...payload,
-        updatedAt: new Date().toISOString(),
-      };
-
-      await this.saveTasks();
-      this.renderTasks();
-      this.closeModal();
-      Utils.showNotification("タスクを更新しました。", "success");
-    } catch (error) {
-      console.error("タスク更新エラー:", error);
-      // エラー時はロールバック
-      this.tasks = previousTasks;
-      this.renderTasks();
-      Utils.showNotification("タスクの更新に失敗しました。", "error");
-    }
   }
 
   editTask(taskId) {
