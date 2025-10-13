@@ -37,6 +37,27 @@ export class TicketManager {
     return true;
   }
 
+  static async updateTicket(ticket) {
+    const previousTask = [...this.tasks];
+    const index = this.tasks.findIndex((t) => t.id === ticket.id);
+    if (index === -1) {
+      Utils.debugLog("対象のチケットが見つかりません");
+      return false;
+    }
+    this.tasks[index] = {
+      ...this.tasks[index],
+      ...ticket,
+      updatedAt: new Date().toISOString(),
+    };
+    try {
+      await this.saveTickets();
+    } catch (error) {
+      this.tasks = previousTask;
+      return false;
+    }
+    return true;
+  }
+
   static async removeTicket(ticketId) {
     const previousTask = [...this.tasks];
     this.tasks = this.tasks.filter((t) => t.id !== ticketId);
