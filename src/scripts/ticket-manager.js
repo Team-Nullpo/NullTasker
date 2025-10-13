@@ -43,9 +43,9 @@ export class TicketManager {
     return true;
   }
 
-  static async updateTicket(ticket) {
+  static async updateTicket(ticket, id) {
     const previousTask = [...this.tasks];
-    const index = this.tasks.findIndex((t) => t.id === ticket.id);
+    const index = this.tasks.findIndex((t) => t.id === id);
     if (index === -1) {
       Utils.debugLog("対象のチケットが見つかりません");
       return false;

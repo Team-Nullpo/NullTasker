@@ -1,76 +1,78 @@
 // main.js - メインアプリケーション制御
-import { TaskManager } from './task-manager.js';
-import { CalendarManager } from './calendar-manager.js';
-import { GanttManager } from './gantt-manager.js';
-import { SidebarManager } from './sidebar.js';
-import { Utils } from './utils.js';
-import { SimpleAuth } from './simple-auth.js';
-import { SettingsManager } from './settings-manager.js';
-import { ProjectManager } from './project-manager.js';
-import { UserManager } from './user-manager.js';
-import { AdminManager } from './admin-manager.js';
+import { TaskManager } from "./task-manager.js";
+import { CalendarManager } from "./calendar-manager.js";
+import { GanttManager } from "./gantt-manager.js";
+import { SidebarManager } from "./sidebar.js";
+import { Utils } from "./utils.js";
+import { SimpleAuth } from "./simple-auth.js";
+import { SettingsManager } from "./settings-manager.js";
+import { ProjectManager } from "./project-manager.js";
+import { UserManager } from "./user-manager.js";
+import { AdminManager } from "./admin-manager.js";
+import { TicketManager } from "./ticket-manager.js";
 
 // アプリケーション初期化
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener("DOMContentLoaded", async () => {
   try {
-    Utils.debugLog('アプリケーション初期化開始');
+    Utils.debugLog("アプリケーション初期化開始");
 
     // テーマを最初に初期化（全ページで実行）
     initializeTheme();
 
     // ログインページかチェック
     const currentPath = window.location.pathname;
-    const isLoginPage = currentPath.includes('login.html');
-    Utils.debugLog('Current path:', currentPath, 'Is login page:', isLoginPage);
-    
+    const isLoginPage = currentPath.includes("login.html");
+    Utils.debugLog("Current path:", currentPath, "Is login page:", isLoginPage);
+
     // ログインページ以外で認証チェック
     if (!isLoginPage) {
       // SimpleAuthを使った簡単な認証チェック
       if (!SimpleAuth.isLoggedIn()) {
-        Utils.debugLog('認証データがありません。ログインページにリダイレクト');
+        Utils.debugLog("認証データがありません。ログインページにリダイレクト");
         SimpleAuth.requireAuth();
         return;
       }
-      
-      Utils.debugLog('認証OK。アプリケーション初期化を継続');
+
+      Utils.debugLog("認証OK。アプリケーション初期化を継続");
     }
 
     await ProjectManager.fetchProjectSettings();
     await UserManager.fetchUsers();
+    await TicketManager.fetchTickets();
 
     // サイドバー管理（ログインページ以外）
     if (!isLoginPage) {
       try {
-        if (typeof SidebarManager === 'undefined') {
-          console.warn('SidebarManager が見つかりません - スキップします');
+        if (typeof SidebarManager === "undefined") {
+          console.warn("SidebarManager が見つかりません - スキップします");
         } else {
           window.sidebarManager = new SidebarManager();
-          Utils.debugLog('サイドバー管理初期化完了');
+          Utils.debugLog("サイドバー管理初期化完了");
         }
       } catch (sidebarError) {
-        console.error('サイドバー管理初期化エラー:', sidebarError.message);
+        console.error("サイドバー管理初期化エラー:", sidebarError.message);
       }
 
-      
       // 現在のページに応じて適切なマネージャーを初期化
       const currentPage = getCurrentPage();
-      Utils.debugLog('現在のページ:', currentPage);
+      Utils.debugLog("現在のページ:", currentPage);
 
       await initializePageManager(currentPage);
-      
+
       // 共通機能の初期化
       initializeCommonFeatures();
     } else {
-      Utils.debugLog('ログインページのため、他の初期化をスキップ');
+      Utils.debugLog("ログインページのため、他の初期化をスキップ");
     }
-    
-    Utils.debugLog('アプリケーション初期化完了');
+
+    Utils.debugLog("アプリケーション初期化完了");
   } catch (error) {
-    console.error('アプリケーション初期化エラー:', error.message);
-    
+    console.error("アプリケーション初期化エラー:", error.message);
+
     // 簡易通知表示
-    const notification = document.createElement('div');
-    notification.textContent = 'アプリケーションの初期化に失敗しました: ' + error.message;
+    const notification = document.createElement("div");
+    notification.textContent =
+      "アプリケーションの初期化に失敗しました: " + error.message;
     notification.style.cssText = `
       position: fixed;
       top: 20px;
@@ -85,7 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       max-width: 300px;
     `;
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
       notification.remove();
     }, 5000);
@@ -94,66 +96,66 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function getCurrentPage() {
   const path = window.location.pathname;
-  const filename = path.split('/').pop();
-  
-  if (filename.includes('task')) return 'task';
-  if (filename.includes('calendar')) return 'calendar';
-  if (filename.includes('gantt')) return 'gantt';
-  if (filename.includes('setting')) return 'settings';
-  if (filename.includes('admin')) return 'admin';
-  return 'dashboard';
+  const filename = path.split("/").pop();
+
+  if (filename.includes("task")) return "task";
+  if (filename.includes("calendar")) return "calendar";
+  if (filename.includes("gantt")) return "gantt";
+  if (filename.includes("setting")) return "settings";
+  if (filename.includes("admin")) return "admin";
+  return "dashboard";
 }
 
 async function initializePageManager(page) {
   try {
     switch (page) {
-      case 'task':
-        Utils.debugLog('タスク管理を初期化中...');
-        if (typeof TaskManager !== 'undefined') {
+      case "task":
+        Utils.debugLog("タスク管理を初期化中...");
+        if (typeof TaskManager !== "undefined") {
           window.taskManager = new TaskManager();
         } else {
-          console.warn('TaskManager が見つかりません');
+          console.warn("TaskManager が見つかりません");
         }
         break;
-        
-      case 'calendar':
-        Utils.debugLog('カレンダー管理を初期化中...');
-        if (typeof CalendarManager !== 'undefined') {
+
+      case "calendar":
+        Utils.debugLog("カレンダー管理を初期化中...");
+        if (typeof CalendarManager !== "undefined") {
           window.calendarManager = new CalendarManager();
         } else {
-          console.warn('CalendarManager が見つかりません');
+          console.warn("CalendarManager が見つかりません");
         }
         break;
-        
-      case 'gantt':
-        Utils.debugLog('ガントチャート管理を初期化中...');
-        if (typeof GanttManager !== 'undefined') {
+
+      case "gantt":
+        Utils.debugLog("ガントチャート管理を初期化中...");
+        if (typeof GanttManager !== "undefined") {
           window.ganttManager = new GanttManager();
         } else {
-          console.warn('GanttManager が見つかりません');
+          console.warn("GanttManager が見つかりません");
         }
         break;
-        
-      case 'settings':
-        Utils.debugLog('設定管理を初期化中...');
-        if (typeof SettingsManager !== 'undefined') {
+
+      case "settings":
+        Utils.debugLog("設定管理を初期化中...");
+        if (typeof SettingsManager !== "undefined") {
           window.settingsManager = new SettingsManager();
         } else {
-          console.warn('SettingsManager が見つかりません');
+          console.warn("SettingsManager が見つかりません");
         }
         break;
-      case 'admin':
-        Utils.debugLog('管理者設定画面を初期化中...');
-        if (typeof AdminManager !== 'undefined') {
+      case "admin":
+        Utils.debugLog("管理者設定画面を初期化中...");
+        if (typeof AdminManager !== "undefined") {
           window.settingsManager = new AdminManager();
         } else {
-          console.warn('AdminManager が見つかりません');
+          console.warn("AdminManager が見つかりません");
         }
         break;
-        
-      case 'dashboard':
+
+      case "dashboard":
       default:
-        Utils.debugLog('ダッシュボードを初期化中...');
+        Utils.debugLog("ダッシュボードを初期化中...");
         await initializeDashboard();
         break;
     }
@@ -167,15 +169,15 @@ async function initializePageManager(page) {
 async function initializeDashboard() {
   try {
     // ダッシュボード用の軽量な初期化
-    const tasks = Utils ? Utils.getFromStorage('tasks', []) : [];
-    
+    const tasks = Utils ? Utils.getFromStorage("tasks", []) : [];
+
     // 統計情報を表示
     updateDashboardStats(tasks);
-    
+
     // 最近のタスクを表示
     displayRecentTasks(tasks);
   } catch (error) {
-    console.error('ダッシュボード初期化エラー:', error);
+    console.error("ダッシュボード初期化エラー:", error);
   }
 }
 
@@ -183,17 +185,17 @@ function updateDashboardStats(tasks) {
   try {
     const stats = {
       total: tasks.length,
-      todo: tasks.filter(t => t.status === 'todo').length,
-      inProgress: tasks.filter(t => t.status === 'in_progress').length,
-      done: tasks.filter(t => t.status === 'done').length
+      todo: tasks.filter((t) => t.status === "todo").length,
+      inProgress: tasks.filter((t) => t.status === "in_progress").length,
+      done: tasks.filter((t) => t.status === "done").length,
     };
 
     // 統計表示の更新
     const statElements = {
-      '.stat-total': stats.total,
-      '.stat-todo': stats.todo,
-      '.stat-progress': stats.inProgress,
-      '.stat-done': stats.done
+      ".stat-total": stats.total,
+      ".stat-todo": stats.todo,
+      ".stat-progress": stats.inProgress,
+      ".stat-done": stats.done,
     };
 
     Object.entries(statElements).forEach(([selector, value]) => {
@@ -201,75 +203,81 @@ function updateDashboardStats(tasks) {
       if (element) element.textContent = value;
     });
   } catch (error) {
-    console.error('ダッシュボード統計更新エラー:', error);
+    console.error("ダッシュボード統計更新エラー:", error);
   }
 }
 
 function displayRecentTasks(tasks) {
   try {
-    const recentTasksContainer = document.querySelector('#recentTasks');
+    const recentTasksContainer = document.querySelector("#recentTasks");
     if (!recentTasksContainer) return;
 
     const recentTasks = tasks
       .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
       .slice(0, 5);
 
-    recentTasksContainer.innerHTML = '';
-    
+    recentTasksContainer.innerHTML = "";
+
     if (recentTasks.length === 0) {
-      recentTasksContainer.innerHTML = '<p>最近のタスクがありません</p>';
+      recentTasksContainer.innerHTML = "<p>最近のタスクがありません</p>";
       return;
     }
 
-    recentTasks.forEach(task => {
-      const taskElement = document.createElement('div');
-      taskElement.className = 'recent-task-item';
+    recentTasks.forEach((task) => {
+      const taskElement = document.createElement("div");
+      taskElement.className = "recent-task-item";
       taskElement.innerHTML = `
         <div class="task-info">
-          <h4>${task.title || 'タイトルなし'}</h4>
-          <p>${task.assignee || '未割り当て'} - ${task.category || 'カテゴリなし'}</p>
+          <h4>${task.title || "タイトルなし"}</h4>
+          <p>${task.assignee || "未割り当て"} - ${
+        task.category || "カテゴリなし"
+      }</p>
         </div>
-        <div class="task-status ${task.status || 'todo'}">${getStatusText(task.status)}</div>
+        <div class="task-status ${task.status || "todo"}">${getStatusText(
+        task.status
+      )}</div>
       `;
       recentTasksContainer.appendChild(taskElement);
     });
   } catch (error) {
-    console.error('最近のタスク表示エラー:', error);
+    console.error("最近のタスク表示エラー:", error);
   }
 }
 
 function getStatusText(status) {
-  const map = { 
-    todo: '未着手', 
-    in_progress: '進行中', 
-    review: 'レビュー中', 
-    done: '完了' 
+  const map = {
+    todo: "未着手",
+    in_progress: "進行中",
+    review: "レビュー中",
+    done: "完了",
   };
-  return map[status] || '未着手';
+  return map[status] || "未着手";
 }
 
 function initializeTheme() {
   try {
     // 保存されているテーマを取得
-    const savedTheme = Utils.getFromStorage('userTheme') || 'light';
-    
+    const savedTheme = Utils.getFromStorage("userTheme") || "light";
+
     // テーマを適用
     applyThemeGlobal(savedTheme);
-    
-    Utils.debugLog('テーマを適用しました:', savedTheme);
+
+    Utils.debugLog("テーマを適用しました:", savedTheme);
   } catch (error) {
-    console.error('テーマ初期化エラー:', error);
+    console.error("テーマ初期化エラー:", error);
   }
 }
 
 function applyThemeGlobal(theme) {
   // 既存のテーマクラスを削除
-  document.body.className = document.body.className.replace(/theme-\w+/g, '');
-  
-  if (theme === 'auto') {
+  document.body.className = document.body.className.replace(/theme-\w+/g, "");
+
+  if (theme === "auto") {
     // システムのテーマ設定を検出
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.body.classList.add(prefersDark ? 'theme-dark' : 'theme-light');
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
+    document.body.classList.add(prefersDark ? "theme-dark" : "theme-light");
   } else {
     // 指定されたテーマを適用
     document.body.classList.add(`theme-${theme}`);
@@ -277,20 +285,22 @@ function applyThemeGlobal(theme) {
 }
 
 // システムのカラースキーム変更を監視（autoモード用）
-window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-  const savedTheme = Utils.getFromStorage('userTheme');
-  if (savedTheme === 'auto') {
-    applyThemeGlobal('auto');
-  }
-});
+window
+  .matchMedia("(prefers-color-scheme: dark)")
+  .addEventListener("change", (e) => {
+    const savedTheme = Utils.getFromStorage("userTheme");
+    if (savedTheme === "auto") {
+      applyThemeGlobal("auto");
+    }
+  });
 
 function initializeCommonFeatures() {
   // 通知システムの初期化
   initializeNotificationSystem();
-  
+
   // キーボードショートカットの設定
   setupKeyboardShortcuts();
-  
+
   // エラーハンドリングの設定
   setupErrorHandling();
 }
@@ -298,9 +308,9 @@ function initializeCommonFeatures() {
 function initializeNotificationSystem() {
   try {
     // 通知コンテナの作成
-    if (!document.querySelector('#notification-container')) {
-      const container = document.createElement('div');
-      container.id = 'notification-container';
+    if (!document.querySelector("#notification-container")) {
+      const container = document.createElement("div");
+      container.id = "notification-container";
       container.style.cssText = `
         position: fixed;
         top: 20px;
@@ -311,25 +321,28 @@ function initializeNotificationSystem() {
       document.body.appendChild(container);
     }
   } catch (error) {
-    console.error('通知システム初期化エラー:', error);
+    console.error("通知システム初期化エラー:", error);
   }
 }
 
 function setupKeyboardShortcuts() {
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener("keydown", (e) => {
     // Ctrl + N: 新しいタスク作成
-    if (e.ctrlKey && e.key === 'n') {
+    if (e.ctrlKey && e.key === "n") {
       e.preventDefault();
       if (window.taskManager) {
-        const addBtn = document.querySelector('#addTaskBtn');
+        const addBtn = document.querySelector("#addTaskBtn");
         if (addBtn) addBtn.click();
       }
     }
-    
+
     // Ctrl + S: 設定保存
-    if (e.ctrlKey && e.key === 's') {
+    if (e.ctrlKey && e.key === "s") {
       e.preventDefault();
-      if (window.settingsManager && typeof window.settingsManager.saveAllSettings === 'function') {
+      if (
+        window.settingsManager &&
+        typeof window.settingsManager.saveAllSettings === "function"
+      ) {
         window.settingsManager.saveAllSettings();
       }
     }
@@ -337,17 +350,17 @@ function setupKeyboardShortcuts() {
 }
 
 function setupErrorHandling() {
-  window.addEventListener('error', (event) => {
-    console.error('グローバルエラー:', event.error);
-    if (typeof Utils !== 'undefined' && Utils.showNotification) {
-      Utils.showNotification('予期しないエラーが発生しました', 'error');
+  window.addEventListener("error", (event) => {
+    console.error("グローバルエラー:", event.error);
+    if (typeof Utils !== "undefined" && Utils.showNotification) {
+      Utils.showNotification("予期しないエラーが発生しました", "error");
     }
   });
 
-  window.addEventListener('unhandledrejection', (event) => {
-    console.error('未処理のPromise拒否:', event.reason);
-    if (typeof Utils !== 'undefined' && Utils.showNotification) {
-      Utils.showNotification('処理中にエラーが発生しました', 'error');
+  window.addEventListener("unhandledrejection", (event) => {
+    console.error("未処理のPromise拒否:", event.reason);
+    if (typeof Utils !== "undefined" && Utils.showNotification) {
+      Utils.showNotification("処理中にエラーが発生しました", "error");
     }
   });
 }
@@ -362,16 +375,20 @@ window.debugInfo = () => {
         calendar: !!window.calendarManager,
         gantt: !!window.ganttManager,
         settings: !!window.settingsManager,
-        sidebar: !!window.sidebarManager
+        sidebar: !!window.sidebarManager,
       },
       storage: {
-        tasks: Utils ? (Utils.getFromStorage('tasks', []).length || 0) : 'Utils not available',
-        settings: Utils ? !!Utils.getFromStorage('appSettings') : 'Utils not available'
+        tasks: Utils
+          ? Utils.getFromStorage("tasks", []).length || 0
+          : "Utils not available",
+        settings: Utils
+          ? !!Utils.getFromStorage("appSettings")
+          : "Utils not available",
       },
       auth: {
-        manager: typeof SimpleAuth !== 'undefined',
-        user: SimpleAuth.getCurrentUser()?.displayName || 'Not available'
-      }
+        manager: typeof SimpleAuth !== "undefined",
+        user: SimpleAuth.getCurrentUser()?.displayName || "Not available",
+      },
     };
   } catch (error) {
     return { error: error.message };
