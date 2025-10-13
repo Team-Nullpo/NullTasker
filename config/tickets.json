@@ -9,12 +9,12 @@
       "dueDate": "2025-10-17",
       "priority": "high",
       "category": "デザイン",
-      "status": "in_progress",
-      "progress": 30,
+      "status": "todo",
+      "progress": 0,
       "project": "default",
       "createdAt": "2025-10-13T08:39:06.023Z",
-      "updatedAt": "2025-10-13T08:43:44.712Z"
+      "updatedAt": "2025-10-13T09:09:33.976Z"
     }
   ],
-  "lastUpdated": "2025-10-13T08:43:44.716Z"
+  "lastUpdated": "2025-10-13T09:09:33.982Z"
 }

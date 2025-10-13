@@ -261,7 +261,7 @@ export class TaskManager {
       }
       this.renderTasks();
       this.closeModal();
-      Utils.showNotification("タスクが正常に追加されました。", "success");
+      Utils.showNotification("タスクが正常に更新されました。", "success");
     } catch (error) {
       console.error("フォーム送信エラー:", error);
       Utils.showNotification("フォームの送信に失敗しました。", "error");
@@ -468,12 +468,17 @@ export class TaskManager {
   async toggleTaskStatus(taskId, isDone) {
     const task = this.tasks.find((t) => t.id === taskId);
     if (task) {
-      task.status = isDone ? TASK_STATUS.DONE : TASK_STATUS.TODO;
-      task.progress = isDone
+      const cp = structuredClone(task);
+      cp.status = isDone ? TASK_STATUS.DONE : TASK_STATUS.TODO;
+      cp.progress = isDone
         ? TASK_PROGRESS.COMPLETED
         : TASK_PROGRESS.NOT_STARTED;
-      await this.saveTasks();
+      if (!(await TicketManager.updateTicket(cp, taskId))) {
+        Utils.showNotification("タスク更新に失敗しました", "error");
+        return;
+      }
       this.renderTasks();
+      Utils.showNotification("タスクが正常に更新されました。", "success");
     }
   }
 
