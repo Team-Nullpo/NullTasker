@@ -1,20 +1,4 @@
 {
-  "tasks": [
-    {
-      "id": "task_1760344746023_733",
-      "title": "e",
-      "description": "",
-      "assignee": "admin",
-      "startDate": "2025-10-08",
-      "dueDate": "2025-10-17",
-      "priority": "high",
-      "category": "デザイン",
-      "status": "todo",
-      "progress": 0,
-      "project": "default",
-      "createdAt": "2025-10-13T08:39:06.023Z",
-      "updatedAt": "2025-10-13T09:09:33.976Z"
-    }
-  ],
-  "lastUpdated": "2025-10-13T09:09:33.982Z"
+  "tasks": [],
+  "lastUpdated": "2025-10-13T09:16:55.277Z"
 }
