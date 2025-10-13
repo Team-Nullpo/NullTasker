@@ -1,5 +1,6 @@
-import { Utils } from './utils.js';
-import { ProjectManager } from './project-manager.js';
+import { Utils } from "./utils.js";
+import { ProjectManager } from "./project-manager.js";
+import { TicketManager } from "./ticket-manager.js";
 
 // カレンダー管理クラス
 export class CalendarManager {
@@ -7,12 +8,12 @@ export class CalendarManager {
     this.tasks = [];
     this.currentDate = new Date();
     this.selectedDate = new Date();
-    this.viewMode = 'month';
+    this.viewMode = "month";
     this.init();
   }
 
   init() {
-    if (Utils.getElement('.calendar-container')) {
+    if (Utils.getElement(".calendar-container")) {
       this.loadTasks();
       this.setupEventListeners();
       this.renderCalendar();
@@ -21,49 +22,50 @@ export class CalendarManager {
   }
 
   loadTasks() {
-    const tasks = Utils.getFromStorage('tasks', []);
-    this.tasks = tasks.filter(task => task.project === ProjectManager.currentProject);
+    this.tasks = TicketManager.tasks.filter(
+      (ticket) => ticket.project === ProjectManager.currentProject
+    );
   }
 
   setupEventListeners() {
     const elements = {
-      prevBtn: Utils.getElement('#prevMonth'),
-      nextBtn: Utils.getElement('#nextMonth'),
-      todayBtn: Utils.getElement('#todayBtn'),
-      quickInput: Utils.getElement('#quickTaskInput'), // 修正: HTMLのIDに合わせる
-      quickAddBtn: Utils.getElement('#quickAddBtn'), // 修正: HTMLのIDに合わせる
-      addEventBtn: Utils.getElement('#addEventBtn'),
-      dailyTaskList: Utils.getElement('#dailyTaskList') // 追加
+      prevBtn: Utils.getElement("#prevMonth"),
+      nextBtn: Utils.getElement("#nextMonth"),
+      todayBtn: Utils.getElement("#todayBtn"),
+      quickInput: Utils.getElement("#quickTaskInput"), // 修正: HTMLのIDに合わせる
+      quickAddBtn: Utils.getElement("#quickAddBtn"), // 修正: HTMLのIDに合わせる
+      addEventBtn: Utils.getElement("#addEventBtn"),
+      dailyTaskList: Utils.getElement("#dailyTaskList"), // 追加
     };
 
-    Utils.debugLog('カレンダー要素:', {
+    Utils.debugLog("カレンダー要素:", {
       prevBtn: !!elements.prevBtn,
       nextBtn: !!elements.nextBtn,
       quickInput: !!elements.quickInput,
-      quickAddBtn: !!elements.quickAddBtn
+      quickAddBtn: !!elements.quickAddBtn,
     });
 
     if (elements.prevBtn) {
-      elements.prevBtn.addEventListener('click', () => this.navigateMonth(-1));
+      elements.prevBtn.addEventListener("click", () => this.navigateMonth(-1));
     }
 
     if (elements.nextBtn) {
-      elements.nextBtn.addEventListener('click', () => this.navigateMonth(1));
+      elements.nextBtn.addEventListener("click", () => this.navigateMonth(1));
     }
 
     if (elements.todayBtn) {
-      elements.todayBtn.addEventListener('click', () => this.goToToday());
+      elements.todayBtn.addEventListener("click", () => this.goToToday());
     }
 
     // クイック追加ボタンのイベント
     if (elements.quickAddBtn) {
-      elements.quickAddBtn.addEventListener('click', () => this.quickAddTask());
+      elements.quickAddBtn.addEventListener("click", () => this.quickAddTask());
     }
 
     // クイック追加入力欄でのエンターキー
     if (elements.quickInput) {
-      elements.quickInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
+      elements.quickInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
           this.quickAddTask();
         }
       });
@@ -71,13 +73,16 @@ export class CalendarManager {
 
     // イベント追加ボタン
     if (elements.addEventBtn) {
-      elements.addEventBtn.addEventListener('click', () => {
+      elements.addEventBtn.addEventListener("click", () => {
         // タスク追加モーダルを開く（存在する場合）
-        const taskModal = Utils.getElement('#taskModal');
+        const taskModal = Utils.getElement("#taskModal");
         if (taskModal) {
-          taskModal.style.display = 'block';
+          taskModal.style.display = "block";
         } else {
-          Utils.showNotification('タスク追加機能は、タスクページで利用できます。', 'info');
+          Utils.showNotification(
+            "タスク追加機能は、タスクページで利用できます。",
+            "info"
+          );
         }
       });
     }
@@ -101,7 +106,7 @@ export class CalendarManager {
   }
 
   updateMonthDisplay() {
-    const monthElement = Utils.getElement('#currentMonth');
+    const monthElement = Utils.getElement("#currentMonth");
     if (monthElement) {
       const year = this.currentDate.getFullYear();
       const month = this.currentDate.getMonth() + 1;
@@ -110,10 +115,10 @@ export class CalendarManager {
   }
 
   renderCalendarDays() {
-    const daysContainer = Utils.getElement('#calendarDays');
+    const daysContainer = Utils.getElement("#calendarDays");
     if (!daysContainer) return;
 
-    daysContainer.innerHTML = '';
+    daysContainer.innerHTML = "";
 
     const year = this.currentDate.getFullYear();
     const month = this.currentDate.getMonth();
@@ -125,22 +130,22 @@ export class CalendarManager {
     for (let i = 0; i < 42; i++) {
       const date = new Date(startDate);
       date.setDate(startDate.getDate() + i);
-      
+
       const dayElement = this.createDayElement(date, month);
       daysContainer.appendChild(dayElement);
     }
   }
 
   createDayElement(date, currentMonth) {
-    const dayDiv = document.createElement('div');
-    dayDiv.className = 'calendar-day';
-    
+    const dayDiv = document.createElement("div");
+    dayDiv.className = "calendar-day";
+
     // 日付の分類
     this.addDateClasses(dayDiv, date, currentMonth);
 
     // 日付番号
-    const dayNumber = document.createElement('div');
-    dayNumber.className = 'day-number';
+    const dayNumber = document.createElement("div");
+    dayNumber.className = "day-number";
     dayNumber.textContent = date.getDate();
     dayDiv.appendChild(dayNumber);
 
@@ -149,60 +154,60 @@ export class CalendarManager {
     dayDiv.appendChild(tasksDiv);
 
     // 日付クリックイベント
-    dayDiv.addEventListener('click', () => this.selectDate(date));
+    dayDiv.addEventListener("click", () => this.selectDate(date));
 
     return dayDiv;
   }
 
   addDateClasses(dayDiv, date, currentMonth) {
     if (date.getMonth() !== currentMonth) {
-      dayDiv.classList.add('other-month');
+      dayDiv.classList.add("other-month");
     }
-    
+
     if (Utils.isToday(date)) {
-      dayDiv.classList.add('today');
+      dayDiv.classList.add("today");
     }
-    
+
     if (Utils.isSameDate(date, this.selectedDate)) {
-      dayDiv.classList.add('selected');
+      dayDiv.classList.add("selected");
     }
   }
 
   createTasksDiv(date) {
-    const tasksDiv = document.createElement('div');
-    tasksDiv.className = 'day-tasks';
-    
+    const tasksDiv = document.createElement("div");
+    tasksDiv.className = "day-tasks";
+
     const dayTasks = this.getTasksForDate(date);
-    dayTasks.forEach(task => {
+    dayTasks.forEach((task) => {
       const taskElement = this.createTaskElement(task);
       tasksDiv.appendChild(taskElement);
     });
-    
+
     return tasksDiv;
   }
 
   createTaskElement(task) {
-    const taskElement = document.createElement('div');
+    const taskElement = document.createElement("div");
     taskElement.className = `calendar-task ${task.priority}`;
-    if (task.status === 'done') {
-      taskElement.classList.add('completed');
+    if (task.status === "done") {
+      taskElement.classList.add("completed");
     }
     taskElement.textContent = task.title;
     taskElement.title = `${task.title} - ${task.assignee}`;
-    
-    taskElement.addEventListener('click', (e) => {
+
+    taskElement.addEventListener("click", (e) => {
       e.stopPropagation();
       this.showTaskDetail(task);
     });
-    
+
     return taskElement;
   }
 
   getTasksForDate(date) {
-    return this.tasks.filter(task => {
+    return this.tasks.filter((task) => {
       const taskStartDate = new Date(task.startDate || task.createdAt);
       const taskEndDate = new Date(task.dueDate);
-      
+
       // 指定された日付がタスクの期間内にあるかチェック
       return date >= taskStartDate && date <= taskEndDate;
     });
@@ -216,34 +221,35 @@ export class CalendarManager {
   }
 
   updateSelectedDate() {
-    const selectedDateElement = Utils.getElement('#selectedDate');
+    const selectedDateElement = Utils.getElement("#selectedDate");
     if (selectedDateElement) {
-      selectedDateElement.textContent = this.selectedDate.toLocaleDateString('ja-JP');
+      selectedDateElement.textContent =
+        this.selectedDate.toLocaleDateString("ja-JP");
     }
   }
 
   renderDailyTasks() {
-    const dailyTasksContainer = Utils.getElement('#dailyTaskList'); // 修正: HTMLのIDに合わせる
+    const dailyTasksContainer = Utils.getElement("#dailyTaskList"); // 修正: HTMLのIDに合わせる
     if (!dailyTasksContainer) return;
 
-    dailyTasksContainer.innerHTML = '';
+    dailyTasksContainer.innerHTML = "";
     const tasks = this.getTasksForDate(this.selectedDate);
 
     if (tasks.length === 0) {
-      dailyTasksContainer.innerHTML = '<p>この日にタスクはありません。</p>';
+      dailyTasksContainer.innerHTML = "<p>この日にタスクはありません。</p>";
       return;
     }
 
-    tasks.forEach(task => {
+    tasks.forEach((task) => {
       const taskElement = this.createDailyTaskElement(task);
       dailyTasksContainer.appendChild(taskElement);
     });
   }
 
   createDailyTaskElement(task) {
-    const taskElement = document.createElement('div');
-    taskElement.className = 'daily-task';
-    
+    const taskElement = document.createElement("div");
+    taskElement.className = "daily-task";
+
     taskElement.innerHTML = `
       <div class="task-info">
         <div class="task-title">${task.title}</div>
@@ -253,50 +259,50 @@ export class CalendarManager {
         ${this.getPriorityText(task.priority)}
       </div>
     `;
-    
-    taskElement.addEventListener('click', () => this.showTaskDetail(task));
+
+    taskElement.addEventListener("click", () => this.showTaskDetail(task));
     return taskElement;
   }
 
   quickAddTask() {
-    const titleInput = Utils.getElement('#quickTaskInput'); // 修正: HTMLのIDに合わせる
+    const titleInput = Utils.getElement("#quickTaskInput"); // 修正: HTMLのIDに合わせる
     if (!titleInput || !titleInput.value.trim()) return;
 
     const newTask = {
-      id: Utils.generateId('task'),
+      id: Utils.generateId("task"),
       title: titleInput.value.trim(),
-      description: '',
-      assignee: '未割り当て',
-      startDate: this.selectedDate.toISOString().split('T')[0], // 開始日も設定
-      dueDate: this.selectedDate.toISOString().split('T')[0],
-      priority: 'medium',
-      category: 'その他',
-      status: 'todo',
+      description: "",
+      assignee: "未割り当て",
+      startDate: this.selectedDate.toISOString().split("T")[0], // 開始日も設定
+      dueDate: this.selectedDate.toISOString().split("T")[0],
+      priority: "medium",
+      category: "その他",
+      status: "todo",
       progress: 0,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
 
     this.tasks.push(newTask);
     this.saveTasks();
-    titleInput.value = '';
+    titleInput.value = "";
     this.renderCalendar();
     this.renderDailyTasks();
-    
-    Utils.showNotification('タスクが追加されました', 'success');
+
+    Utils.showNotification("タスクが追加されました", "success");
   }
 
   saveTasks() {
-    Utils.saveToStorage('tasks', this.tasks);
+    Utils.saveToStorage("tasks", this.tasks);
   }
 
   showTaskDetail(task) {
-    const modal = Utils.getElement('#taskDetailModal');
-    const content = Utils.getElement('#taskDetailContent');
-    
+    const modal = Utils.getElement("#taskDetailModal");
+    const content = Utils.getElement("#taskDetailContent");
+
     if (modal && content) {
       content.innerHTML = this.createTaskDetailHTML(task);
-      modal.style.display = 'block';
+      modal.style.display = "block";
     }
   }
 
@@ -304,7 +310,7 @@ export class CalendarManager {
     return `
       <div class="task-detail-info">
         <h3>${task.title}</h3>
-        <p><strong>説明:</strong> ${task.description || 'なし'}</p>
+        <p><strong>説明:</strong> ${task.description || "なし"}</p>
         <p><strong>担当者:</strong> ${task.assignee}</p>
         <p><strong>期限:</strong> ${Utils.formatDate(task.dueDate)}</p>
         <p><strong>優先度:</strong> ${this.getPriorityText(task.priority)}</p>
@@ -316,36 +322,36 @@ export class CalendarManager {
   }
 
   getPriorityText(priority) {
-    const map = { high: '高優先度', medium: '中優先度', low: '低優先度' };
-    return map[priority] || '中優先度';
+    const map = { high: "高優先度", medium: "中優先度", low: "低優先度" };
+    return map[priority] || "中優先度";
   }
 
   getStatusText(status) {
-    const map = { 
-      todo: '未着手', 
-      in_progress: '進行中', 
-      review: 'レビュー中', 
-      done: '完了' 
+    const map = {
+      todo: "未着手",
+      in_progress: "進行中",
+      review: "レビュー中",
+      done: "完了",
     };
-    return map[status] || '未着手';
+    return map[status] || "未着手";
   }
 
   toggleView() {
-    const monthView = Utils.getElement('#monthView');
-    const weekView = Utils.getElement('#weekView');
-    
-    if (this.viewMode === 'month') {
-      this.viewMode = 'week';
-      if (monthView) monthView.style.display = 'none';
-      if (weekView) weekView.style.display = 'block';
+    const monthView = Utils.getElement("#monthView");
+    const weekView = Utils.getElement("#weekView");
+
+    if (this.viewMode === "month") {
+      this.viewMode = "week";
+      if (monthView) monthView.style.display = "none";
+      if (weekView) weekView.style.display = "block";
     } else {
-      this.viewMode = 'month';
-      if (monthView) monthView.style.display = 'block';
-      if (weekView) weekView.style.display = 'none';
+      this.viewMode = "month";
+      if (monthView) monthView.style.display = "block";
+      if (weekView) weekView.style.display = "none";
     }
   }
 }
 
 export const calendarFunctions = {
-  toggleCalendarView: () => window.calendarManager?.toggleView()
+  toggleCalendarView: () => window.calendarManager?.toggleView(),
 };
