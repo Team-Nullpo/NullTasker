@@ -19,6 +19,9 @@ npm run reset:tasks
 # 設定データのみリセット
 npm run reset:settings
 
+# プロジェクトデータのみリセット
+npm run reset:projects
+
 # バックアップなしで全リセット（高速）
 npm run reset:clean
 ```
@@ -29,28 +32,30 @@ npm run reset:clean
 # 全データをリセット
 node scripts/reset-data.js
 
-# ユーザーデータのみリセット
-node scripts/reset-data.js --users
-
-# タスクとユーザーデータをリセット
-node scripts/reset-data.js --users --tickets
-
-# バックアップなしでリセット
-node scripts/reset-data.js --no-backup
+オプション:
+  --users, -u      ユーザーデータのみリセット
+  --tickets, -t    タスクデータのみリセット
+  --settings, -s   設定データのみリセット
+  --projects, -p   プロジェクトデータのみリセット
+  --no-backup      バックアップを作成しない
+  --help, -h       このヘルプを表示
 ```
 
 ## リセット対象データ
 
 ### ユーザーデータ (`config/users.json`)
+
 - 全ユーザーアカウントを削除
 - 管理者アカウント（ID: admin, パスワード: admin123）のみ残す
 - ログイン履歴をクリア
 
 ### タスクデータ (`config/tickets.json`)
+
 - 全タスクを削除
 - 空のタスクリストにリセット
 
 ### 設定データ (`config/settings.json`)
+
 - アプリケーション設定を初期値にリセット
 - テーマ、言語、機能設定を初期状態に戻す
 
@@ -71,7 +76,8 @@ node scripts/reset-data.js --no-backup
 ## 初期アカウント情報
 
 リセット後の管理者アカウント:
-- **ログインID**: admin
+
+- **ログイン ID**: admin
 - **パスワード**: admin123
 - **表示名**: 管理者
 - **メールアドレス**: admin@nulltasker.com
