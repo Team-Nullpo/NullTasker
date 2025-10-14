@@ -5,7 +5,7 @@
       "loginId": "admin",
       "displayName": "管理者",
       "email": "admin@nulltasker.com",
-      "password": "$2b$10$FfVQSKqNlpzU0EvAounSBuFoo2u.9bbJiqWZRCCAuPydC2Ui3Pgh2",
+      "password": "$2b$10$06SM2X0CQmFcAbxh7NZaG.n2aeiKU/eZpAtJPmbU0F6/xxsoiMD0.",
       "role": "system_admin",
       "projects": [
         "default"
@@ -14,5 +14,5 @@
       "lastLogin": null
     }
   ],
-  "lastUpdated": "2025-10-13T09:16:55.277Z"
+  "lastUpdated": "2025-10-14T05:52:42.826Z"
 }
