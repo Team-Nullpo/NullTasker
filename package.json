@@ -5,7 +5,10 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "start:http": "USE_HTTPS=false node server.js",
     "dev": "nodemon server.js",
+    "dev:http": "USE_HTTPS=false nodemon server.js",
+    "generate-cert": "node scripts/generate-cert.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "reset": "node scripts/reset-data.js",
     "reset:users": "node scripts/reset-data.js --users",

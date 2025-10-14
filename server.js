@@ -1,5 +1,7 @@
 const express = require('express');
+const https = require('https');
 const fs = require('fs').promises;
+const fsSync = require('fs');
 const path = require('path');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
@@ -22,8 +24,10 @@ const {
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const HTTPS_PORT = process.env.HTTPS_PORT || 3443;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const DEBUG_MODE = NODE_ENV === 'development';
+const USE_HTTPS = process.env.USE_HTTPS !== 'false'; // デフォルトでHTTPSを使用
 
 // デバッグログ用のヘルパー関数
 const debugLog = (...args) => {
@@ -1260,9 +1264,51 @@ app.get('/api/projects', authenticateToken, async (req, res) => {
 });
 
 // サーバー起動
-app.listen(PORT, () => {
-  console.log(`サーバーが起動しました: http://localhost:${PORT}`);
-  console.log(`tickets.jsonファイル: ${TICKETS_FILE}`);
-  console.log(`settings.jsonファイル: ${SETTINGS_FILE}`);
-  console.log(`静的ファイルディレクトリ: ${path.join(__dirname, 'src')}`);
-});
+if (USE_HTTPS) {
+  // SSL証明書のパス
+  const sslKeyPath = path.join(__dirname, 'ssl', 'server.key');
+  const sslCertPath = path.join(__dirname, 'ssl', 'server.cert');
+
+  // SSL証明書の存在確認
+  if (!fsSync.existsSync(sslKeyPath) || !fsSync.existsSync(sslCertPath)) {
+    console.error('エラー: SSL証明書が見つかりません。');
+    console.error('以下のコマンドでSSL証明書を生成してください:');
+    console.error('  npm run generate-cert');
+    process.exit(1);
+  }
+
+  // HTTPSサーバーのオプション
+  const httpsOptions = {
+    key: fsSync.readFileSync(sslKeyPath),
+    cert: fsSync.readFileSync(sslCertPath)
+  };
+
+  // HTTPSサーバーを起動
+  https.createServer(httpsOptions, app).listen(HTTPS_PORT, () => {
+    console.log(`HTTPSサーバーが起動しました: https://localhost:${HTTPS_PORT}`);
+    console.log(`tickets.jsonファイル: ${TICKETS_FILE}`);
+    console.log(`settings.jsonファイル: ${SETTINGS_FILE}`);
+    console.log(`静的ファイルディレクトリ: ${path.join(__dirname, 'src')}`);
+    console.log('\n警告: 自己署名証明書を使用しています。');
+    console.log('ブラウザで証明書の警告が表示される場合は、例外として承認してください。');
+  });
+
+  // HTTPからHTTPSへのリダイレクト（オプション）
+  if (process.env.REDIRECT_HTTP !== 'false') {
+    const http = require('http');
+    http.createServer((req, res) => {
+      res.writeHead(301, { Location: `https://${req.headers.host.replace(`:${PORT}`, `:${HTTPS_PORT}`)}${req.url}` });
+      res.end();
+    }).listen(PORT, () => {
+      console.log(`HTTPリダイレクトサーバーが起動しました: http://localhost:${PORT} -> https://localhost:${HTTPS_PORT}`);
+    });
+  }
+} else {
+  // HTTPサーバーを起動（HTTPSを無効にした場合）
+  app.listen(PORT, () => {
+    console.log(`HTTPサーバーが起動しました: http://localhost:${PORT}`);
+    console.log(`tickets.jsonファイル: ${TICKETS_FILE}`);
+    console.log(`settings.jsonファイル: ${SETTINGS_FILE}`);
+    console.log(`静的ファイルディレクトリ: ${path.join(__dirname, 'src')}`);
+  });
+}
