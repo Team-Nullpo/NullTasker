@@ -83,5 +83,11 @@ config/tickets.json
 config/users.json
 config/projects.json
 
+# SSL certificates
+ssl/*.key
+ssl/*.cert
+ssl/*.csr
+ssl/*.pem
+
 # etc
 memo.md
