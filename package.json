@@ -11,6 +11,7 @@
     "reset:users": "node scripts/reset-data.js --users",
     "reset:tasks": "node scripts/reset-data.js --tickets",
     "reset:settings": "node scripts/reset-data.js --settings",
+    "reset:projects": "node scripts/reset-data.js --projects",
     "reset:clean": "node scripts/reset-data.js --no-backup"
   },
   "keywords": [

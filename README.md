@@ -217,6 +217,7 @@ NullTasker/
       "category": "設計",
       "status": "in_progress",
       "progress": 75,
+      "project": "default",
       "createdAt": "2025-08-27T10:00:00.000Z",
       "updatedAt": "2025-08-27T15:30:00.000Z"
     }
@@ -234,46 +235,33 @@ NullTasker/
       "loginId": "admin",
       "displayName": "管理者",
       "email": "admin@nulltasker.com",
+      "password": "$2b$10$06SM2X0CQmFcAbxh7NZaG.n2aeiKU/eZpAtJPmbU0F6/xxsoiMD0.",
       "role": "system_admin",
-      "password": "$2b$10$RiZky4vC9rq4qgolc79uc.d8GCvpXz5tmA5gaFxBlv0wVpuUpsI0O",
+      "projects": [
+        "default"
+      ],
       "createdAt": "2025-09-01T00:00:00.000Z",
       "lastLogin": null
     }
   ],
-  "lastUpdated": "2025-09-01T00:00:00.000Z"
+  "lastUpdated": "2025-10-14T05:52:42.826Z"
 }
 ```
 
 #### 設定データ（settings.json）
 ```json
 {
-  "categories": [
-    "企画",
-    "開発", 
-    "デザイン",
-    "テスト",
-    "ドキュメント",
-    "会議",
-    "その他"
-  ],
-  "users": [
-    "田中太郎",
-    "佐藤花子", 
-    "山田次郎",
-    "鈴木美咲",
-    "高橋健一"
-  ],
-  "priorities": [
-    {"value": "high", "label": "高優先度", "color": "#c62828"},
-    {"value": "medium", "label": "中優先度", "color": "#ef6c00"},
-    {"value": "low", "label": "低優先度", "color": "#2e7d32"}
-  ],
-  "statuses": [
-    {"value": "todo", "label": "未着手", "color": "#666"},
-    {"value": "in_progress", "label": "進行中", "color": "#1976d2"},
-    {"value": "review", "label": "レビュー中", "color": "#f57c00"},
-    {"value": "done", "label": "完了", "color": "#388e3c"}
-  ]
+  "appName": "NullTasker",
+  "version": "1.0.0",
+  "theme": "light",
+  "language": "ja",
+  "timezone": "Asia/Tokyo",
+  "features": {
+    "notifications": true,
+    "autoSave": true,
+    "backupEnabled": true
+  },
+  "lastUpdated": "2025-10-14T05:52:42.826Z"
 }
 ```
 
@@ -331,6 +319,8 @@ GET  /api/admin/users        # 全ユーザー取得（システム管理者の�
 POST /api/admin/users        # ユーザー作成（システム管理者のみ）
 PUT  /api/admin/users/:id    # ユーザー更新（システム管理者のみ）
 DELETE /api/admin/users/:id  # ユーザー削除（システム管理者のみ）
+POST /api/admin/projects     # 新規プロジェクト追加 (システム管理者のみ)
+PUT /api/admin/projects/:id  # プロジェクト更新 (システム管理者のみ)
 ```
 
 ### バックアップAPI
