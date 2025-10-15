@@ -21,6 +21,7 @@ const {
   getPrioritiesArray,
   getStatusesArray
 } = require('./server-constants');
+const { Utils } = require('./src/scripts/utils');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -1137,6 +1138,18 @@ app.post('/api/admin/restore', authenticateToken, requireSystemAdmin, async (req
   }
 });
 
+// 設定データを取得
+app.get('/api/settings', authenticateToken, async (req, res) => {
+  try {
+    const data = await fs.readFile(SETTINGS_FILE, 'utf8');
+    const settings = JSON.parse(data);
+    res.json(settings);
+  } catch (error) {
+    console.error('設定読み込みエラー:', error);
+    res.status(500).json({ error: '設定の読み込みに失敗しました' });
+  }
+});
+
 // タスクデータを取得
 app.get('/api/tasks', authenticateToken, async (req, res) => {
   try {
@@ -1174,56 +1187,42 @@ app.get('/api/tasks', authenticateToken, async (req, res) => {
   }
 });
 
-// 設定データを取得
-app.get('/api/settings', authenticateToken, async (req, res) => {
-  try {
-    const data = await fs.readFile(SETTINGS_FILE, 'utf8');
-    const settings = JSON.parse(data);
-    res.json(settings);
-  } catch (error) {
-    console.error('設定読み込みエラー:', error);
-    res.status(500).json({ error: '設定の読み込みに失敗しました' });
-  }
-});
-
-// タスクデータを保存
+// タスクデータを追加
 app.post('/api/tasks', authenticateToken, async (req, res) => {
   try {
-    const { tasks } = req.body;
-    
-    debugLog('タスク保存リクエスト受信:', {
-      taskCount: tasks ? tasks.length : 'undefined',
-      isArray: Array.isArray(tasks),
-      user: req.user?.id
-    });
-    
-    if (!tasks || !Array.isArray(tasks)) {
-      console.error('無効なタスクデータ:', typeof tasks);
-      return res.status(400).json({ 
-        success: false,
-        error: '無効なタスクデータです'
-      });
+    const { payload } = req.body;
+
+    const data = await fs.readFile(TICKETS_FILE, 'utf8');
+    const tickets = JSON.parse(data);
+
+    const existingProject = tickets.tasks?.find(task => task.title === payload.title);
+    if (existingProject) {
+      return res.status(400).json({ error: '同名のタスクが存在します' });
     }
 
-    const updatedData = {
+    const newTask = {
+      id: Utils.generateId("task"),
       tasks,
-      lastUpdated: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
 
+    if (!tickets.tasks) {
+      tickets.tasks = [];
+    }
+
+    tickets.tasks.push(newTask);
+    tickets.lastUpdated = new Date().toISOString();
+
     // ファイルに書き込み
-    await fs.writeFile(TICKETS_FILE, JSON.stringify(updatedData, null, 2), 'utf8');
+    await fs.writeFile(TICKETS_FILE, JSON.stringify(tickets, null, 2), 'utf8');
     
     debugLog('タスクが正常に保存されました:', {
-      count: tasks.length,
+      count: tickets.length,
       time: new Date().toISOString()
     });
     
-    res.json({ 
-      success: true, 
-      message: 'タスクが正常に保存されました',
-      taskCount: tasks.length,
-      timestamp: new Date().toISOString()
-    });
+    res.status(201).location(`/api/tasks/${newTask.id}`).json(newTask);
     
   } catch (error) {
     console.error('タスク保存エラー:', error.message);
@@ -1231,6 +1230,70 @@ app.post('/api/tasks', authenticateToken, async (req, res) => {
       success: false,
       error: 'タスクの保存に失敗しました'
     });
+  }
+});
+
+// タスク更新
+app.put('/api/tasks/:ticketId', authenticateToken, async (req, res) => {
+  try {
+    const { ticketId } = req.params;
+    const { payload } = req.body;
+
+    const data = await fs.readFile(TICKETS_FILE, 'utf8');
+    const tickets = JSON.parse(data);
+    
+    
+    const ticketIndex = tickets.tasks?.findIndex(t => t.id === ticketId);
+    if (ticketIndex === -1 || !tickets.tasks) {
+      return res.status(404).json({ error: 'プロジェクトが見つかりません' });
+    }
+
+    // タスク更新
+    const newTask = {
+      ...tickets.tasks[ticketIndex],
+      ...payload,
+      updatedAt: new Date().toISOString(),
+    };
+
+    tickets.tasks[ticketIndex] = newTask;
+
+    tickets.lastUpdated = new Date().toISOString();
+
+    await fs.writeFile(TICKETS_FILE, JSON.stringify(tickets, null, 2));
+    
+    res.status(201).json(newTask);
+
+  } catch (error) {
+    console.error('プロジェクト更新エラー:', error);
+    res.status(500).json({ error: 'プロジェクトの更新に失敗しました' });
+  }
+});
+
+// タスク削除
+app.delete('/api/tasks/:ticketId', authenticateToken, async (req, res) => {
+  try {
+    const { ticketId } = req.params;
+
+    const data = await fs.readFile(TICKETS_FILE, 'utf8');
+    const tickets = JSON.parse(data);
+    
+    const ticketIndex = tickets.tasks?.findIndex(t => t.id === ticketId);
+    if (ticketIndex === -1 || !tickets.tasks) {
+      return res.status(404).json({ error: 'プロジェクトが見つかりません' });
+    }
+
+    // プロジェクト削除
+    tickets.tasks.splice(ticketIndex, 1);
+
+    tickets.lastUpdated = new Date().toISOString();
+
+    await fs.writeFile(TICKETS_FILE, JSON.stringify(tickets, null, 2));
+
+    res.status(204).json({ success: true, message: 'プロジェクトを削除しました' });
+
+  } catch (error) {
+    console.error('プロジェクト削除エラー:', error);
+    res.status(500).json({ error: 'プロジェクトの削除に失敗しました' });
   }
 });
 
