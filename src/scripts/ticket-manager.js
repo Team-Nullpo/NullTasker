@@ -25,19 +25,26 @@ export class TicketManager {
     }
   }
 
-  static async addTicket(ticket) {
-    const previousTask = [...this.tasks];
-    const newTicket = {
-      id: Utils.generateId("task"),
-      ...ticket,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    this.tasks.push(newTicket);
+  static async createTicket(ticket) {
     try {
-      await this.saveTickets();
+      const response = await fetch("/api/tasks", {
+        method: "POST",
+        headers: SimpleAuth.getAuthHeaders(),
+        body: JSON.stringify(ticket),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("サーバーエラーレスポンス:", errorText);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const newTicket = await response.json();
+      this.tasks.push(newTicket);
+      console.log(newTicket);
+      console.log(this.tasks);
+      Utils.debugLog("タスク保存に成功しました: ", response.status);
+
     } catch (error) {
-      this.tasks = previousTask;
       return false;
     }
     return true;

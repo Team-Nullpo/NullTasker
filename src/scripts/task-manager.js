@@ -254,7 +254,7 @@ export class TaskManager {
           return;
         }
       } else {
-        if (!(await TicketManager.addTicket(payload))) {
+        if (!(await TicketManager.createTicket(payload))) {
           Utils.showNotification("タスク追加に失敗しました", "error");
           return;
         }
