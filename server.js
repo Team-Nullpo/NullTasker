@@ -1261,7 +1261,7 @@ app.put('/api/tasks/:ticketId', authenticateToken, async (req, res) => {
 
     await fs.writeFile(TICKETS_FILE, JSON.stringify(tickets, null, 2));
     
-    res.status(201).json(newTask);
+    res.status(200).json(newTask);
 
   } catch (error) {
     console.error('プロジェクト更新エラー:', error);
@@ -1289,7 +1289,7 @@ app.delete('/api/tasks/:ticketId', authenticateToken, async (req, res) => {
 
     await fs.writeFile(TICKETS_FILE, JSON.stringify(tickets, null, 2));
 
-    res.status(204).json({ success: true, message: 'プロジェクトを削除しました' });
+    res.status(204);
 
   } catch (error) {
     console.error('プロジェクト削除エラー:', error);
