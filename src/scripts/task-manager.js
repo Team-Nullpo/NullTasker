@@ -15,6 +15,7 @@ import { TicketManager } from "./ticket-manager.js";
 export class TaskManager {
   constructor() {
     this.tasks = [];
+    this.projectId = null;
     this.settings = {};
     this.editingTaskId = null;
     this.deletingTaskId = null; // 削除対象のタスクID
@@ -31,7 +32,8 @@ export class TaskManager {
   }
 
   loadSettings() {
-    this.settings = ProjectManager.currentProjectSettings;
+    this.projectId = ProjectManager.getCurrentProjectId();
+    this.settings = ProjectManager.getProjectSettings(this.projectId);
   }
 
   loadUsers() {
@@ -47,7 +49,7 @@ export class TaskManager {
 
   loadTasks() {
     this.tasks = TicketManager.tasks.filter(
-      (ticket) => ticket.project === ProjectManager.currentProject
+      (ticket) => ticket.project === this.projectId
     );
   }
 
@@ -241,7 +243,7 @@ export class TaskManager {
         category: formData.get("category"),
         status: formData.get("status"),
         progress: parseInt(formData.get("progress")) || 0,
-        project: ProjectManager.currentProject,
+        project: this.projectId,
       };
 
       Utils.debugLog("フォーム送信データ:", payload);
@@ -392,7 +394,7 @@ export class TaskManager {
 
   getFilteredTasks(filter) {
     const tasks = this.tasks.filter(
-      (task) => task.project === ProjectManager.currentProject
+      (task) => task.project === this.projectId
     );
     switch (filter) {
       case "todo":

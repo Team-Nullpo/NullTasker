@@ -32,6 +32,8 @@ export class AdminManager {
   }
 
   async loadData() {
+    await ProjectManager.fetchProjectSettings(true);
+    this.projects = ProjectManager.getProjectSettings();
     try {
       // ユーザーデータを取得
       const usersResponse = await fetch('/api/admin/users', {
@@ -75,7 +77,7 @@ export class AdminManager {
       ['#restoreFile', 'change', this.handleFileRestore.bind(this)],
 
       // プロジェクト遷移
-      ['#projectSelect', 'change', this.changeProject],
+      ['#projectSelect', 'change', this.changeProject.bind(this)],
 
       // ユーザー管理セクション
       ['#usersSection .section-actions .btn.btn-primary', 'click', () => this.showUserModal()],
@@ -146,8 +148,7 @@ export class AdminManager {
   async changeProject() {
     const projectChange = document.getElementById('projectSelect');
     const destination = projectChange.value;
-    const projects = ProjectManager.projectSettings.projects.map(project => project.id);
-    if (!projects.filter(project => project.id !== destination)) {
+    if (!this.projects.find(project => project.id === destination)) {
         console.error("指定のプロジェクトが見つかりません");
         return;
     }
@@ -161,14 +162,13 @@ export class AdminManager {
         console.error("プロジェクト移動メニューが見つかりません");
         return;
     }
-    const projects = ProjectManager.projectSettings;
-    console.log(projects);
+    console.log(this.projects);
     projectForm.innerHTML = '';
-    projects.projects.forEach(project => {
+    this.projects.forEach(project => {
         const option = document.createElement('option');
         option.value = project.id;
         option.label = project.name;
-        option.selected = project.id === ProjectManager.currentProject;
+        option.selected = project.id === ProjectManager.getCurrentProjectId();
         projectForm.appendChild(option);
     });
   }
