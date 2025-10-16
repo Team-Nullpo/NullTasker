@@ -1190,7 +1190,7 @@ app.get('/api/tasks', authenticateToken, async (req, res) => {
 // タスクデータを追加
 app.post('/api/tasks', authenticateToken, async (req, res) => {
   try {
-    const { payload } = req.body;
+    const payload = req.body;
 
     const data = await fs.readFile(TICKETS_FILE, 'utf8');
     const tickets = JSON.parse(data);
@@ -1202,7 +1202,7 @@ app.post('/api/tasks', authenticateToken, async (req, res) => {
 
     const newTask = {
       id: Utils.generateId("task"),
-      tasks,
+      ...payload,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -1237,7 +1237,7 @@ app.post('/api/tasks', authenticateToken, async (req, res) => {
 app.put('/api/tasks/:ticketId', authenticateToken, async (req, res) => {
   try {
     const { ticketId } = req.params;
-    const { payload } = req.body;
+    const payload = req.body;
 
     const data = await fs.readFile(TICKETS_FILE, 'utf8');
     const tickets = JSON.parse(data);
