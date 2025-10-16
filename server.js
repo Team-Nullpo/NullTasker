@@ -748,7 +748,7 @@ app.post('/api/admin/users', authenticateToken, requireSystemAdmin, async (req, 
     );
     
     if (existingUser) {
-      return res.status(400).json({ error: 'ログインIDまたはメールアドレスが既に使用されています' });
+      return res.status(409).json({ error: 'ログインIDまたはメールアドレスが既に使用されています' });
     }
 
     // パスワードハッシュ化
@@ -859,6 +859,18 @@ app.delete('/api/admin/users/:userId', authenticateToken, requireSystemAdmin, as
   } catch (error) {
     console.error('ユーザー削除エラー:', error);
     res.status(500).json({ error: 'ユーザーの削除に失敗しました' });
+  }
+});
+
+// 全プロジェクトデータ取得
+app.get('/api/admin/projects', authenticateToken, requireSystemAdmin, async (req, res) => {
+  try {
+      const data = await fs.readFile(PROJECTS_FILE, 'utf8');
+      const projects = JSON.parse(data);
+      res.status(200).json(projects.projects);
+  } catch (error) {
+      console.error('プロジェクトデータの取得に失敗: ', error);
+      res.status(500).json({ error: 'プロジェクトデータ取得に失敗しました'});
   }
 });
 
@@ -1197,7 +1209,7 @@ app.post('/api/tasks', authenticateToken, async (req, res) => {
 
     const existingProject = tickets.tasks?.find(task => task.title === payload.title);
     if (existingProject) {
-      return res.status(400).json({ error: '同名のタスクが存在します' });
+      return res.status(409).json({ error: '同名のタスクが存在します' });
     }
 
     const newTask = {
@@ -1289,7 +1301,7 @@ app.delete('/api/tasks/:ticketId', authenticateToken, async (req, res) => {
 
     await fs.writeFile(TICKETS_FILE, JSON.stringify(tickets, null, 2));
 
-    res.status(204);
+    res.status(204).end();
 
   } catch (error) {
     console.error('プロジェクト削除エラー:', error);
@@ -1316,10 +1328,8 @@ app.get('/api/projects', authenticateToken, async (req, res) => {
     try {
         const data = await fs.readFile(PROJECTS_FILE, 'utf8');
         const projects = JSON.parse(data);
-        if (!projects) {
-            return res.status(404).json({ error: 'プロジェクトが見つかりません'});
-        }
-        res.json(projects);
+        const filtered = projects.projects.filter(p => p.members.includes(req.user.id));
+        res.status(200).json(filtered);
     } catch (error) {
         console.error('プロジェクトデータの取得に失敗: ', error);
         res.status(500).json({ error: 'プロジェクトデータ取得に失敗しました'});
