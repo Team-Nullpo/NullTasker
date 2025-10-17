@@ -6,8 +6,12 @@
   "scripts": {
     "start": "node server.js",
     "start:http": "USE_HTTPS=false node server.js",
-    "dev": "nodemon server.js",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "nodemon server.js",
+    "dev:client": "vite",
     "dev:http": "USE_HTTPS=false nodemon server.js",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
     "generate-cert": "node scripts/generate-cert.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "reset": "node scripts/reset-data.js",
@@ -32,10 +36,29 @@
     "express-rate-limit": "^8.0.1",
     "express-validator": "^7.2.1",
     "helmet": "^8.1.0",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "@types/bcrypt": "^5.0.2",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/node": "^20.14.10",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^7.16.0",
+    "@typescript-eslint/parser": "^7.16.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-refresh": "^0.4.7",
+    "nodemon": "^3.0.1",
+    "typescript": "^5.5.3",
+    "vite": "^5.3.3"
   },
   "engines": {
     "node": ">=14.0.0"
