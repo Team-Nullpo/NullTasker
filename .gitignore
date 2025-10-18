@@ -75,13 +75,9 @@ tmp/
 temp/
 
 # BuckUp files
-config/backup/*
-!config/backup/.gitkeep
-
-config/settings.json
-config/tickets.json
-config/users.json
-config/projects.json
+# Ignore all config files
+config/*
+!config/.gitkeep
 
 # SSL certificates
 ssl/*.key
