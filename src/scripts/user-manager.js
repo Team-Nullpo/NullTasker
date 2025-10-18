@@ -95,7 +95,6 @@ export class UserManager {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      const result = await response.json();
       console.log('パスワード変更に成功しました');
       return true;
     } catch (error) {

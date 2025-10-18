@@ -585,7 +585,7 @@ app.put('/api/user/profile', authenticateToken, async (req, res) => {
     );
     
     if (emailExists) {
-      return res.status(400).json({ error: 'このメールアドレスは既に使用されています' });
+      return res.status(409).json({ error: 'このメールアドレスは既に使用されています' });
     }
 
     const newUser = {
@@ -641,8 +641,7 @@ app.put('/api/user/password', authenticateToken, async (req, res) => {
     data.lastUpdated = new Date().toISOString();
 
     await fs.writeFile(USERS_FILE, JSON.stringify(data, null, 2));
-    
-    res.json({ success: true, message: 'パスワードを変更しました' });
+    res.status(204).end();
 
   } catch (error) {
     console.error('パスワード変更エラー:', error);
@@ -769,7 +768,7 @@ app.put('/api/admin/users/:userId', authenticateToken, requireSystemAdmin, async
     );
     
     if (emailExists) {
-      return res.status(400).json({ error: 'このメールアドレスは既に使用されています' });
+      return res.status(409).json({ error: 'このメールアドレスは既に使用されています' });
     }
 
     const newUser = {
