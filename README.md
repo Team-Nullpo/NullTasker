@@ -6,6 +6,16 @@
   <p>効率的なプロジェクト管理とチームコラボレーションを実現</p>
 </div>
 
+## 重要:共同開発者へ
+
+各自
+
+```bash
+git update-index --assume-unchanged config/projects.json config/settings.json config/tickets.json config/users.json
+```
+
+を実行してください。
+
 ## 📋 概要
 
 NullTasker は、学生・チーム向けの Web ベースのタスク管理システムです。直感的なインターフェースと豊富な機能で、プロジェクトの進捗管理を効率化します。
