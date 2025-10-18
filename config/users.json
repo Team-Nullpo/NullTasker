@@ -8,7 +8,8 @@
       "password": "$2b$10$A/iqlr2esJF3oezCe2k4h.o73RvzsfY/8DAhuX.UHoeIuDay.Gjru",
       "role": "system_admin",
       "projects": [
-        "default"
+        "default",
+        "project_1760774199424_175"
       ],
       "createdAt": "2025-09-01T00:00:00.000Z",
       "lastLogin": "2025-10-18T07:21:58.099Z"
@@ -41,5 +42,5 @@
       "lastUpdated": "2025-10-18T07:41:06.682Z"
     }
   ],
-  "lastUpdated": "2025-10-18T07:50:11.086Z"
+  "lastUpdated": "2025-10-18T07:56:39.424Z"
 }

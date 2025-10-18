@@ -359,7 +359,6 @@ export class AdminManager {
       if (!project) return;
 
       title.textContent = 'プロジェクト編集';
-      document.getElementById('projectId').value = project.id;
       document.getElementById('projectName').value = project.name;
       document.getElementById('projectDescription').value = project.description || '';
       document.getElementById('projectOwner').value = project.owner;
