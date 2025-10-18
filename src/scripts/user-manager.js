@@ -107,9 +107,9 @@ export class UserManager {
   // 管理者によるユーザー更新
   static async updateUser(payload, userId) {
     try {
-      const index = this.projectSettings.findIndex((p) => p.id === id);
+      const index = this.users.findIndex((u) => u.id === userId);
       if (index === -1) {
-        Utils.debugLog("対象のチケットが見つかりません");
+        Utils.debugLog("対象のユーザーが見つかりません");
         return false;
       }
       const response = await fetch(`/api/admin/users/${userId}`, {

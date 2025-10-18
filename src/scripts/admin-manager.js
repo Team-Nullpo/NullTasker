@@ -2,6 +2,7 @@
 import { Utils } from './utils.js';
 import { SimpleAuth } from './simple-auth.js';
 import { ProjectManager } from './project-manager.js';
+import { UserManager } from './user-manager.js';
 
 export class AdminManager {
   constructor() {
@@ -9,6 +10,7 @@ export class AdminManager {
     this.projects = [];
     this.currentSection = 'dashboard';
     this.editingProjectId = null;
+    this.editingUserId = null;
     this.init();
   }
 
@@ -34,23 +36,8 @@ export class AdminManager {
   async loadData() {
     await ProjectManager.fetchProjectSettings(true);
     this.projects = ProjectManager.getProjectSettings();
-    try {
-      // ユーザーデータを取得
-      const usersResponse = await fetch('/api/admin/users', {
-        headers: SimpleAuth.getAuthHeaders()
-      });
-
-      if (usersResponse.ok) {
-        const usersData = await usersResponse.json();
-        this.users = usersData.users;
-        this.projects = usersData.projects || [];
-      } else {
-        throw new Error('データの取得に失敗しました');
-      }
-    } catch (error) {
-      console.error('データ読み込みエラー:', error);
-      this.showError('データの読み込みに失敗しました');
-    }
+    await UserManager.fetchUsers(true);
+    this.users = UserManager.getUsers();
   }
 
   setupEventListeners() {
@@ -313,6 +300,7 @@ export class AdminManager {
 
   // ユーザーモーダル表示
   showUserModal(userId = null) {
+    this.editingUserId = userId;
     const modal = document.getElementById('userModal');
     const title = document.getElementById('userModalTitle');
     const form = document.getElementById('userForm');
@@ -324,8 +312,7 @@ export class AdminManager {
       if (!user) return;
 
       title.textContent = 'ユーザー編集';
-      document.getElementById('userId').value = user.id;
-      document.getElementById('userLoginId').value = user.loginId || user.id;
+      document.getElementById('userLoginId').value = user.loginId;
       document.getElementById('userDisplayName').value = user.displayName;
       document.getElementById('userEmail').value = user.email;
       document.getElementById('userRole').value = user.role;
@@ -395,7 +382,6 @@ export class AdminManager {
 
     const formData = new FormData(event.target);
     const userData = {
-      id: formData.get('userId') || formData.get('loginId'),
       loginId: formData.get('loginId'),
       displayName: formData.get('displayName'),
       email: formData.get('email'),
@@ -408,30 +394,22 @@ export class AdminManager {
       delete userData.password;
     }
 
-    try {
-      const isEdit = !!formData.get('userId');
-      const url = isEdit ? `/api/admin/users/${userData.id}` : '/api/admin/users';
-      const method = isEdit ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method: method,
-        headers: SimpleAuth.getAuthHeaders(),
-        body: JSON.stringify(userData)
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'ユーザー操作に失敗しました');
+    if (this.editingUserId) {
+      if (!await UserManager.updateUser(userData, this.editingUserId)) {
+        Utils.showNotification('ユーザー更新に失敗しました');
+        return;
       }
-
-      this.showSuccess(isEdit ? 'ユーザーを更新しました' : 'ユーザーを作成しました');
-      this.closeUserModal();
-      await this.loadData();
-      this.loadUsersTable();
-    } catch (error) {
-      console.error('ユーザー操作エラー:', error);
-      this.showError(error.message);
+    } else {
+      if (!await UserManager.addUser(userData, true)) {
+        Utils.showNotification('ユーザー作成に失敗しました');
+        return;
+      }
     }
+
+    this.showSuccess(this.editingUserId ? 'ユーザーを更新しました' : 'ユーザーを作成しました');
+    this.closeUserModal();
+    await this.loadData();
+    this.loadUsersTable();
   }
 
   // プロジェクトフォーム送信
@@ -508,26 +486,12 @@ export class AdminManager {
     if (!confirm(`ユーザー「${user.displayName}」を削除しますか？`)) {
       return;
     }
+    await UserManager.removeUser(userId);
+    this.showSuccess('ユーザーを削除しました');
+    await this.loadData();
+    this.loadUsersTable();
+    this.updateDashboardStats();
 
-    try {
-      const response = await fetch(`/api/admin/users/${userId}`, {
-        method: 'DELETE',
-        headers: SimpleAuth.getAuthHeaders()
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'ユーザーの削除に失敗しました');
-      }
-
-      this.showSuccess('ユーザーを削除しました');
-      await this.loadData();
-      this.loadUsersTable();
-      this.updateDashboardStats();
-    } catch (error) {
-      console.error('ユーザー削除エラー:', error);
-      this.showError(error.message);
-    }
   }
 
   // プロジェクト編集
@@ -543,26 +507,11 @@ export class AdminManager {
     if (!confirm(`プロジェクト「${project.name}」を削除しますか？`)) {
       return;
     }
-
-    try {
-      const response = await fetch(`/api/admin/projects/${projectId}`, {
-        method: 'DELETE',
-        headers: SimpleAuth.getAuthHeaders()
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'プロジェクトの削除に失敗しました');
-      }
-
-      this.showSuccess('プロジェクトを削除しました');
-      await this.loadData();
-      this.loadProjectsTable();
-      this.updateDashboardStats();
-    } catch (error) {
-      console.error('プロジェクト削除エラー:', error);
-      this.showError(error.message);
-    }
+    await ProjectManager.removeProject(projectId);
+    this.showSuccess('プロジェクトを削除しました');
+    await this.loadData();
+    this.loadProjectsTable();
+    this.updateDashboardStats();
   }
 
   // バックアップ作成
