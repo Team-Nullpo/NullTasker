@@ -92,30 +92,16 @@ export class UserProfileManager {
       email: formData.get('email')
     };
 
-    try {
-      const response = await fetch('/api/user/profile', {
-        method: 'PUT',
-        headers: SimpleAuth.getAuthHeaders(),
-        body: JSON.stringify(profileData)
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'プロフィールの更新に失敗しました');
-      }
-
-      // 認証マネージャーのユーザー情報を更新
-      SimpleAuth.updateCurrentUser(profileData);
-      
-      this.showSuccess('プロフィールを更新しました');
-      
-      // ユーザーアイコンを更新
-      SimpleAuth.initUserIcon();
-
-    } catch (error) {
-      console.error('プロフィール更新エラー:', error);
-      this.showError(error.message);
+    if (!await UserManager.updateProfile(profileData)) {
+      this.showError("プロフィール更新に失敗しました");
+      return;
     }
+
+    // 認証マネージャーのユーザー情報を更新
+    SimpleAuth.updateCurrentUser(profileData);
+    this.showSuccess('プロフィールを更新しました');
+    // ユーザーアイコンを更新
+    SimpleAuth.initUserIcon();
   }
 
   async handlePasswordSubmit(event) {
@@ -140,31 +126,18 @@ export class UserProfileManager {
       return;
     }
 
-    try {
-      const response = await fetch('/api/user/password', {
-        method: 'PUT',
-        headers: SimpleAuth.getAuthHeaders(),
-        body: JSON.stringify(passwordData)
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'パスワードの変更に失敗しました');
-      }
-
-      this.showSuccess('パスワードを変更しました');
-      
-      // フォームをクリア
-      event.target.reset();
-      
-      // パスワード強度表示をクリア
-      document.getElementById('passwordStrength').innerHTML = '';
-      document.getElementById('passwordMatch').innerHTML = '';
-
-    } catch (error) {
-      console.error('パスワード変更エラー:', error);
-      this.showError(error.message);
+    if (!await UserManager.updatePassword(passwordData)) {
+      this.showError("パスワード変更に失敗しました");
+      return;
     }
+    this.showSuccess('パスワードを変更しました');
+    
+    // フォームをクリア
+    event.target.reset();
+    
+    // パスワード強度表示をクリア
+    document.getElementById('passwordStrength').innerHTML = '';
+    document.getElementById('passwordMatch').innerHTML = '';
   }
 
   async handlePersonalSettingsSubmit(event) {
