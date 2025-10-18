@@ -91,3 +91,6 @@ ssl/*.pem
 
 # etc
 memo.md
+
+#personally
+.prettierrc

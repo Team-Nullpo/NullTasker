@@ -25,82 +25,82 @@ export class TicketManager {
     }
   }
 
-  static async addTicket(ticket) {
-    const previousTask = [...this.tasks];
-    const newTicket = {
-      id: Utils.generateId("task"),
-      ...ticket,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    this.tasks.push(newTicket);
-    try {
-      await this.saveTickets();
-    } catch (error) {
-      this.tasks = previousTask;
-      return false;
-    }
-    return true;
-  }
-
-  static async updateTicket(ticket, id) {
-    const previousTask = [...this.tasks];
-    const index = this.tasks.findIndex((t) => t.id === id);
-    if (index === -1) {
-      Utils.debugLog("対象のチケットが見つかりません");
-      return false;
-    }
-    this.tasks[index] = {
-      ...this.tasks[index],
-      ...ticket,
-      updatedAt: new Date().toISOString(),
-    };
-    try {
-      await this.saveTickets();
-    } catch (error) {
-      this.tasks = previousTask;
-      return false;
-    }
-    return true;
-  }
-
-  static async removeTicket(ticketId) {
-    const previousTask = [...this.tasks];
-    this.tasks = this.tasks.filter((t) => t.id !== ticketId);
-    try {
-      await this.saveTickets();
-    } catch (error) {
-      this.tasks = previousTask;
-      return false;
-    }
-    return true;
-  }
-
-  static async saveTickets() {
+  static async createTicket(ticket) {
     try {
       const response = await fetch("/api/tasks", {
         method: "POST",
         headers: SimpleAuth.getAuthHeaders(),
-        body: JSON.stringify({ tasks: this.tasks }),
+        body: JSON.stringify(ticket),
       });
-
-      Utils.debugLog(
-        "レスポンスステータス:",
-        response.status,
-        response.statusText
-      );
 
       if (!response.ok) {
         const errorText = await response.text();
         console.error("サーバーエラーレスポンス:", errorText);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+      const newTicket = await response.json();
+      this.tasks.push(newTicket);
+      console.log(newTicket);
+      console.log(this.tasks);
+      Utils.debugLog("タスク保存に成功しました: ", response.status);
 
-      const result = await response.json();
-      Utils.debugLog("タスク保存に成功しました: ", result);
     } catch (error) {
-      console.error("タスク保存に失敗しました: ", error.message);
-      throw new Error(error);
+      return false;
     }
+    return true;
+  }
+
+  static async updateTicket(ticket, id) {
+    const index = this.tasks.findIndex((t) => t.id === id);
+    if (index === -1) {
+      Utils.debugLog("対象のチケットが見つかりません");
+      return false;
+    }
+    try {
+      const response = await fetch(`/api/tasks/${id}`, {
+        method: "PUT",
+        headers: SimpleAuth.getAuthHeaders(),
+        body: JSON.stringify(ticket),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("サーバーエラーレスポンス:", errorText);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const newTicket = await response.json();
+      this.tasks[index] = newTicket;
+      console.log(newTicket);
+      console.log(this.tasks);
+      Utils.debugLog("タスク保存に成功しました: ", response.status);
+    } catch (error) {
+      return false;
+    }
+    return true;
+  }
+
+  static async removeTicket(id) {
+    const index = this.tasks.findIndex((t) => t.id === id);
+    if (index === -1) {
+      Utils.debugLog("対象のチケットが見つかりません");
+      return false;
+    }
+    try {
+      const response = await fetch(`/api/tasks/${id}`, {
+        method: "DELETE",
+        headers: SimpleAuth.getAuthHeaders(),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("サーバーエラーレスポンス:", errorText);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      this.tasks.splice(index, 1);
+      Utils.debugLog("タスク保存に成功しました: ", response.status);
+    } catch (error) {
+      return false;
+    }
+    return true;
   }
 }
