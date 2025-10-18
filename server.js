@@ -877,9 +877,9 @@ app.get('/api/admin/projects', authenticateToken, requireSystemAdmin, async (req
 // プロジェクト作成
 app.post('/api/admin/projects', authenticateToken, requireSystemAdmin, async (req, res) => {
   try {
-    const { id, name, description, owner } = req.body;
+    const { name, description, owner } = req.body;
     
-    if (!id || !name || !owner) {
+    if (!name || !owner) {
       return res.status(400).json({ error: '必須項目が不足しています' });
     }
 
@@ -887,12 +887,6 @@ app.post('/api/admin/projects', authenticateToken, requireSystemAdmin, async (re
     const users = JSON.parse(userData);
     const projectData = await fs.readFile(PROJECTS_FILE, 'utf8');
     const projects = JSON.parse(projectData);
-    
-    // プロジェクトID重複チェック
-    const existingProject = projects.projects?.find(p => p.id === id);
-    if (existingProject) {
-      return res.status(400).json({ error: 'プロジェクトIDが既に使用されています' });
-    }
 
     // オーナーの存在チェック
     const ownerUser = users.users.find(u => u.id === owner);
@@ -902,7 +896,7 @@ app.post('/api/admin/projects', authenticateToken, requireSystemAdmin, async (re
 
     // 新プロジェクト作成
     const newProject = {
-      id: id,
+      id: Utils.generateId("project"),
       name: name,
       description: description || '',
       owner: owner,
@@ -931,8 +925,8 @@ app.post('/api/admin/projects', authenticateToken, requireSystemAdmin, async (re
       if (!users.users[ownerIndex].projects) {
         users.users[ownerIndex].projects = [];
       }
-      if (!users.users[ownerIndex].projects.includes(id)) {
-        users.users[ownerIndex].projects.push(id);
+      if (!users.users[ownerIndex].projects.includes(newProject.id)) {
+        users.users[ownerIndex].projects.push(newProject.id);
       }
     }
 
@@ -942,7 +936,7 @@ app.post('/api/admin/projects', authenticateToken, requireSystemAdmin, async (re
     await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2));
     await fs.writeFile(PROJECTS_FILE, JSON.stringify(projects, null, 2));
     
-    res.json({ success: true, message: 'プロジェクトを作成しました' });
+    res.status(201).location(`/api/projects/${newProject.id}`).json(newProject);
 
   } catch (error) {
     console.error('プロジェクト作成エラー:', error);
@@ -978,18 +972,20 @@ app.put('/api/admin/projects/:projectId', authenticateToken, requireSystemAdmin,
     }
 
     // プロジェクト更新
-    projects.projects[projectIndex].name = name;
-    projects.projects[projectIndex].description = description || '';
-    projects.projects[projectIndex].owner = owner;
-    projects.projects[projectIndex].lastUpdated = new Date().toISOString();
+    const newProject = {
+      ...projects.projects[projectIndex],
+      name: name,
+      description: description || "",
+      owner: owner,
+      updatedAt: new Date().toISOString(),
+    };
+    projects.projects[projectIndex] = newProject;
 
-    users.lastUpdated = new Date().toISOString();
     projects.lastUpdated = new Date().toISOString();
 
-    await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2));
     await fs.writeFile(PROJECTS_FILE, JSON.stringify(projects, null, 2));    
     
-    res.json({ success: true, message: 'プロジェクトを更新しました' });
+    res.status(200).json(newProject);
 
   } catch (error) {
     console.error('プロジェクト更新エラー:', error);
@@ -1033,7 +1029,7 @@ app.delete('/api/admin/projects/:projectId', authenticateToken, requireSystemAdm
     await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2));
     await fs.writeFile(PROJECTS_FILE, JSON.stringify(projects, null, 2));
 
-    res.json({ success: true, message: 'プロジェクトを削除しました' });
+    res.status(204).end();
 
   } catch (error) {
     console.error('プロジェクト削除エラー:', error);

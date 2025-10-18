@@ -8,6 +8,7 @@ export class AdminManager {
     this.users = [];
     this.projects = [];
     this.currentSection = 'dashboard';
+    this.editingProjectId = null;
     this.init();
   }
 
@@ -24,7 +25,6 @@ export class AdminManager {
       this.setupEventListeners();
       this.updateDashboardStats();
       this.populateProjectForm();
-      
     } catch (error) {
       console.error('初期化エラー:', error);
       this.showError('初期化に失敗しました');
@@ -39,7 +39,7 @@ export class AdminManager {
       const usersResponse = await fetch('/api/admin/users', {
         headers: SimpleAuth.getAuthHeaders()
       });
-      
+
       if (usersResponse.ok) {
         const usersData = await usersResponse.json();
         this.users = usersData.users;
@@ -47,7 +47,6 @@ export class AdminManager {
       } else {
         throw new Error('データの取得に失敗しました');
       }
-
     } catch (error) {
       console.error('データ読み込みエラー:', error);
       this.showError('データの読み込みに失敗しました');
@@ -81,22 +80,50 @@ export class AdminManager {
 
       // ユーザー管理セクション
       ['#usersSection .section-actions .btn.btn-primary', 'click', () => this.showUserModal()],
-      ['#usersSection .section-actions .btn.btn-secondary', 'click', () => this.showSection('dashboard')],
+      [
+        '#usersSection .section-actions .btn.btn-secondary',
+        'click',
+        () => this.showSection('dashboard')
+      ],
 
       // プロジェクト管理セクション
-      ['#projectsSection .section-actions .btn.btn-primary', 'click', () => this.showProjectModal()],
-      ['#projectsSection .section-actions .btn.btn-secondary', 'click', () => this.showSection('dashboard')],
+      [
+        '#projectsSection .section-actions .btn.btn-primary',
+        'click',
+        () => this.showProjectModal()
+      ],
+      [
+        '#projectsSection .section-actions .btn.btn-secondary',
+        'click',
+        () => this.showSection('dashboard')
+      ],
 
       // システム設定セクション
-      ['#systemSection .section-actions .btn.btn-secondary', 'click', () => this.showSection('dashboard')],
+      [
+        '#systemSection .section-actions .btn.btn-secondary',
+        'click',
+        () => this.showSection('dashboard')
+      ],
 
       // バックアップセクション
       ['#backupSection .section-actions .btn.btn-primary', 'click', () => this.createBackup()],
-      ['#backupSection .section-actions .btn.btn-secondary', 'click', () => this.showSection('dashboard')],
+      [
+        '#backupSection .section-actions .btn.btn-secondary',
+        'click',
+        () => this.showSection('dashboard')
+      ],
 
       // データ/設定ダウンロード
-      ['#backupSection .backup-card:nth-of-type(1) .btn.btn-primary', 'click', () => this.downloadDataBackup()],
-      ['#backupSection .backup-card:nth-of-type(2) .btn.btn-primary', 'click', () => this.downloadSettingsBackup()],
+      [
+        '#backupSection .backup-card:nth-of-type(1) .btn.btn-primary',
+        'click',
+        () => this.downloadDataBackup()
+      ],
+      [
+        '#backupSection .backup-card:nth-of-type(2) .btn.btn-primary',
+        'click',
+        () => this.downloadSettingsBackup()
+      ],
 
       // モーダルのクローズ（×ボタン）
       ['#userModal .modal-close', 'click', () => this.closeUserModal()],
@@ -107,14 +134,14 @@ export class AdminManager {
       ['#projectModal .btn.btn-secondary', 'click', () => this.closeProjectModal()],
 
       //
-      ['#usersTableBody', 'click', (e) => this.handleUserTableClick(e)],
-      ['#projectsTableBody', 'click', (e) => this.handleProjectTableClick(e)],
+      ['#usersTableBody', 'click', e => this.handleUserTableClick(e)],
+      ['#projectsTableBody', 'click', e => this.handleProjectTableClick(e)]
     ];
 
     mappings.forEach(([selector, event, handler]) => add(selector, event, handler));
 
     // モーダル外クリックで閉じる（ウィンドウ全体）
-    window.addEventListener('click', (event) => {
+    window.addEventListener('click', event => {
       if (event.target && event.target.classList && event.target.classList.contains('modal')) {
         event.target.style.display = 'none';
       }
@@ -149,8 +176,8 @@ export class AdminManager {
     const projectChange = document.getElementById('projectSelect');
     const destination = projectChange.value;
     if (!this.projects.find(project => project.id === destination)) {
-        console.error("指定のプロジェクトが見つかりません");
-        return;
+      console.error('指定のプロジェクトが見つかりません');
+      return;
     }
     ProjectManager.setCurrentProject(destination);
     await ProjectManager.fetchProjectSettings();
@@ -159,17 +186,17 @@ export class AdminManager {
   populateProjectForm() {
     const projectForm = document.getElementById('projectSelect');
     if (!projectForm) {
-        console.error("プロジェクト移動メニューが見つかりません");
-        return;
+      console.error('プロジェクト移動メニューが見つかりません');
+      return;
     }
     console.log(this.projects);
     projectForm.innerHTML = '';
     this.projects.forEach(project => {
-        const option = document.createElement('option');
-        option.value = project.id;
-        option.label = project.name;
-        option.selected = project.id === ProjectManager.getCurrentProjectId();
-        projectForm.appendChild(option);
+      const option = document.createElement('option');
+      option.value = project.id;
+      option.label = project.name;
+      option.selected = project.id === ProjectManager.getCurrentProjectId();
+      projectForm.appendChild(option);
     });
   }
 
@@ -232,9 +259,13 @@ export class AdminManager {
         <td>${user.loginId || user.id}</td>
         <td>${user.displayName}</td>
         <td>${user.email}</td>
-        <td><span class="role-badge role-${user.role}">${this.getRoleDisplayName(user.role)}</span></td>
+        <td><span class="role-badge role-${user.role}">${this.getRoleDisplayName(
+        user.role
+      )}</span></td>
         <td>${user.projects ? user.projects.join(', ') : '-'}</td>
-        <td>${user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('ja-JP') : '未ログイン'}</td>
+        <td>${
+          user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('ja-JP') : '未ログイン'
+        }</td>
         <td>
           <button class="btn btn-sm btn-primary btn-edit">
             <i class="fas fa-edit"></i>
@@ -259,7 +290,7 @@ export class AdminManager {
       const row = document.createElement('tr');
       row.setAttribute('data-project', project.id);
       const ownerUser = this.users.find(u => u.id === project.owner);
-      
+
       row.innerHTML = `
         <td>${project.name}</td>
         <td>${project.description || '-'}</td>
@@ -300,7 +331,7 @@ export class AdminManager {
       document.getElementById('userRole').value = user.role;
       document.getElementById('userPassword').value = '';
       document.getElementById('userPassword').required = false;
-      
+
       // 編集時はログインIDを変更不可
       document.getElementById('userLoginId').readOnly = true;
     } else {
@@ -320,6 +351,7 @@ export class AdminManager {
 
   // プロジェクトモーダル表示
   showProjectModal(projectId = null) {
+    this.editingProjectId = projectId;
     const modal = document.getElementById('projectModal');
     const title = document.getElementById('projectModalTitle');
     const form = document.getElementById('projectForm');
@@ -360,7 +392,7 @@ export class AdminManager {
   // ユーザーフォーム送信
   async handleUserSubmit(event) {
     event.preventDefault();
-    
+
     const formData = new FormData(event.target);
     const userData = {
       id: formData.get('userId') || formData.get('loginId'),
@@ -396,7 +428,6 @@ export class AdminManager {
       this.closeUserModal();
       await this.loadData();
       this.loadUsersTable();
-
     } catch (error) {
       console.error('ユーザー操作エラー:', error);
       this.showError(error.message);
@@ -406,47 +437,38 @@ export class AdminManager {
   // プロジェクトフォーム送信
   async handleProjectSubmit(event) {
     event.preventDefault();
-    
+
     const formData = new FormData(event.target);
     const projectData = {
-      id: formData.get('projectId') || this.generateProjectId(formData.get('name')),
       name: formData.get('name'),
       description: formData.get('description'),
       owner: formData.get('owner')
     };
 
-    try {
-      const isEdit = !!formData.get('projectId');
-      const url = isEdit ? `/api/admin/projects/${projectData.id}` : '/api/admin/projects';
-      const method = isEdit ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method: method,
-        headers: SimpleAuth.getAuthHeaders(),
-        body: JSON.stringify(projectData)
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'プロジェクト操作に失敗しました');
+    if (this.editingProjectId) {
+      if (!(await ProjectManager.updateProject(projectData, this.editingProjectId))) {
+        Utils.showNotification('プロジェクト更新に失敗しました');
+        return;
       }
-
-      this.showSuccess(isEdit ? 'プロジェクトを更新しました' : 'プロジェクトを作成しました');
-      this.closeProjectModal();
-      await this.loadData();
-      this.loadProjectsTable();
-      this.updateDashboardStats();
-
-    } catch (error) {
-      console.error('プロジェクト操作エラー:', error);
-      this.showError(error.message);
+    } else {
+      if (!(await ProjectManager.addProject(projectData))) {
+        Utils.showNotification('プロジェクト作成に失敗しました');
+        return;
+      }
     }
+    this.showSuccess(
+      this.editingProjectId ? 'プロジェクトを更新しました' : 'プロジェクトを作成しました'
+    );
+    this.closeProjectModal();
+    await this.loadData();
+    this.loadProjectsTable();
+    this.updateDashboardStats();
   }
 
   // システム設定フォーム送信
   async handleSystemSettingsSubmit(event) {
     event.preventDefault();
-    
+
     const formData = new FormData(event.target);
     const settingsData = {
       systemName: formData.get('systemName'),
@@ -467,7 +489,6 @@ export class AdminManager {
       }
 
       this.showSuccess('システム設定を保存しました');
-
     } catch (error) {
       console.error('システム設定エラー:', error);
       this.showError(error.message);
@@ -503,7 +524,6 @@ export class AdminManager {
       await this.loadData();
       this.loadUsersTable();
       this.updateDashboardStats();
-
     } catch (error) {
       console.error('ユーザー削除エラー:', error);
       this.showError(error.message);
@@ -539,7 +559,6 @@ export class AdminManager {
       await this.loadData();
       this.loadProjectsTable();
       this.updateDashboardStats();
-
     } catch (error) {
       console.error('プロジェクト削除エラー:', error);
       this.showError(error.message);
@@ -560,7 +579,6 @@ export class AdminManager {
 
       const result = await response.json();
       this.showSuccess(`バックアップを作成しました: ${result.filename}`);
-
     } catch (error) {
       console.error('バックアップエラー:', error);
       this.showError(error.message);
@@ -587,7 +605,6 @@ export class AdminManager {
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
-
     } catch (error) {
       console.error('データバックアップエラー:', error);
       this.showError(error.message);
@@ -614,7 +631,6 @@ export class AdminManager {
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
-
     } catch (error) {
       console.error('設定バックアップエラー:', error);
       this.showError(error.message);
@@ -638,7 +654,7 @@ export class AdminManager {
       const response = await fetch('/api/admin/restore', {
         method: 'POST',
         headers: {
-          'Authorization': SimpleAuth.getAuthHeaders().Authorization
+          Authorization: SimpleAuth.getAuthHeaders().Authorization
         },
         body: formData
       });
@@ -649,11 +665,10 @@ export class AdminManager {
       }
 
       this.showSuccess('データを復元しました。ページをリロードします。');
-      
+
       setTimeout(() => {
         window.location.reload();
       }, 2000);
-
     } catch (error) {
       console.error('データ復元エラー:', error);
       this.showError(error.message);
@@ -665,17 +680,22 @@ export class AdminManager {
   // ユーティリティメソッド
   getRoleDisplayName(role) {
     const roleNames = {
-      'system_admin': 'システム管理者',
-      'project_admin': 'プロジェクト管理者',
-      'member': 'メンバー'
+      system_admin: 'システム管理者',
+      project_admin: 'プロジェクト管理者',
+      member: 'メンバー'
     };
     return roleNames[role] || 'ゲスト';
   }
 
   generateProjectId(name) {
-    return name.toLowerCase()
-      .replace(/[^a-z0-9\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/g, '')
-      .substring(0, 20) + '_' + Date.now();
+    return (
+      name
+        .toLowerCase()
+        .replace(/[^a-z0-9\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/g, '')
+        .substring(0, 20) +
+      '_' +
+      Date.now()
+    );
   }
 
   loadSystemSettings() {
@@ -685,18 +705,18 @@ export class AdminManager {
   showSuccess(message) {
     const successDiv = document.getElementById('successMessage');
     const successText = document.getElementById('successText');
-    
+
     successText.textContent = message;
     successDiv.style.display = 'block';
-    
+
     // エラーメッセージを隠す
     document.getElementById('errorMessage').style.display = 'none';
-    
+
     // 3秒後に自動で隠す
     setTimeout(() => {
       successDiv.style.display = 'none';
     }, 3000);
-    
+
     // ページトップにスクロール
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -704,31 +724,31 @@ export class AdminManager {
   showError(message) {
     const errorDiv = document.getElementById('errorMessage');
     const errorText = document.getElementById('errorText');
-    
+
     errorText.textContent = message;
     errorDiv.style.display = 'block';
-    
+
     // 成功メッセージを隠す
     document.getElementById('successMessage').style.display = 'none';
-    
+
     // 5秒後に自動で隠す
     setTimeout(() => {
       errorDiv.style.display = 'none';
     }, 5000);
-    
+
     // ページトップにスクロール
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
 
 // グローバル関数（HTMLから呼び出し用）
-window.showSection = (section) => {
+window.showSection = section => {
   if (window.adminManager) {
     window.adminManager.showSection(section);
   }
 };
 
-window.showUserModal = (userId) => {
+window.showUserModal = userId => {
   if (window.adminManager) {
     window.adminManager.showUserModal(userId);
   }
@@ -740,7 +760,7 @@ window.closeUserModal = () => {
   }
 };
 
-window.showProjectModal = (projectId) => {
+window.showProjectModal = projectId => {
   if (window.adminManager) {
     window.adminManager.showProjectModal(projectId);
   }
