@@ -112,7 +112,6 @@ export class ProjectManager {
       const response = await fetch(`/api/admin/projects/${id}`, {
         method: "DELETE",
         headers: SimpleAuth.getAuthHeaders(),
-        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
