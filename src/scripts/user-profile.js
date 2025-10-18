@@ -1,8 +1,9 @@
 // user-profile.js - 個人設定ページの機能
 import { Utils } from './utils.js';
 import { SimpleAuth } from './simple-auth.js';
+import { UserManager } from './user-manager.js';
 
-class UserProfileManager {
+export class UserProfileManager {
   constructor() {
     this.currentUser = null;
     this.init();
@@ -27,29 +28,14 @@ class UserProfileManager {
     }
   }
 
-  async loadUserData() {
-    try {
-      // サーバーから最新のユーザー情報を取得
-      const response = await fetch('/api/user', {
-        headers: SimpleAuth.getAuthHeaders()
-      });
-
-      if (!response.ok) {
-        throw new Error('ユーザー情報の取得に失敗しました');
-      }
-
-      const userData = await response.json();
-      
-      // フォームに現在の値を設定
-      document.getElementById('loginId').value = userData.loginId || userData.id;
-      document.getElementById('displayName').value = userData.displayName || '';
-      document.getElementById('email').value = userData.email || '';
-      document.getElementById('currentRole').value = this.getRoleDisplayName(userData.role);
-
-    } catch (error) {
-      console.error('ユーザーデータ読み込みエラー:', error);
-      this.showError('ユーザー情報の読み込みに失敗しました');
-    }
+  loadUserData() {
+    const userData = UserManager.getUsers().find(u => u.id = this.currentUser);
+    
+    // フォームに現在の値を設定
+    document.getElementById('loginId').value = userData.loginId || userData.id;
+    document.getElementById('displayName').value = userData.displayName || '';
+    document.getElementById('email').value = userData.email || '';
+    document.getElementById('currentRole').value = this.getRoleDisplayName(userData.role);
   }
 
   setupEventListeners() {
@@ -422,10 +408,3 @@ class UserProfileManager {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
-
-// ページ読み込み時に初期化
-document.addEventListener('DOMContentLoaded', () => {
-  window.userProfileManager = new UserProfileManager();
-});
-
-export { UserProfileManager };
