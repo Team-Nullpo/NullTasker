@@ -15,6 +15,7 @@ import { TicketManager } from "./ticket-manager.js";
 export class TaskManager {
   constructor() {
     this.tasks = [];
+    this.projectUsers = [];
     this.projectId = null;
     this.settings = {};
     this.editingTaskId = null;
@@ -37,14 +38,7 @@ export class TaskManager {
   }
 
   loadUsers() {
-    console.log(this.settings);
-    const projectUsers = UserManager.users.filter((user) =>
-      this.settings.members.includes(user.id)
-    );
-    this.settings.users = projectUsers.map((user) => ({
-      value: user.id,
-      label: user.displayName || user.loginId,
-    }));
+    this.projectUsers = UserManager.getUsers(this.projectId);
   }
 
   loadTasks() {
@@ -167,8 +161,9 @@ export class TaskManager {
       });
     }
 
+    const usernames = this.projectUsers.map(u => u.displayName);
     const selectors = [
-      { id: "#taskAssignee", options: this.settings.users, hasValue: true },
+      { id: "#taskAssignee", options: usernames},
       { id: "#taskCategory", options: this.settings.settings.categories },
       {
         id: "#taskPriority",
@@ -507,7 +502,7 @@ export class TaskManager {
   }
 
   getAssigneeText(assigneeValue) {
-    const assignee = this.settings.users.find((u) => u.value === assigneeValue);
+    const assignee = this.projectUsers.find((u) => u.value === assigneeValue);
     return assignee ? assignee.label : assigneeValue;
   }
 }

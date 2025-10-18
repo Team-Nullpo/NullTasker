@@ -1317,18 +1317,15 @@ app.get('/api/users', authenticateToken, async (req, res) => {
     }
 
     // 同じプロジェクトのメンバーのみを取得（パスワードは除外）
-    const projectUsers = data.users.filter(user => {
-      return user.projects.some(project => currentUser.projects.includes(project));
-    }).map(user => {
-      return {
-        id: user.id,
-        displayName: user.displayName,
-        email: user.email,
-        role: user.role
-      };
+    const projectUsers = data.users.filter(user => 
+      user.projects.some(project => currentUser.projects.includes(project))
+    );
+    const usersWithoutPasswords = projectUsers.map(user => {
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword;
     });
 
-    res.status(200).json(projectUsers);
+    res.status(200).json(usersWithoutPasswords);
   } catch (error) {
     console.error('ユーザー一覧取得エラー:', error);
     res.status(500).json({ error: 'ユーザー一覧の取得に失敗しました' });
