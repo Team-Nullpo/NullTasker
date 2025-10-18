@@ -1,35 +1,4 @@
 {
-  "tasks": [
-    {
-      "id": "task_1760795639200_748",
-      "title": "35",
-      "description": "fa",
-      "assignee": "mado",
-      "startDate": "2025-10-18",
-      "dueDate": "2025-10-18",
-      "priority": "medium",
-      "category": "デザイン",
-      "status": "todo",
-      "progress": 0,
-      "project": "default",
-      "createdAt": "2025-10-18T13:53:59.200Z",
-      "updatedAt": "2025-10-18T13:54:05.892Z"
-    },
-    {
-      "id": "task_1760795686330_337",
-      "title": "5tf",
-      "description": "af",
-      "assignee": "管理者",
-      "startDate": "2025-10-18",
-      "dueDate": "2025-10-18",
-      "priority": "medium",
-      "category": "デザイン",
-      "status": "in_progress",
-      "progress": 30,
-      "project": "project_1760774199424_175",
-      "createdAt": "2025-10-18T13:54:46.330Z",
-      "updatedAt": "2025-10-18T13:54:46.330Z"
-    }
-  ],
-  "lastUpdated": "2025-10-18T13:54:46.330Z"
+  "tasks": [],
+  "lastUpdated": "2025-10-18T14:20:41.763Z"
 }
