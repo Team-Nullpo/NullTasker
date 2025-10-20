@@ -427,6 +427,7 @@
 
   .main-content {
     padding: var(--spacing-md);
+    padding-bottom: 80px;
   }
 
   .main-header,
