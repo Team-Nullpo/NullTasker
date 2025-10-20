@@ -11,8 +11,21 @@
         "default"
       ],
       "createdAt": "2025-09-01T00:00:00.000Z",
-      "lastLogin": "2025-10-14T07:02:28.625Z"
+      "lastLogin": "2025-10-20T08:40:06.498Z"
+    },
+    {
+      "id": "phone",
+      "loginId": "phone",
+      "displayName": "fon",
+      "email": "w@i.c",
+      "password": "$2b$10$HyMbfuOoV5aDO5T.AIN9L.YeXNsJmNmlEz2/M/WNYN/fBR1m41mRa",
+      "role": "user",
+      "projects": [
+        "default"
+      ],
+      "createdAt": "2025-10-20T08:20:23.952Z",
+      "lastLogin": "2025-10-20T08:20:36.775Z"
     }
   ],
-  "lastUpdated": "2025-10-14T07:02:28.625Z"
+  "lastUpdated": "2025-10-20T08:40:06.498Z"
 }

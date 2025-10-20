@@ -6,7 +6,8 @@
       "description": "初期プロジェクト",
       "owner": "admin",
       "members": [
-        "admin"
+        "admin",
+        "phone"
       ],
       "admins": [
         "admin"
@@ -64,8 +65,7 @@
         "autoAssign": false
       },
       "createdAt": "2025-09-01T00:00:00.000Z",
-      "lastUpdated": "2025-09-07T00:00:00.000Z"
+      "lastUpdated": "2025-10-20T08:20:23.952Z"
     }
-  ],
-  "lastUpdated": "2025-10-14T05:52:42.826Z"
+  ]
 }
