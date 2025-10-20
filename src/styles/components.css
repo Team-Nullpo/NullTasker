@@ -138,7 +138,6 @@
 /* モーダルウィンドウ */
 .modal {
   display: none;
-  align-items: center;
   position: fixed;
   z-index: 1000;
   left: 0;
@@ -158,8 +157,6 @@
   max-width: 600px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   animation: modalSlideIn 0.3s ease-out;
-  max-height: 90vh;
-  overflow-y: auto;
 }
 
 @keyframes modalSlideIn {
