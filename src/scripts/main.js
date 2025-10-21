@@ -10,11 +10,15 @@ import { ProjectManager } from "./project-manager.js";
 import { UserManager } from "./user-manager.js";
 import { AdminManager } from "./admin-manager.js";
 import { TicketManager } from "./ticket-manager.js";
+import { AuthInterceptor } from "./auth-interceptor.js";
 
 // アプリケーション初期化
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     Utils.debugLog("アプリケーション初期化開始");
+
+    // 認証インターセプターを初期化（ログイン失効時に自動的にログイン画面へ遷移）
+    AuthInterceptor.init();
 
     // テーマを最初に初期化（全ページで実行）
     initializeTheme();
