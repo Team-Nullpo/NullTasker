@@ -1202,7 +1202,7 @@ app.post('/api/tasks', authenticateToken, async (req, res) => {
     await fs.writeFile(TICKETS_FILE, JSON.stringify(tickets, null, 2), 'utf8');
     
     debugLog('タスクが正常に保存されました:', {
-      count: tickets.length,
+      count: tickets.tasks.length,
       time: new Date().toISOString()
     });
     

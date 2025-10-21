@@ -18,7 +18,7 @@ export class UserProfileManager {
       }
 
       this.currentUser = SimpleAuth.getCurrentUser();
-      await this.loadUserData();
+      this.loadUserData();
       this.setupEventListeners();
       this.loadPersonalSettings();
       
