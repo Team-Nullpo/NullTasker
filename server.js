@@ -1229,7 +1229,7 @@ app.put('/api/tasks/:ticketId', authenticateToken, async (req, res) => {
     
     const ticketIndex = tickets.tasks?.findIndex(t => t.id === ticketId);
     if (ticketIndex === -1 || !tickets.tasks) {
-      return res.status(404).json({ error: 'プロジェクトが見つかりません' });
+      return res.status(404).json({ error: 'チケットが見つかりません' });
     }
 
     // タスク更新
@@ -1248,8 +1248,8 @@ app.put('/api/tasks/:ticketId', authenticateToken, async (req, res) => {
     res.status(200).json(newTask);
 
   } catch (error) {
-    console.error('プロジェクト更新エラー:', error);
-    res.status(500).json({ error: 'プロジェクトの更新に失敗しました' });
+    console.error('チケット更新エラー:', error);
+    res.status(500).json({ error: 'チケットの更新に失敗しました' });
   }
 });
 
@@ -1263,10 +1263,10 @@ app.delete('/api/tasks/:ticketId', authenticateToken, async (req, res) => {
     
     const ticketIndex = tickets.tasks?.findIndex(t => t.id === ticketId);
     if (ticketIndex === -1 || !tickets.tasks) {
-      return res.status(404).json({ error: 'プロジェクトが見つかりません' });
+      return res.status(404).json({ error: 'チケットが見つかりません' });
     }
 
-    // プロジェクト削除
+    // チケット削除
     tickets.tasks.splice(ticketIndex, 1);
 
     tickets.lastUpdated = new Date().toISOString();
@@ -1276,8 +1276,8 @@ app.delete('/api/tasks/:ticketId', authenticateToken, async (req, res) => {
     res.status(204).end();
 
   } catch (error) {
-    console.error('プロジェクト削除エラー:', error);
-    res.status(500).json({ error: 'プロジェクトの削除に失敗しました' });
+    console.error('チケット削除エラー:', error);
+    res.status(500).json({ error: 'チケットの削除に失敗しました' });
   }
 });
 
