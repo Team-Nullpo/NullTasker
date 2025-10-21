@@ -139,6 +139,7 @@
 .modal {
   display: none;
   position: fixed;
+  align-items: center;
   z-index: 1000;
   left: 0;
   top: 0;
@@ -146,6 +147,8 @@
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(2px);
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .modal-content {

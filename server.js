@@ -108,10 +108,8 @@ const loginValidation = [
   body('loginId')
     .isLength({ min: VALIDATION.LOGIN_ID.MIN_LENGTH, max: VALIDATION.LOGIN_ID.MAX_LENGTH })
     .matches(VALIDATION.LOGIN_ID.PATTERN)
-    .withMessage(VALIDATION.LOGIN_ID.ERROR_MESSAGE),
-  body('password')
-    .isLength({ min: VALIDATION.PASSWORD.MIN_LENGTH })
-    .withMessage(VALIDATION.PASSWORD.ERROR_MESSAGE)
+    .withMessage(VALIDATION.LOGIN_ID.ERROR_MESSAGE)
+  // ログイン時はパスワードの形式チェックを行わない（既存のハッシュと照合するだけ）
 ];
 
 const registerValidation = [
