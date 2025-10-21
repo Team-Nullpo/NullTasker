@@ -136,7 +136,7 @@ export class UserManager {
   static async removeUser(id) {
     const index = this.users.findIndex((u) => u.id === id);
     if (index === -1) {
-      Utils.debugLog("対象のチケットが見つかりません");
+      Utils.debugLog("対象のユーザーが見つかりません");
       return false;
     }
     try {
@@ -151,7 +151,7 @@ export class UserManager {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       this.users.splice(index, 1);
-      Utils.debugLog("プロジェクト削除に成功しました: ", response.status);
+      Utils.debugLog("ユーザー削除に成功しました: ", response.status);
     } catch (error) {
       return false;
     }

@@ -29,7 +29,7 @@ export class UserProfileManager {
   }
 
   loadUserData() {
-    const userData = UserManager.getUsers().find(u => u.id = this.currentUser);
+    const userData = UserManager.getUsers().find(u => u.id === this.currentUser);
     
     // フォームに現在の値を設定
     document.getElementById('loginId').value = userData.loginId || userData.id;

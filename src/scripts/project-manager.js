@@ -26,7 +26,7 @@ export class ProjectManager {
   }
   static getProjectSettings(id = null) {
     if (!id) return this.projectSettings;
-    const currentSetting = this.projectSettings.find((p) => (p.id = id));
+    const currentSetting = this.projectSettings.find((p) => (p.id === id));
     if (!currentSetting) {
       console.warn("指定のプロジェクトが見つかりません。");
       return null;
@@ -79,7 +79,7 @@ export class ProjectManager {
   static async updateProject(payload, id) {
     const index = this.projectSettings.findIndex((p) => p.id === id);
     if (index === -1) {
-      Utils.debugLog("対象のチケットが見つかりません");
+      Utils.debugLog("対象のプロジェクトが見つかりません");
       return false;
     }
     try {
@@ -105,7 +105,7 @@ export class ProjectManager {
   static async removeProject(id) {
     const index = this.projectSettings.findIndex((p) => p.id === id);
     if (index === -1) {
-      Utils.debugLog("対象のチケットが見つかりません");
+      Utils.debugLog("対象のプロジェクトが見つかりません");
       return false;
     }
     try {

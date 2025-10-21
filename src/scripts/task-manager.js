@@ -161,9 +161,12 @@ export class TaskManager {
       });
     }
 
-    const usernames = this.projectUsers.map(u => u.displayName);
+    const usernames = this.projectUsers.map(u => { return {
+      value: u.id,
+      label: u.displayName
+    }});
     const selectors = [
-      { id: "#taskAssignee", options: usernames},
+      { id: "#taskAssignee", options: usernames, hasValue: true },
       { id: "#taskCategory", options: this.settings.settings.categories },
       {
         id: "#taskPriority",
@@ -502,7 +505,7 @@ export class TaskManager {
   }
 
   getAssigneeText(assigneeValue) {
-    const assignee = this.projectUsers.find((u) => u.value === assigneeValue);
+    const assignee = this.projectUsers.find((u) => u.id === assigneeValue);
     return assignee ? assignee.label : assigneeValue;
   }
 }
