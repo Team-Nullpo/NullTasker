@@ -21,7 +21,6 @@ const {
   getPrioritiesArray,
   getStatusesArray
 } = require('./server-constants');
-const { Utils } = require('./src/scripts/utils');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -36,6 +35,12 @@ const debugLog = (...args) => {
     console.log(...args);
   }
 };
+
+const generateId = (prefix = 'item') => {
+  const timestamp = Date.now();
+  const random = Math.floor(Math.random() * 1000);
+  return `${prefix}_${timestamp}_${random}`;
+}
 
 // JWT秘密鍵（本番環境では必ず環境変数を使用）
 const JWT_SECRET = process.env.JWT_SECRET || generateSecureSecret();
@@ -302,7 +307,7 @@ app.post('/api/register', registerValidation, async (req, res) => {
 
     // 新しいユーザーを追加
     const newUser = {
-      id: Utils.generateId('user'),
+      id: generateId('user'),
       loginId: loginId,
       displayName: displayName,
       email: email,
@@ -720,7 +725,7 @@ app.post('/api/admin/users', authenticateToken, requireSystemAdmin, async (req, 
     
     // 新ユーザー作成
     const newUser = {
-      id: Utils.generateId('user'),
+      id: generateId('user'),
       loginId: loginId,
       displayName: displayName,
       email: email,
@@ -867,7 +872,7 @@ app.post('/api/admin/projects', authenticateToken, requireSystemAdmin, async (re
 
     // 新プロジェクト作成
     const newProject = {
-      id: Utils.generateId("project"),
+      id: generateId("project"),
       name: name,
       description: description || '',
       owner: owner,
@@ -1180,7 +1185,7 @@ app.post('/api/tasks', authenticateToken, async (req, res) => {
     }
 
     const newTask = {
-      id: Utils.generateId("task"),
+      id: generateId("task"),
       ...payload,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
