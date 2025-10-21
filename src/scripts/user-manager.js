@@ -24,7 +24,6 @@ export class UserManager {
   static getUsers(projectId = null) {
     if (!projectId) return this.users;
     const filteredUsers = this.users.filter(u => u.projects.includes(projectId));
-    if (!filteredUsers) return [];
     return filteredUsers;
   }
 

@@ -52,7 +52,7 @@ export class ProjectManager {
       console.log(this.projectSettings);
     } catch (error) {
       console.error("設定の読み込みに失敗しました:", error);
-      this.currentProjectSettings = AppConfig.getDefaultSettings();
+      this.projectSettings = AppConfig.getDefaultSettings();
     }
   }
   static async addProject(payload) {
