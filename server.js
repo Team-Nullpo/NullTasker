@@ -1179,7 +1179,7 @@ app.post('/api/tasks', authenticateToken, async (req, res) => {
     const data = await fs.readFile(TICKETS_FILE, 'utf8');
     const tickets = JSON.parse(data);
 
-    const existingProject = tickets.tasks?.find(task => task.title === payload.title);
+    const existingProject = tickets.tasks?.find(task => task.title === payload.title && task.project === payload.project);
     if (existingProject) {
       return res.status(409).json({ error: '同名のタスクが存在します' });
     }
