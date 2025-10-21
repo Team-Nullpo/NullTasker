@@ -10,6 +10,7 @@ import { ProjectManager } from "./project-manager.js";
 import { UserManager } from "./user-manager.js";
 import { AdminManager } from "./admin-manager.js";
 import { TicketManager } from "./ticket-manager.js";
+import { UserProfileManager } from "./user-profile.js";
 import { AuthInterceptor } from "./auth-interceptor.js";
 
 // アプリケーション初期化
@@ -107,6 +108,7 @@ function getCurrentPage() {
   if (filename.includes("gantt")) return "gantt";
   if (filename.includes("setting")) return "settings";
   if (filename.includes("admin")) return "admin";
+  if (filename.includes("user-profile")) return "user-profile";
   return "dashboard";
 }
 
@@ -156,6 +158,14 @@ async function initializePageManager(page) {
           console.warn("AdminManager が見つかりません");
         }
         break;
+        case "user-profile":
+          Utils.debugLog("個人設定画面を初期化中...");
+          if (typeof UserProfileManager !== "undefined") {
+            window.settingsManager = new UserProfileManager();
+          } else {
+            console.warn("UserProfileManager が見つかりません");
+          }
+          break;
 
       case "dashboard":
       default:

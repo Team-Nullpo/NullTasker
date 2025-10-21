@@ -15,6 +15,8 @@ import { TicketManager } from "./ticket-manager.js";
 export class TaskManager {
   constructor() {
     this.tasks = [];
+    this.projectUsers = [];
+    this.projectId = null;
     this.settings = {};
     this.editingTaskId = null;
     this.deletingTaskId = null; // 削除対象のタスクID
@@ -31,23 +33,17 @@ export class TaskManager {
   }
 
   loadSettings() {
-    this.settings = ProjectManager.currentProjectSettings;
+    this.projectId = ProjectManager.getCurrentProjectId();
+    this.settings = ProjectManager.getProjectSettings(this.projectId);
   }
 
   loadUsers() {
-    console.log(this.settings);
-    const projectUsers = UserManager.users.filter((user) =>
-      this.settings.members.includes(user.id)
-    );
-    this.settings.users = projectUsers.map((user) => ({
-      value: user.id,
-      label: user.displayName || user.loginId,
-    }));
+    this.projectUsers = UserManager.getUsers(this.projectId);
   }
 
   loadTasks() {
     this.tasks = TicketManager.tasks.filter(
-      (ticket) => ticket.project === ProjectManager.currentProject
+      (ticket) => ticket.project === this.projectId
     );
   }
 
@@ -165,8 +161,12 @@ export class TaskManager {
       });
     }
 
+    const usernames = this.projectUsers.map(u => { return {
+      value: u.id,
+      label: u.displayName
+    }});
     const selectors = [
-      { id: "#taskAssignee", options: this.settings.users, hasValue: true },
+      { id: "#taskAssignee", options: usernames, hasValue: true },
       { id: "#taskCategory", options: this.settings.settings.categories },
       {
         id: "#taskPriority",
@@ -241,7 +241,7 @@ export class TaskManager {
         category: formData.get("category"),
         status: formData.get("status"),
         progress: parseInt(formData.get("progress")) || 0,
-        project: ProjectManager.currentProject,
+        project: this.projectId,
       };
 
       Utils.debugLog("フォーム送信データ:", payload);
@@ -254,7 +254,7 @@ export class TaskManager {
           return;
         }
       } else {
-        if (!(await TicketManager.addTicket(payload))) {
+        if (!(await TicketManager.createTicket(payload))) {
           Utils.showNotification("タスク追加に失敗しました", "error");
           return;
         }
@@ -392,7 +392,7 @@ export class TaskManager {
 
   getFilteredTasks(filter) {
     const tasks = this.tasks.filter(
-      (task) => task.project === ProjectManager.currentProject
+      (task) => task.project === this.projectId
     );
     switch (filter) {
       case "todo":
@@ -505,7 +505,7 @@ export class TaskManager {
   }
 
   getAssigneeText(assigneeValue) {
-    const assignee = this.settings.users.find((u) => u.value === assigneeValue);
-    return assignee ? assignee.label : assigneeValue;
+    const assignee = this.projectUsers.find((u) => u.id === assigneeValue);
+    return assignee ? assignee.displayName : assigneeValue;
   }
 }
