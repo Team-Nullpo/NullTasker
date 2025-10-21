@@ -506,6 +506,6 @@ export class TaskManager {
 
   getAssigneeText(assigneeValue) {
     const assignee = this.projectUsers.find((u) => u.id === assigneeValue);
-    return assignee ? assignee.label : assigneeValue;
+    return assignee ? assignee.displayName : assigneeValue;
   }
 }
