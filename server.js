@@ -254,6 +254,18 @@ app.get('/src/pages/setting.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'src', 'pages', 'setting.html'));
 });
 
+app.get('/user-profile', (req, res) => {
+  res.sendFile(path.join(__dirname, 'src', 'pages', 'user-profile.html'));
+});
+
+app.get('/user-profile.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'src', 'pages', 'user-profile.html'));
+});
+
+app.get('/src/pages/user-profile.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'src', 'pages', 'user-profile.html'));
+});
+
 app.get('/debug-storage', (req, res) => {
   res.sendFile(path.join(__dirname, 'src', 'pages', 'debug-storage.html'));
 });
