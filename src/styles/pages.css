@@ -83,12 +83,17 @@
   margin: 0 0 var(--spacing-sm) 0;
   font-size: var(--font-size-lg);
   color: var(--gray-800);
+  overflow: hidden;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .task-content p {
   margin: 0 0 var(--spacing-md) 0;
   color: var(--gray-600);
   line-height: 1.5;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .task-meta {
@@ -160,7 +165,9 @@
   cursor: pointer;
   border-radius: var(--border-radius-sm);
   color: var(--gray-600);
-  transition: background-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
 }
 
 .task-btn:hover {
@@ -862,6 +869,8 @@ input:checked + .slider:before {
   font-weight: 600;
   color: var(--gray-800);
   margin-bottom: var(--spacing-xs);
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .task-meta {

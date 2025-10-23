@@ -36,6 +36,12 @@ const debugLog = (...args) => {
   }
 };
 
+const generateId = (prefix = 'item') => {
+  const timestamp = Date.now();
+  const random = Math.floor(Math.random() * 1000);
+  return `${prefix}_${timestamp}_${random}`;
+}
+
 // JWT秘密鍵（本番環境では必ず環境変数を使用）
 const JWT_SECRET = process.env.JWT_SECRET || generateSecureSecret();
 
@@ -102,10 +108,8 @@ const loginValidation = [
   body('loginId')
     .isLength({ min: VALIDATION.LOGIN_ID.MIN_LENGTH, max: VALIDATION.LOGIN_ID.MAX_LENGTH })
     .matches(VALIDATION.LOGIN_ID.PATTERN)
-    .withMessage(VALIDATION.LOGIN_ID.ERROR_MESSAGE),
-  body('password')
-    .isLength({ min: VALIDATION.PASSWORD.MIN_LENGTH })
-    .withMessage(VALIDATION.PASSWORD.ERROR_MESSAGE)
+    .withMessage(VALIDATION.LOGIN_ID.ERROR_MESSAGE)
+  // ログイン時はパスワードの形式チェックを行わない（既存のハッシュと照合するだけ）
 ];
 
 const registerValidation = [
@@ -287,7 +291,7 @@ app.post('/api/register', registerValidation, async (req, res) => {
 
     // 既存ユーザーチェック
     const existingUser = users.users.find(u => 
-      u.id === loginId || u.loginId === loginId || u.email === email
+      u.loginId === loginId || u.email === email
     );
     if (existingUser) {
       return res.status(409).json({ 
@@ -301,10 +305,10 @@ app.post('/api/register', registerValidation, async (req, res) => {
 
     // 新しいユーザーを追加
     const newUser = {
-      id: loginId,
+      id: generateId('user'),
       loginId: loginId,
-      displayName,
-      email,
+      displayName: displayName,
+      email: email,
       password: hashedPassword,
       role: "user",  // デフォルトは一般ユーザー
       projects: ["default"],  // デフォルトプロジェクトに自動参加
@@ -317,8 +321,8 @@ app.post('/api/register', registerValidation, async (req, res) => {
     // デフォルトプロジェクトのメンバーに追加
     const defaultProject = projects.projects.find(p => p.id === "default");
     if (defaultProject) {
-      if (!defaultProject.members.includes(loginId)) {
-        defaultProject.members.push(loginId);
+      if (!defaultProject.members.includes(newUser.id)) {
+        defaultProject.members.push(newUser.id);
         defaultProject.lastUpdated = new Date().toISOString();
       }
     }
@@ -330,10 +334,7 @@ app.post('/api/register', registerValidation, async (req, res) => {
     await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
     await fs.writeFile(PROJECTS_FILE, JSON.stringify(projects, null, 2), 'utf8');
 
-    res.json({
-      success: true,
-      message: 'ユーザー登録が完了しました'
-    });
+    res.status(201).json(newUser);
 
   } catch (error) {
     console.error('ユーザー登録エラー:', error);
@@ -587,17 +588,23 @@ app.put('/api/user/profile', authenticateToken, async (req, res) => {
     );
     
     if (emailExists) {
-      return res.status(400).json({ error: 'このメールアドレスは既に使用されています' });
+      return res.status(409).json({ error: 'このメールアドレスは既に使用されています' });
+    }
+
+    const newUser = {
+      ...data.users[userIndex],
+      displayName: displayName,
+      email: email,
+      lastUpdated: new Date().toISOString()
     }
 
     // プロフィール更新
-    data.users[userIndex].displayName = displayName;
-    data.users[userIndex].email = email;
-    data.lastUpdated = new Date().toISOString();
+    data.users[userIndex] = newUser;
 
     await fs.writeFile(USERS_FILE, JSON.stringify(data, null, 2));
     
-    res.json({ success: true, message: 'プロフィールを更新しました' });
+    const { password: _, ...userWithoutPassword } = newUser;
+    res.status(200).json(userWithoutPassword);
 
   } catch (error) {
     console.error('プロフィール更新エラー:', error);
@@ -637,8 +644,7 @@ app.put('/api/user/password', authenticateToken, async (req, res) => {
     data.lastUpdated = new Date().toISOString();
 
     await fs.writeFile(USERS_FILE, JSON.stringify(data, null, 2));
-    
-    res.json({ success: true, message: 'パスワードを変更しました' });
+    res.status(204).end();
 
   } catch (error) {
     console.error('パスワード変更エラー:', error);
@@ -669,41 +675,7 @@ const requireSystemAdmin = (req, res, next) => {
   next();
 };
 
-// プロジェクトメンバー用ユーザー一覧取得
-app.get('/api/users', authenticateToken, async (req, res) => {
-  try {
-    const userData = await fs.readFile(USERS_FILE, 'utf8');
-    const data = JSON.parse(userData);
-    
-    // 現在のユーザーの所属プロジェクトを取得
-    const currentUser = data.users.find(u => u.id === req.user.id);
-    if (!currentUser) {
-      return res.status(404).json({ error: 'ユーザーが見つかりません' });
-    }
-
-    // 同じプロジェクトのメンバーのみを取得（パスワードは除外）
-    const projectUsers = data.users.filter(user => {
-      return user.projects.some(project => currentUser.projects.includes(project));
-    }).map(user => {
-      return {
-        id: user.id,
-        displayName: user.displayName,
-        email: user.email,
-        role: user.role
-      };
-    });
-
-    res.json({
-      users: projectUsers,
-      success: true
-    });
-  } catch (error) {
-    console.error('ユーザー一覧取得エラー:', error);
-    res.status(500).json({ error: 'ユーザー一覧の取得に失敗しました' });
-  }
-});
-
-// 全ユーザー・プロジェクトデータ取得
+// 全ユーザーデータ取得
 app.get('/api/admin/users', authenticateToken, requireSystemAdmin, async (req, res) => {
   try {
     const userData = await fs.readFile(USERS_FILE, 'utf8');
@@ -717,11 +689,7 @@ app.get('/api/admin/users', authenticateToken, requireSystemAdmin, async (req, r
       return userWithoutPassword;
     });
 
-    res.json({
-      users: usersWithoutPasswords,
-      projects: projects.projects || [],
-      lastUpdated: users.lastUpdated
-    });
+    res.status(200).json(usersWithoutPasswords);
 
   } catch (error) {
     console.error('管理者データ取得エラー:', error);
@@ -743,11 +711,11 @@ app.post('/api/admin/users', authenticateToken, requireSystemAdmin, async (req, 
     
     // 重複チェック
     const existingUser = data.users.find(u => 
-      u.id === loginId || u.loginId === loginId || u.email === email
+      u.loginId === loginId || u.email === email
     );
     
     if (existingUser) {
-      return res.status(400).json({ error: 'ログインIDまたはメールアドレスが既に使用されています' });
+      return res.status(409).json({ error: 'ログインIDまたはメールアドレスが既に使用されています' });
     }
 
     // パスワードハッシュ化
@@ -755,7 +723,7 @@ app.post('/api/admin/users', authenticateToken, requireSystemAdmin, async (req, 
     
     // 新ユーザー作成
     const newUser = {
-      id: loginId,
+      id: generateId('user'),
       loginId: loginId,
       displayName: displayName,
       email: email,
@@ -771,7 +739,7 @@ app.post('/api/admin/users', authenticateToken, requireSystemAdmin, async (req, 
 
     await fs.writeFile(USERS_FILE, JSON.stringify(data, null, 2));
     
-    res.json({ success: true, message: 'ユーザーを作成しました' });
+    res.status(201).location(`/api/admin/users/${newUser.id}`).json(newUser);
 
   } catch (error) {
     console.error('ユーザー作成エラー:', error);
@@ -803,25 +771,32 @@ app.put('/api/admin/users/:userId', authenticateToken, requireSystemAdmin, async
     );
     
     if (emailExists) {
-      return res.status(400).json({ error: 'このメールアドレスは既に使用されています' });
+      return res.status(409).json({ error: 'このメールアドレスは既に使用されています' });
     }
 
-    // ユーザー更新
-    data.users[userIndex].displayName = displayName;
-    data.users[userIndex].email = email;
-    data.users[userIndex].role = role;
+    const newUser = {
+      ...data.users[userIndex],
+      displayName: displayName,
+      email: email,
+      role: role,
+      lastUpdated: new Date().toISOString()
+    }
     
     // パスワードが指定されている場合のみ更新
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
-      data.users[userIndex].password = hashedPassword;
+      newUser.password = hashedPassword;
     }
+
+    // プロフィール更新
+    data.users[userIndex] = newUser;
 
     data.lastUpdated = new Date().toISOString();
 
     await fs.writeFile(USERS_FILE, JSON.stringify(data, null, 2));
     
-    res.json({ success: true, message: 'ユーザーを更新しました' });
+    const { password: _, ...userWithoutPassword } = newUser;
+    res.status(200).json(userWithoutPassword);
 
   } catch (error) {
     console.error('ユーザー更新エラー:', error);
@@ -853,7 +828,7 @@ app.delete('/api/admin/users/:userId', authenticateToken, requireSystemAdmin, as
 
     await fs.writeFile(USERS_FILE, JSON.stringify(data, null, 2));
     
-    res.json({ success: true, message: 'ユーザーを削除しました' });
+    res.status(204).end();
 
   } catch (error) {
     console.error('ユーザー削除エラー:', error);
@@ -861,12 +836,24 @@ app.delete('/api/admin/users/:userId', authenticateToken, requireSystemAdmin, as
   }
 });
 
+// 全プロジェクトデータ取得
+app.get('/api/admin/projects', authenticateToken, requireSystemAdmin, async (req, res) => {
+  try {
+      const data = await fs.readFile(PROJECTS_FILE, 'utf8');
+      const projects = JSON.parse(data);
+      res.status(200).json(projects.projects);
+  } catch (error) {
+      console.error('プロジェクトデータの取得に失敗: ', error);
+      res.status(500).json({ error: 'プロジェクトデータ取得に失敗しました'});
+  }
+});
+
 // プロジェクト作成
 app.post('/api/admin/projects', authenticateToken, requireSystemAdmin, async (req, res) => {
   try {
-    const { id, name, description, owner } = req.body;
+    const { name, description, owner } = req.body;
     
-    if (!id || !name || !owner) {
+    if (!name || !owner) {
       return res.status(400).json({ error: '必須項目が不足しています' });
     }
 
@@ -874,12 +861,6 @@ app.post('/api/admin/projects', authenticateToken, requireSystemAdmin, async (re
     const users = JSON.parse(userData);
     const projectData = await fs.readFile(PROJECTS_FILE, 'utf8');
     const projects = JSON.parse(projectData);
-    
-    // プロジェクトID重複チェック
-    const existingProject = projects.projects?.find(p => p.id === id);
-    if (existingProject) {
-      return res.status(400).json({ error: 'プロジェクトIDが既に使用されています' });
-    }
 
     // オーナーの存在チェック
     const ownerUser = users.users.find(u => u.id === owner);
@@ -889,7 +870,7 @@ app.post('/api/admin/projects', authenticateToken, requireSystemAdmin, async (re
 
     // 新プロジェクト作成
     const newProject = {
-      id: id,
+      id: generateId("project"),
       name: name,
       description: description || '',
       owner: owner,
@@ -918,8 +899,8 @@ app.post('/api/admin/projects', authenticateToken, requireSystemAdmin, async (re
       if (!users.users[ownerIndex].projects) {
         users.users[ownerIndex].projects = [];
       }
-      if (!users.users[ownerIndex].projects.includes(id)) {
-        users.users[ownerIndex].projects.push(id);
+      if (!users.users[ownerIndex].projects.includes(newProject.id)) {
+        users.users[ownerIndex].projects.push(newProject.id);
       }
     }
 
@@ -929,7 +910,7 @@ app.post('/api/admin/projects', authenticateToken, requireSystemAdmin, async (re
     await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2));
     await fs.writeFile(PROJECTS_FILE, JSON.stringify(projects, null, 2));
     
-    res.json({ success: true, message: 'プロジェクトを作成しました' });
+    res.status(201).location(`/api/projects/${newProject.id}`).json(newProject);
 
   } catch (error) {
     console.error('プロジェクト作成エラー:', error);
@@ -965,18 +946,20 @@ app.put('/api/admin/projects/:projectId', authenticateToken, requireSystemAdmin,
     }
 
     // プロジェクト更新
-    projects.projects[projectIndex].name = name;
-    projects.projects[projectIndex].description = description || '';
-    projects.projects[projectIndex].owner = owner;
-    projects.projects[projectIndex].lastUpdated = new Date().toISOString();
+    const newProject = {
+      ...projects.projects[projectIndex],
+      name: name,
+      description: description || "",
+      owner: owner,
+      updatedAt: new Date().toISOString(),
+    };
+    projects.projects[projectIndex] = newProject;
 
-    users.lastUpdated = new Date().toISOString();
     projects.lastUpdated = new Date().toISOString();
 
-    await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2));
     await fs.writeFile(PROJECTS_FILE, JSON.stringify(projects, null, 2));    
     
-    res.json({ success: true, message: 'プロジェクトを更新しました' });
+    res.status(200).json(newProject);
 
   } catch (error) {
     console.error('プロジェクト更新エラー:', error);
@@ -1020,7 +1003,7 @@ app.delete('/api/admin/projects/:projectId', authenticateToken, requireSystemAdm
     await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2));
     await fs.writeFile(PROJECTS_FILE, JSON.stringify(projects, null, 2));
 
-    res.json({ success: true, message: 'プロジェクトを削除しました' });
+    res.status(204).end();
 
   } catch (error) {
     console.error('プロジェクト削除エラー:', error);
@@ -1137,6 +1120,18 @@ app.post('/api/admin/restore', authenticateToken, requireSystemAdmin, async (req
   }
 });
 
+// 設定データを取得
+app.get('/api/settings', authenticateToken, async (req, res) => {
+  try {
+    const data = await fs.readFile(SETTINGS_FILE, 'utf8');
+    const settings = JSON.parse(data);
+    res.json(settings);
+  } catch (error) {
+    console.error('設定読み込みエラー:', error);
+    res.status(500).json({ error: '設定の読み込みに失敗しました' });
+  }
+});
+
 // タスクデータを取得
 app.get('/api/tasks', authenticateToken, async (req, res) => {
   try {
@@ -1174,56 +1169,42 @@ app.get('/api/tasks', authenticateToken, async (req, res) => {
   }
 });
 
-// 設定データを取得
-app.get('/api/settings', authenticateToken, async (req, res) => {
-  try {
-    const data = await fs.readFile(SETTINGS_FILE, 'utf8');
-    const settings = JSON.parse(data);
-    res.json(settings);
-  } catch (error) {
-    console.error('設定読み込みエラー:', error);
-    res.status(500).json({ error: '設定の読み込みに失敗しました' });
-  }
-});
-
-// タスクデータを保存
+// タスクデータを追加
 app.post('/api/tasks', authenticateToken, async (req, res) => {
   try {
-    const { tasks } = req.body;
-    
-    debugLog('タスク保存リクエスト受信:', {
-      taskCount: tasks ? tasks.length : 'undefined',
-      isArray: Array.isArray(tasks),
-      user: req.user?.id
-    });
-    
-    if (!tasks || !Array.isArray(tasks)) {
-      console.error('無効なタスクデータ:', typeof tasks);
-      return res.status(400).json({ 
-        success: false,
-        error: '無効なタスクデータです'
-      });
+    const payload = req.body;
+
+    const data = await fs.readFile(TICKETS_FILE, 'utf8');
+    const tickets = JSON.parse(data);
+
+    const existingProject = tickets.tasks?.find(task => task.title === payload.title && task.project === payload.project);
+    if (existingProject) {
+      return res.status(409).json({ error: '同名のタスクが存在します' });
     }
 
-    const updatedData = {
-      tasks,
-      lastUpdated: new Date().toISOString()
+    const newTask = {
+      id: generateId("task"),
+      ...payload,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
 
+    if (!tickets.tasks) {
+      tickets.tasks = [];
+    }
+
+    tickets.tasks.push(newTask);
+    tickets.lastUpdated = new Date().toISOString();
+
     // ファイルに書き込み
-    await fs.writeFile(TICKETS_FILE, JSON.stringify(updatedData, null, 2), 'utf8');
+    await fs.writeFile(TICKETS_FILE, JSON.stringify(tickets, null, 2), 'utf8');
     
     debugLog('タスクが正常に保存されました:', {
-      count: tasks.length,
+      count: tickets.tasks.length,
       time: new Date().toISOString()
     });
     
-    res.json({ 
-      success: true, 
-      message: 'タスクが正常に保存されました',
-      taskCount: tasks.length,
-      timestamp: new Date().toISOString()
-    });
+    res.status(201).location(`/api/tasks/${newTask.id}`).json(newTask);
     
   } catch (error) {
     console.error('タスク保存エラー:', error.message);
@@ -1231,6 +1212,70 @@ app.post('/api/tasks', authenticateToken, async (req, res) => {
       success: false,
       error: 'タスクの保存に失敗しました'
     });
+  }
+});
+
+// タスク更新
+app.put('/api/tasks/:ticketId', authenticateToken, async (req, res) => {
+  try {
+    const { ticketId } = req.params;
+    const payload = req.body;
+
+    const data = await fs.readFile(TICKETS_FILE, 'utf8');
+    const tickets = JSON.parse(data);
+    
+    
+    const ticketIndex = tickets.tasks?.findIndex(t => t.id === ticketId);
+    if (ticketIndex === -1 || !tickets.tasks) {
+      return res.status(404).json({ error: 'チケットが見つかりません' });
+    }
+
+    // タスク更新
+    const newTask = {
+      ...tickets.tasks[ticketIndex],
+      ...payload,
+      updatedAt: new Date().toISOString(),
+    };
+
+    tickets.tasks[ticketIndex] = newTask;
+
+    tickets.lastUpdated = new Date().toISOString();
+
+    await fs.writeFile(TICKETS_FILE, JSON.stringify(tickets, null, 2));
+    
+    res.status(200).json(newTask);
+
+  } catch (error) {
+    console.error('チケット更新エラー:', error);
+    res.status(500).json({ error: 'チケットの更新に失敗しました' });
+  }
+});
+
+// タスク削除
+app.delete('/api/tasks/:ticketId', authenticateToken, async (req, res) => {
+  try {
+    const { ticketId } = req.params;
+
+    const data = await fs.readFile(TICKETS_FILE, 'utf8');
+    const tickets = JSON.parse(data);
+    
+    const ticketIndex = tickets.tasks?.findIndex(t => t.id === ticketId);
+    if (ticketIndex === -1 || !tickets.tasks) {
+      return res.status(404).json({ error: 'チケットが見つかりません' });
+    }
+
+    // チケット削除
+    tickets.tasks.splice(ticketIndex, 1);
+
+    tickets.lastUpdated = new Date().toISOString();
+
+    await fs.writeFile(TICKETS_FILE, JSON.stringify(tickets, null, 2));
+
+    res.status(204).end();
+
+  } catch (error) {
+    console.error('チケット削除エラー:', error);
+    res.status(500).json({ error: 'チケットの削除に失敗しました' });
   }
 });
 
@@ -1253,14 +1298,40 @@ app.get('/api/projects', authenticateToken, async (req, res) => {
     try {
         const data = await fs.readFile(PROJECTS_FILE, 'utf8');
         const projects = JSON.parse(data);
-        if (!projects) {
-            return res.status(404).json({ error: 'プロジェクトが見つかりません'});
-        }
-        res.json(projects);
+        const filtered = projects.projects.filter(p => p.members.includes(req.user.id));
+        res.status(200).json(filtered);
     } catch (error) {
         console.error('プロジェクトデータの取得に失敗: ', error);
         res.status(500).json({ error: 'プロジェクトデータ取得に失敗しました'});
     }
+});
+
+// プロジェクトメンバー用ユーザー一覧取得
+app.get('/api/users', authenticateToken, async (req, res) => {
+  try {
+    const userData = await fs.readFile(USERS_FILE, 'utf8');
+    const data = JSON.parse(userData);
+    
+    // 現在のユーザーの所属プロジェクトを取得
+    const currentUser = data.users.find(u => u.id === req.user.id);
+    if (!currentUser) {
+      return res.status(404).json({ error: 'ユーザーが見つかりません' });
+    }
+
+    // 同じプロジェクトのメンバーのみを取得（パスワードは除外）
+    const projectUsers = data.users.filter(user => 
+      user.projects.some(project => currentUser.projects.includes(project))
+    );
+    const usersWithoutPasswords = projectUsers.map(user => {
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    });
+
+    res.status(200).json(usersWithoutPasswords);
+  } catch (error) {
+    console.error('ユーザー一覧取得エラー:', error);
+    res.status(500).json({ error: 'ユーザー一覧の取得に失敗しました' });
+  }
 });
 
 // サーバー起動

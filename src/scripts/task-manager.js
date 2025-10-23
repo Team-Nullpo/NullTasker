@@ -15,6 +15,8 @@ import { TicketManager } from "./ticket-manager.js";
 export class TaskManager {
   constructor() {
     this.tasks = [];
+    this.projectUsers = [];
+    this.projectId = null;
     this.settings = {};
     this.editingTaskId = null;
     this.deletingTaskId = null; // 削除対象のタスクID
@@ -31,23 +33,17 @@ export class TaskManager {
   }
 
   loadSettings() {
-    this.settings = ProjectManager.currentProjectSettings;
+    this.projectId = ProjectManager.getCurrentProjectId();
+    this.settings = ProjectManager.getProjectSettings(this.projectId);
   }
 
   loadUsers() {
-    console.log(this.settings);
-    const projectUsers = UserManager.users.filter((user) =>
-      this.settings.members.includes(user.id)
-    );
-    this.settings.users = projectUsers.map((user) => ({
-      value: user.id,
-      label: user.displayName || user.loginId,
-    }));
+    this.projectUsers = UserManager.getUsers(this.projectId);
   }
 
   loadTasks() {
     this.tasks = TicketManager.tasks.filter(
-      (ticket) => ticket.project === ProjectManager.currentProject
+      (ticket) => ticket.project === this.projectId
     );
   }
 
@@ -95,6 +91,52 @@ export class TaskManager {
         this.filterTasks(e.target.value);
       });
     }
+
+    // 日付入力のバリデーション（Chrome対策）
+    this.setupDateInputValidation();
+  }
+
+  setupDateInputValidation() {
+    const startDateInput = Utils.getElement("#taskStartDate");
+    const dueDateInput = Utils.getElement("#taskDueDate");
+
+    // 入力完了時（フォーカスが外れた時）のみバリデーションを実行
+    if (startDateInput) {
+      startDateInput.addEventListener("blur", (e) => this.validateDateInput(e.target));
+    }
+
+    if (dueDateInput) {
+      dueDateInput.addEventListener("blur", (e) => this.validateDateInput(e.target));
+    }
+  }
+
+  validateDateInput(input) {
+    const value = input.value;
+    if (!value) {
+      input.setCustomValidity("");
+      return true;
+    }
+
+    // 日付フォーマットをチェック (YYYY-MM-DD)
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+    if (!datePattern.test(value)) {
+      input.setCustomValidity("日付形式が正しくありません（YYYY-MM-DD）");
+      Utils.showNotification("日付形式が正しくありません（YYYY-MM-DD）", "warning");
+      return false;
+    }
+
+    // 年が4桁であることを確認
+    const parts = value.split("-");
+    const year = parseInt(parts[0], 10);
+    
+    if (year < 1900 || year > 9999) {
+      input.setCustomValidity("年は1900から9999の範囲で入力してください");
+      Utils.showNotification("年は1900から9999の範囲で入力してください", "warning");
+      return false;
+    }
+
+    input.setCustomValidity("");
+    return true;
   }
 
   setupModalEvents(elements) {
@@ -165,8 +207,12 @@ export class TaskManager {
       });
     }
 
+    const usernames = this.projectUsers.map(u => { return {
+      value: u.id,
+      label: u.displayName
+    }});
     const selectors = [
-      { id: "#taskAssignee", options: this.settings.users, hasValue: true },
+      { id: "#taskAssignee", options: usernames, hasValue: true },
       { id: "#taskCategory", options: this.settings.settings.categories },
       {
         id: "#taskPriority",
@@ -241,7 +287,7 @@ export class TaskManager {
         category: formData.get("category"),
         status: formData.get("status"),
         progress: parseInt(formData.get("progress")) || 0,
-        project: ProjectManager.currentProject,
+        project: this.projectId,
       };
 
       Utils.debugLog("フォーム送信データ:", payload);
@@ -254,7 +300,7 @@ export class TaskManager {
           return;
         }
       } else {
-        if (!(await TicketManager.addTicket(payload))) {
+        if (!(await TicketManager.createTicket(payload))) {
           Utils.showNotification("タスク追加に失敗しました", "error");
           return;
         }
@@ -285,6 +331,19 @@ export class TaskManager {
       return false;
     }
 
+    // 日付の形式と範囲をチェック
+    const startDateValidation = this.isValidDateFormat(payload.startDate);
+    if (!startDateValidation.valid) {
+      Utils.showNotification(startDateValidation.message, "warning");
+      return false;
+    }
+
+    const dueDateValidation = this.isValidDateFormat(payload.dueDate);
+    if (!dueDateValidation.valid) {
+      Utils.showNotification(dueDateValidation.message, "warning");
+      return false;
+    }
+
     if (!Utils.validateDates(payload.startDate, payload.dueDate)) {
       Utils.showNotification(
         "開始日は期日より前に設定してください。",
@@ -294,6 +353,45 @@ export class TaskManager {
     }
 
     return true;
+  }
+
+  isValidDateFormat(dateString) {
+    if (!dateString) {
+      return { valid: false, message: "日付を入力してください" };
+    }
+
+    // 日付フォーマットをチェック (YYYY-MM-DD)
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+    if (!datePattern.test(dateString)) {
+      return { valid: false, message: "日付形式が正しくありません（YYYY-MM-DD）" };
+    }
+
+    // 年が4桁で1900-9999の範囲内であることを確認
+    const parts = dateString.split("-");
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10);
+    const day = parseInt(parts[2], 10);
+
+    if (year < 1900 || year > 9999) {
+      return { valid: false, message: "年は1900から9999の範囲で入力してください" };
+    }
+
+    // 月と日の妥当性チェック
+    if (month < 1 || month > 12 || day < 1 || day > 31) {
+      return { valid: false, message: "日付が無効です" };
+    }
+
+    // 実際の日付として有効かチェック
+    const date = new Date(year, month - 1, day);
+    if (
+      date.getFullYear() !== year ||
+      date.getMonth() !== month - 1 ||
+      date.getDate() !== day
+    ) {
+      return { valid: false, message: "日付が無効です" };
+    }
+
+    return { valid: true };
   }
 
   editTask(taskId) {
@@ -392,7 +490,7 @@ export class TaskManager {
 
   getFilteredTasks(filter) {
     const tasks = this.tasks.filter(
-      (task) => task.project === ProjectManager.currentProject
+      (task) => task.project === this.projectId
     );
     switch (filter) {
       case "todo":
@@ -505,7 +603,7 @@ export class TaskManager {
   }
 
   getAssigneeText(assigneeValue) {
-    const assignee = this.settings.users.find((u) => u.value === assigneeValue);
-    return assignee ? assignee.label : assigneeValue;
+    const assignee = this.projectUsers.find((u) => u.id === assigneeValue);
+    return assignee ? assignee.displayName : assigneeValue;
   }
 }

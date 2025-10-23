@@ -1,8 +1,9 @@
 // user-profile.js - 個人設定ページの機能
 import { Utils } from './utils.js';
 import { SimpleAuth } from './simple-auth.js';
+import { UserManager } from './user-manager.js';
 
-class UserProfileManager {
+export class UserProfileManager {
   constructor() {
     this.currentUser = null;
     this.init();
@@ -17,7 +18,7 @@ class UserProfileManager {
       }
 
       this.currentUser = SimpleAuth.getCurrentUser();
-      await this.loadUserData();
+      this.loadUserData();
       this.setupEventListeners();
       this.loadPersonalSettings();
       
@@ -27,29 +28,18 @@ class UserProfileManager {
     }
   }
 
-  async loadUserData() {
-    try {
-      // サーバーから最新のユーザー情報を取得
-      const response = await fetch('/api/user', {
-        headers: SimpleAuth.getAuthHeaders()
-      });
-
-      if (!response.ok) {
-        throw new Error('ユーザー情報の取得に失敗しました');
-      }
-
-      const userData = await response.json();
-      
-      // フォームに現在の値を設定
-      document.getElementById('loginId').value = userData.loginId || userData.id;
-      document.getElementById('displayName').value = userData.displayName || '';
-      document.getElementById('email').value = userData.email || '';
-      document.getElementById('currentRole').value = this.getRoleDisplayName(userData.role);
-
-    } catch (error) {
-      console.error('ユーザーデータ読み込みエラー:', error);
-      this.showError('ユーザー情報の読み込みに失敗しました');
+  loadUserData() {
+    const userData = UserManager.getUsers().find(u => u.id === this.currentUser);
+    if (!userData) {
+      this.showError("ユーザー情報を取得できませんでした");
+      return;
     }
+    
+    // フォームに現在の値を設定
+    document.getElementById('loginId').value = userData.loginId || userData.id;
+    document.getElementById('displayName').value = userData.displayName || '';
+    document.getElementById('email').value = userData.email || '';
+    document.getElementById('currentRole').value = this.getRoleDisplayName(userData.role);
   }
 
   setupEventListeners() {
@@ -106,30 +96,16 @@ class UserProfileManager {
       email: formData.get('email')
     };
 
-    try {
-      const response = await fetch('/api/user/profile', {
-        method: 'PUT',
-        headers: SimpleAuth.getAuthHeaders(),
-        body: JSON.stringify(profileData)
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'プロフィールの更新に失敗しました');
-      }
-
-      // 認証マネージャーのユーザー情報を更新
-      SimpleAuth.updateCurrentUser(profileData);
-      
-      this.showSuccess('プロフィールを更新しました');
-      
-      // ユーザーアイコンを更新
-      SimpleAuth.initUserIcon();
-
-    } catch (error) {
-      console.error('プロフィール更新エラー:', error);
-      this.showError(error.message);
+    if (!await UserManager.updateProfile(profileData)) {
+      this.showError("プロフィール更新に失敗しました");
+      return;
     }
+
+    // 認証マネージャーのユーザー情報を更新
+    SimpleAuth.updateCurrentUser(profileData);
+    this.showSuccess('プロフィールを更新しました');
+    // ユーザーアイコンを更新
+    SimpleAuth.initUserIcon();
   }
 
   async handlePasswordSubmit(event) {
@@ -154,31 +130,18 @@ class UserProfileManager {
       return;
     }
 
-    try {
-      const response = await fetch('/api/user/password', {
-        method: 'PUT',
-        headers: SimpleAuth.getAuthHeaders(),
-        body: JSON.stringify(passwordData)
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'パスワードの変更に失敗しました');
-      }
-
-      this.showSuccess('パスワードを変更しました');
-      
-      // フォームをクリア
-      event.target.reset();
-      
-      // パスワード強度表示をクリア
-      document.getElementById('passwordStrength').innerHTML = '';
-      document.getElementById('passwordMatch').innerHTML = '';
-
-    } catch (error) {
-      console.error('パスワード変更エラー:', error);
-      this.showError(error.message);
+    if (!await UserManager.updatePassword(passwordData)) {
+      this.showError("パスワード変更に失敗しました");
+      return;
     }
+    this.showSuccess('パスワードを変更しました');
+    
+    // フォームをクリア
+    event.target.reset();
+    
+    // パスワード強度表示をクリア
+    document.getElementById('passwordStrength').innerHTML = '';
+    document.getElementById('passwordMatch').innerHTML = '';
   }
 
   async handlePersonalSettingsSubmit(event) {
@@ -422,10 +385,3 @@ class UserProfileManager {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
-
-// ページ読み込み時に初期化
-document.addEventListener('DOMContentLoaded', () => {
-  window.userProfileManager = new UserProfileManager();
-});
-
-export { UserProfileManager };
