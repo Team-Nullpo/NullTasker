@@ -67,7 +67,7 @@ app.use(helmet({
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? ['https://yourdomain.com'] // 本番環境では特定ドメインのみ
-    : ['http://localhost:3000', 'http://127.0.0.1:3000'], // 開発環境
+    : ['http://localhost:5173', 'http://127.0.0.1:5173'], // 開発環境
   credentials: true
 }));
 
