@@ -12,7 +12,33 @@
       ],
       "createdAt": "2025-09-01T00:00:00.000Z",
       "lastLogin": "2025-10-23T07:25:26.537Z"
+    },
+    {
+      "id": "user_1761205978491_226",
+      "loginId": "win",
+      "displayName": "dows",
+      "email": "w@f.c",
+      "password": "$2b$10$ecBML6l.V9NAm4HX0SbvuuBs2J6zOK.7XMyOsdnx.Y8Wk/vELaMNe",
+      "role": "member",
+      "projects": [
+        "default"
+      ],
+      "createdAt": "2025-10-23T07:52:58.491Z",
+      "lastLogin": "2025-10-23T07:53:36.606Z"
+    },
+    {
+      "id": "user_1761205998596_99",
+      "loginId": "dows",
+      "displayName": "win",
+      "email": "r@f.c",
+      "password": "$2b$10$8tyzpCbHNg/da66dp6iSRuy5cBTTE7/yGCI5ksi0hDUYVpStvGBNS",
+      "role": "project_admin",
+      "projects": [
+        "default"
+      ],
+      "createdAt": "2025-10-23T07:53:18.596Z",
+      "lastLogin": "2025-10-23T07:55:40.687Z"
     }
   ],
-  "lastUpdated": "2025-10-23T07:25:26.537Z"
+  "lastUpdated": "2025-10-23T07:55:40.687Z"
 }
