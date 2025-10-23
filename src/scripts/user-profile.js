@@ -29,9 +29,10 @@ export class UserProfileManager {
   }
 
   loadUserData() {
-    const userData = UserManager.getUsers().find(u => u.id === this.currentUser);
+    const userData = UserManager.getUsers().find(u => u.id === this.currentUser.id);
     if (!userData) {
       this.showError("ユーザー情報を取得できませんでした");
+      console.log("ユーザーが見つかりませんでした");
       return;
     }
     
