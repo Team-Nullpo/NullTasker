@@ -7,6 +7,7 @@ export class SidebarManager {
     this.sidebar = null;
     this.toggleBtn = null;
     this.hideBtn = null;
+    this.bottombar = null;
     this.sidebarVisible = true;
     this.init();
   }
@@ -16,18 +17,21 @@ export class SidebarManager {
     this.initializeSidebar();
     this.setupEventListeners();
     this.initializeUserIcon();
+    this.initializeBottombar();
   }
 
   initializeElements() {
     this.sidebar = Utils.getElement('#sidebar');
     this.toggleBtn = Utils.getElement('#toggleSidebar'); // 修正: HTMLのIDに合わせる
     this.hideBtn = Utils.getElement('#hideSidebar'); // 修正: HTMLのIDに合わせる
+    this.bottombar = Utils.getElement('#bottom-navigation');
     
     // デバッグ用ログ
     Utils.debugLog('サイドバー要素:', {
       sidebar: !!this.sidebar,
       toggleBtn: !!this.toggleBtn,
-      hideBtn: !!this.hideBtn
+      hideBtn: !!this.hideBtn,
+      bottombar: !!this.bottombar
     });
   }
 
@@ -51,6 +55,29 @@ export class SidebarManager {
       
       this.applySidebarState();
     }
+  }
+
+  initializeBottombar() {
+    const { role } = SimpleAuth.getCurrentUser();
+    const barItems = [];
+    if (role === 'system_admin') {
+      barItems.push({
+        icon: 'fas fa-cogs', text: 'システム管理', href: 'admin.html'
+      })
+    } else if (role === 'project_admin') {
+      barItems.push(
+        { icon: 'fas fa-users', text: 'メンバー管理', href: 'admin.html?tab=members' }
+      );
+    }
+    barItems.forEach(item => {
+      const menuItem = document.createElement('a');
+      menuItem.setAttribute('href', item.href)
+      menuItem.className = 'nav-item';
+      menuItem.innerHTML = `<i class="${item.icon}"></i>
+      <span>${item.text}</span>`;
+      
+      this.bottombar.appendChild(menuItem);
+    })
   }
 
   applySidebarState() {
