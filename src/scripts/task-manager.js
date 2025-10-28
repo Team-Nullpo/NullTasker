@@ -35,6 +35,7 @@ export class TaskManager {
   loadSettings() {
     this.projectId = ProjectManager.getCurrentProjectId();
     this.settings = ProjectManager.getProjectSettings(this.projectId);
+    Utils.debugLog("プロジェクト設定:", this.settings);
   }
 
   loadUsers() {
@@ -61,7 +62,8 @@ export class TaskManager {
     // デバッグ用ログ
     Utils.debugLog("タスク要素:", {
       addBtn: !!elements.addBtn,
-      modal: !!elements.modal,
+      addBtnElement: elements.addBtn,
+      modals: elements.modals?.length || 0,
       form: !!elements.form,
       taskList: !!elements.taskList,
     });
@@ -91,13 +93,63 @@ export class TaskManager {
         this.filterTasks(e.target.value);
       });
     }
+
+    // 日付入力のバリデーション（Chrome対策）
+    this.setupDateInputValidation();
+  }
+
+  setupDateInputValidation() {
+    const startDateInput = Utils.getElement("#taskStartDate");
+    const dueDateInput = Utils.getElement("#taskDueDate");
+
+    // 入力完了時（フォーカスが外れた時）のみバリデーションを実行
+    if (startDateInput) {
+      startDateInput.addEventListener("blur", (e) => this.validateDateInput(e.target));
+    }
+
+    if (dueDateInput) {
+      dueDateInput.addEventListener("blur", (e) => this.validateDateInput(e.target));
+    }
+  }
+
+  validateDateInput(input) {
+    const value = input.value;
+    if (!value) {
+      input.setCustomValidity("");
+      return true;
+    }
+
+    // 日付フォーマットをチェック (YYYY-MM-DD)
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+    if (!datePattern.test(value)) {
+      input.setCustomValidity("日付形式が正しくありません（YYYY-MM-DD）");
+      Utils.showNotification("日付形式が正しくありません（YYYY-MM-DD）", "warning");
+      return false;
+    }
+
+    // 年が4桁であることを確認
+    const parts = value.split("-");
+    const year = parseInt(parts[0], 10);
+    
+    if (year < 1900 || year > 9999) {
+      input.setCustomValidity("年は1900から9999の範囲で入力してください");
+      Utils.showNotification("年は1900から9999の範囲で入力してください", "warning");
+      return false;
+    }
+
+    input.setCustomValidity("");
+    return true;
   }
 
   setupModalEvents(elements) {
     const { addBtn, modals, closeBtns, deleteTaskBtn } = elements;
 
+    Utils.debugLog("setupModalEvents - addBtn:", addBtn);
+
     if (addBtn) {
+      Utils.debugLog("タスク追加ボタンにイベントリスナーを設定します");
       addBtn.addEventListener("click", () => {
+        Utils.debugLog("タスク追加ボタンがクリックされました");
         this.resetEditState();
         const form = Utils.getElement("#taskForm");
         if (form) {
@@ -109,6 +161,8 @@ export class TaskManager {
         }
         this.openModal("#taskModal");
       });
+    } else {
+      console.error("タスク追加ボタン(#addTaskBtn)が見つかりません");
     }
 
     if (closeBtns)
@@ -161,21 +215,33 @@ export class TaskManager {
       });
     }
 
+    // settingsが存在しない場合は警告してスキップ
+    if (!this.settings) {
+      console.warn("プロジェクト設定が読み込まれていません");
+      return;
+    }
+
     const usernames = this.projectUsers.map(u => { return {
       value: u.id,
       label: u.displayName
     }});
+    
+    // settingsオブジェクトの構造を確認
+    const projectSettings = this.settings?.settings || this.settings;
+    
+    Utils.debugLog("projectSettings:", projectSettings);
+    
     const selectors = [
       { id: "#taskAssignee", options: usernames, hasValue: true },
-      { id: "#taskCategory", options: this.settings.settings.categories },
+      { id: "#taskCategory", options: projectSettings?.categories || [] },
       {
         id: "#taskPriority",
-        options: this.settings.settings.priorities,
+        options: projectSettings?.priorities || [],
         hasValue: true,
       },
       {
         id: "#taskStatus",
-        options: this.settings.settings.statuses,
+        options: projectSettings?.statuses || [],
         hasValue: true,
       },
     ];
@@ -285,6 +351,19 @@ export class TaskManager {
       return false;
     }
 
+    // 日付の形式と範囲をチェック
+    const startDateValidation = this.isValidDateFormat(payload.startDate);
+    if (!startDateValidation.valid) {
+      Utils.showNotification(startDateValidation.message, "warning");
+      return false;
+    }
+
+    const dueDateValidation = this.isValidDateFormat(payload.dueDate);
+    if (!dueDateValidation.valid) {
+      Utils.showNotification(dueDateValidation.message, "warning");
+      return false;
+    }
+
     if (!Utils.validateDates(payload.startDate, payload.dueDate)) {
       Utils.showNotification(
         "開始日は期日より前に設定してください。",
@@ -294,6 +373,45 @@ export class TaskManager {
     }
 
     return true;
+  }
+
+  isValidDateFormat(dateString) {
+    if (!dateString) {
+      return { valid: false, message: "日付を入力してください" };
+    }
+
+    // 日付フォーマットをチェック (YYYY-MM-DD)
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+    if (!datePattern.test(dateString)) {
+      return { valid: false, message: "日付形式が正しくありません（YYYY-MM-DD）" };
+    }
+
+    // 年が4桁で1900-9999の範囲内であることを確認
+    const parts = dateString.split("-");
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10);
+    const day = parseInt(parts[2], 10);
+
+    if (year < 1900 || year > 9999) {
+      return { valid: false, message: "年は1900から9999の範囲で入力してください" };
+    }
+
+    // 月と日の妥当性チェック
+    if (month < 1 || month > 12 || day < 1 || day > 31) {
+      return { valid: false, message: "日付が無効です" };
+    }
+
+    // 実際の日付として有効かチェック
+    const date = new Date(year, month - 1, day);
+    if (
+      date.getFullYear() !== year ||
+      date.getMonth() !== month - 1 ||
+      date.getDate() !== day
+    ) {
+      return { valid: false, message: "日付が無効です" };
+    }
+
+    return { valid: true };
   }
 
   editTask(taskId) {
