@@ -9,6 +9,7 @@ const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const { body, validationResult } = require('express-validator');
+const DatabaseManager = require('./db/database');
 const {
   VALIDATION,
   JWT_EXPIRY,
@@ -27,7 +28,18 @@ const PORT = process.env.PORT || 3000;
 const HTTPS_PORT = process.env.HTTPS_PORT || 3443;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const DEBUG_MODE = NODE_ENV === 'development';
-const USE_HTTPS = process.env.USE_HTTPS !== 'false'; // デフォルトでHTTPSを使用
+const USE_HTTPS = process.env.USE_HTTPS !== 'false';
+
+// データベース初期化
+const DB_PATH = path.join(__dirname, 'db', 'nulltasker.db');
+const db = new DatabaseManager(DB_PATH);
+
+// データベースが存在しない場合は初期化
+if (!fsSync.existsSync(DB_PATH)) {
+  console.log('データベースが見つかりません。初期化します...');
+  db.initializeSchema();
+  console.log('データベースを初期化しました');
+}
 
 // デバッグログ用のヘルパー関数
 const debugLog = (...args) => {
@@ -69,11 +81,10 @@ app.use(helmet({
   },
 }));
 
-// CORS設定を厳格化
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://yourdomain.com'] // 本番環境では特定ドメインのみ
-    : ['http://localhost:3000', 'http://127.0.0.1:3000'], // 開発環境
+    ? ['https://yourdomain.com']
+    : ['http://localhost:3000', 'http://127.0.0.1:3000', 'https://localhost:3443', 'https://127.0.0.1:3443'],
   credentials: true
 }));
 
@@ -109,7 +120,6 @@ const loginValidation = [
     .isLength({ min: VALIDATION.LOGIN_ID.MIN_LENGTH, max: VALIDATION.LOGIN_ID.MAX_LENGTH })
     .matches(VALIDATION.LOGIN_ID.PATTERN)
     .withMessage(VALIDATION.LOGIN_ID.ERROR_MESSAGE)
-  // ログイン時はパスワードの形式チェックを行わない（既存のハッシュと照合するだけ）
 ];
 
 const registerValidation = [
@@ -149,139 +159,40 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// ログインページは認証不要
-const publicRoutes = ['/login.html', '/api/login', '/api/validate-token'];
-const isPublicRoute = (path) => {
-  return publicRoutes.some(route => path.includes(route));
-};
-
-// 静的ファイルの配信を新しいフォルダ構造に対応
-// /src/パスでアクセスされるファイルをsrcディレクトリから配信
+// 静的ファイルの配信
 app.use('/src', express.static('src'));
-// ルートレベルでも静的ファイルにアクセス可能にする
 app.use('/scripts', express.static(path.join('src', 'scripts')));
 app.use('/styles', express.static(path.join('src', 'styles')));
 app.use('/assets', express.static(path.join('src', 'assets')));
 app.use('/config', express.static('config'));
 
-// ファイルパスを新しい構造に合わせて更新
-const TICKETS_FILE = path.join(__dirname, 'config', 'tickets.json');
-const SETTINGS_FILE = path.join(__dirname, 'config', 'settings.json');
-const USERS_FILE = path.join(__dirname, 'config', 'users.json');
-const PROJECTS_FILE = path.join(__dirname, 'config', 'projects.json');
-
-// ルートアクセス時にindex.htmlを返す（認証チェック付き）
+// ルートアクセス時にindex.htmlを返す
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'src', 'pages', 'index.html'));
 });
 
-// ログインページ
-app.get('/login.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'pages', 'login.html'));
+// ページルーティング
+const pages = ['login', 'register', 'index', 'task', 'calendar', 'gantt', 'setting', 'debug-storage'];
+pages.forEach(page => {
+  app.get(`/${page}`, (req, res) => {
+    res.sendFile(path.join(__dirname, 'src', 'pages', `${page}.html`));
+  });
+  app.get(`/${page}.html`, (req, res) => {
+    res.sendFile(path.join(__dirname, 'src', 'pages', `${page}.html`));
+  });
+  app.get(`/pages/${page}.html`, (req, res) => {
+    res.sendFile(path.join(__dirname, 'src', 'pages', `${page}.html`));
+  });
+  app.get(`/src/pages/${page}.html`, (req, res) => {
+    res.sendFile(path.join(__dirname, 'src', 'pages', `${page}.html`));
+  });
 });
 
-// ログインページ（別ルート）
-app.get('/src/pages/login.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'pages', 'login.html'));
-});
-
-// 登録ページ
-app.get('/register.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'pages', 'register.html'));
-});
-
-// index.htmlへの直接アクセスもサポート
-app.get('/index.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'pages', 'index.html'));
-});
-
-// /pages/index.html へのアクセス
-app.get('/pages/index.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'pages', 'index.html'));
-});
-
-// /src/pages/index.html へのアクセス
-app.get('/src/pages/index.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'pages', 'index.html'));
-});
-
-// 個別ページのルーティング（.htmlファイルへの直接アクセスもサポート）
-app.get('/task', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'pages', 'task.html'));
-});
-
-app.get('/task.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'pages', 'task.html'));
-});
-
-app.get('/src/pages/task.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'pages', 'task.html'));
-});
-
-app.get('/calendar', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'pages', 'calendar.html'));
-});
-
-app.get('/calendar.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'pages', 'calendar.html'));
-});
-
-app.get('/src/pages/calendar.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'pages', 'calendar.html'));
-});
-
-app.get('/gantt', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'pages', 'gantt.html'));
-});
-
-app.get('/gantt.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'pages', 'gantt.html'));
-});
-
-app.get('/src/pages/gantt.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'pages', 'gantt.html'));
-});
-
-app.get('/setting', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'pages', 'setting.html'));
-});
-
-app.get('/setting.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'pages', 'setting.html'));
-});
-
-app.get('/src/pages/setting.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'pages', 'setting.html'));
-});
-
-app.get('/user-profile', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'pages', 'user-profile.html'));
-});
-
-app.get('/user-profile.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'pages', 'user-profile.html'));
-});
-
-app.get('/src/pages/user-profile.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'pages', 'user-profile.html'));
-});
-
-app.get('/debug-storage', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'pages', 'debug-storage.html'));
-});
-
-app.get('/debug-storage.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'pages', 'debug-storage.html'));
-});
-
-app.get('/src/pages/debug-storage.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'pages', 'debug-storage.html'));
-});
+// ========== 認証API ==========
 
 // ユーザー登録
 app.post('/api/register', registerValidation, async (req, res) => {
   try {
-    // バリデーションエラーチェック
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
@@ -293,19 +204,11 @@ app.post('/api/register', registerValidation, async (req, res) => {
 
     const { loginId, displayName, email, password } = req.body;
 
-    // ユーザーデータを読み込み
-    const userData = await fs.readFile(USERS_FILE, 'utf8');
-    const users = JSON.parse(userData);
-
-    // プロジェクトデータの読み込み
-    const projectData = await fs.readFile(PROJECTS_FILE, 'utf8');
-    const projects = JSON.parse(projectData);
-
     // 既存ユーザーチェック
-    const existingUser = users.users.find(u => 
-      u.loginId === loginId || u.email === email
-    );
-    if (existingUser) {
+    const existingUserByLogin = db.getUserByLoginId(loginId);
+    const existingUserByEmail = email ? db.getUserByEmail(email) : null;
+    
+    if (existingUserByLogin || existingUserByEmail) {
       return res.status(409).json({ 
         success: false, 
         message: '既に登録済みのログインIDまたはメールアドレスです' 
@@ -315,38 +218,28 @@ app.post('/api/register', registerValidation, async (req, res) => {
     // パスワードをハッシュ化
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 新しいユーザーを追加
+    // 新しいユーザーを作成
     const newUser = {
       id: generateId('user'),
       loginId: loginId,
-      displayName: displayName,
-      email: email,
+      displayName: displayName || loginId,
+      email: email || `${loginId}@example.com`,
       password: hashedPassword,
-      role: "user",  // デフォルトは一般ユーザー
-      projects: ["default"],  // デフォルトプロジェクトに自動参加
+      role: "user",
       createdAt: new Date().toISOString(),
       lastLogin: null
     };
 
-    users.users.push(newUser);
+    db.createUser(newUser);
     
     // デフォルトプロジェクトのメンバーに追加
-    const defaultProject = projects.projects.find(p => p.id === "default");
+    const defaultProject = db.getProjectById("default");
     if (defaultProject) {
-      if (!defaultProject.members.includes(newUser.id)) {
-        defaultProject.members.push(newUser.id);
-        defaultProject.lastUpdated = new Date().toISOString();
-      }
+      db.addProjectMember("default", newUser.id, false);
     }
-    
-    users.lastUpdated = new Date().toISOString();
-    projects.lastUpdated = new Date().toISOString;
 
-    // ファイルに保存
-    await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
-    await fs.writeFile(PROJECTS_FILE, JSON.stringify(projects, null, 2), 'utf8');
-
-    res.status(201).json(newUser);
+    const { password: _, ...userWithoutPassword } = newUser;
+    res.status(201).json(userWithoutPassword);
 
   } catch (error) {
     console.error('ユーザー登録エラー:', error);
@@ -360,7 +253,6 @@ app.post('/api/register', registerValidation, async (req, res) => {
 // ログイン
 app.post('/api/login', loginValidation, async (req, res) => {
   try {
-    // バリデーションエラーチェック
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
@@ -379,12 +271,8 @@ app.post('/api/login', loginValidation, async (req, res) => {
       });
     }
 
-    // ユーザーデータを読み込み
-    const userData = await fs.readFile(USERS_FILE, 'utf8');
-    const users = JSON.parse(userData);
-
     // ユーザーを検索
-    const user = users.users.find(u => u.id === loginId || u.loginId === loginId);
+    const user = db.getUserByLoginId(loginId) || db.getUserById(loginId);
     if (!user) {
       return res.status(401).json({ 
         success: false, 
@@ -392,7 +280,7 @@ app.post('/api/login', loginValidation, async (req, res) => {
       });
     }
 
-    // パスワード確認（bcryptでハッシュ化されたパスワードを確認）
+    // パスワード確認
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
       return res.status(401).json({ 
@@ -401,21 +289,24 @@ app.post('/api/login', loginValidation, async (req, res) => {
       });
     }
 
-    // JWTトークンを生成（有効期間を1時間に延長）
+    // ユーザーのプロジェクト一覧を取得
+    const projects = db.getProjectsByUserId(user.id);
+    const projectIds = projects.map(p => p.id);
+
+    // JWTトークンを生成
     const accessToken = jwt.sign(
       { 
         id: user.id,
-        loginId: user.loginId || user.id, 
-        displayName: user.displayName, 
+        loginId: user.login_id,
+        displayName: user.display_name,
         email: user.email,
-        role: user.role || 'user',
-        projects: user.projects || ['default']
+        role: user.role,
+        projects: projectIds
       },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRY.ACCESS_TOKEN }
     );
 
-    // リフレッシュトークンを生成
     const refreshToken = jwt.sign(
       { id: user.id, type: 'refresh' },
       JWT_SECRET,
@@ -423,9 +314,7 @@ app.post('/api/login', loginValidation, async (req, res) => {
     );
 
     // 最終ログイン時間を更新
-    user.lastLogin = new Date().toISOString();
-    users.lastUpdated = new Date().toISOString();
-    await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
+    db.updateUser(user.id, { lastLogin: new Date().toISOString() });
 
     // パスワードを除外したユーザー情報を返す
     const { password: _, ...userWithoutPassword } = user;
@@ -434,7 +323,12 @@ app.post('/api/login', loginValidation, async (req, res) => {
       success: true,
       token: accessToken,
       refreshToken: refreshToken,
-      user: userWithoutPassword,
+      user: {
+        ...userWithoutPassword,
+        loginId: user.login_id,
+        displayName: user.display_name,
+        projects: projectIds
+      },
       message: 'ログインに成功しました'
     });
 
@@ -447,7 +341,7 @@ app.post('/api/login', loginValidation, async (req, res) => {
   }
 });
 
-// トークン検証エンドポイント
+// トークン検証
 app.post('/api/verify-token', (req, res) => {
   try {
     const authHeader = req.headers.authorization;
@@ -496,7 +390,6 @@ app.post('/api/refresh', async (req, res) => {
       });
     }
 
-    // リフレッシュトークンの検証
     const decoded = jwt.verify(refreshToken, JWT_SECRET);
     
     if (decoded.type !== 'refresh') {
@@ -506,10 +399,7 @@ app.post('/api/refresh', async (req, res) => {
       });
     }
 
-    // ユーザー情報を取得
-    const userData = await fs.readFile(USERS_FILE, 'utf8');
-    const users = JSON.parse(userData);
-    const user = users.users.find(u => u.id === decoded.id);
+    const user = db.getUserById(decoded.id);
     
     if (!user) {
       return res.status(404).json({
@@ -518,15 +408,17 @@ app.post('/api/refresh', async (req, res) => {
       });
     }
 
-    // 新しいアクセストークンを発行
+    const projects = db.getProjectsByUserId(user.id);
+    const projectIds = projects.map(p => p.id);
+
     const newAccessToken = jwt.sign(
       { 
         id: user.id,
-        loginId: user.loginId || user.id,
-        displayName: user.displayName, 
+        loginId: user.login_id,
+        displayName: user.display_name,
         email: user.email,
-        role: user.role || 'user',
-        projects: user.projects || ['default']
+        role: user.role,
+        projects: projectIds
       },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRY.ACCESS_TOKEN }
@@ -552,24 +444,25 @@ app.post('/api/validate-token', authenticateToken, (req, res) => {
 
 // ログアウト
 app.post('/api/logout', authenticateToken, (req, res) => {
-  // JWTはステートレスなので、クライアント側でトークンを削除するだけ
   res.json({ success: true, message: 'ログアウトしました' });
 });
+
+// ========== ユーザーAPI ==========
 
 // ユーザー情報取得
 app.get('/api/user', authenticateToken, async (req, res) => {
   try {
-    const userData = await fs.readFile(USERS_FILE, 'utf8');
-    const data = JSON.parse(userData);
-    
-    const user = data.users.find(u => u.id === req.user.id);
+    const user = db.getUserById(req.user.id);
     if (!user) {
       return res.status(404).json({ error: 'ユーザーが見つかりません' });
     }
 
-    // パスワードを除外して返す
     const { password: _, ...userWithoutPassword } = user;
-    res.json(userWithoutPassword);
+    res.json({
+      ...userWithoutPassword,
+      loginId: user.login_id,
+      displayName: user.display_name
+    });
 
   } catch (error) {
     console.error('ユーザー情報取得エラー:', error);
@@ -586,37 +479,22 @@ app.put('/api/user/profile', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: '表示名とメールアドレスは必須です' });
     }
 
-    const userData = await fs.readFile(USERS_FILE, 'utf8');
-    const data = JSON.parse(userData);
-    
-    const userIndex = data.users.findIndex(u => u.id === req.user.id);
-    if (userIndex === -1) {
-      return res.status(404).json({ error: 'ユーザーが見つかりません' });
-    }
-
     // メールアドレスの重複チェック
-    const emailExists = data.users.some((u, index) => 
-      u.email === email && index !== userIndex
-    );
-    
-    if (emailExists) {
+    const existingUser = db.getUserByEmail(email);
+    if (existingUser && existingUser.id !== req.user.id) {
       return res.status(409).json({ error: 'このメールアドレスは既に使用されています' });
     }
 
-    const newUser = {
-      ...data.users[userIndex],
-      displayName: displayName,
-      email: email,
-      lastUpdated: new Date().toISOString()
-    }
-
-    // プロフィール更新
-    data.users[userIndex] = newUser;
-
-    await fs.writeFile(USERS_FILE, JSON.stringify(data, null, 2));
+    db.updateUser(req.user.id, { displayName, email });
     
-    const { password: _, ...userWithoutPassword } = newUser;
-    res.status(200).json(userWithoutPassword);
+    const user = db.getUserById(req.user.id);
+    const { password: _, ...userWithoutPassword } = user;
+    
+    res.status(200).json({
+      ...userWithoutPassword,
+      loginId: user.login_id,
+      displayName: user.display_name
+    });
 
   } catch (error) {
     console.error('プロフィール更新エラー:', error);
@@ -633,10 +511,7 @@ app.put('/api/user/password', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: '現在のパスワードと新しいパスワードは必須です' });
     }
 
-    const userData = await fs.readFile(USERS_FILE, 'utf8');
-    const data = JSON.parse(userData);
-    
-    const user = data.users.find(u => u.id === req.user.id);
+    const user = db.getUserById(req.user.id);
     if (!user) {
       return res.status(404).json({ error: 'ユーザーが見つかりません' });
     }
@@ -650,12 +525,7 @@ app.put('/api/user/password', authenticateToken, async (req, res) => {
     // 新しいパスワードをハッシュ化
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
     
-    // パスワード更新
-    const userIndex = data.users.findIndex(u => u.id === req.user.id);
-    data.users[userIndex].password = hashedNewPassword;
-    data.lastUpdated = new Date().toISOString();
-
-    await fs.writeFile(USERS_FILE, JSON.stringify(data, null, 2));
+    db.updateUser(req.user.id, { password: hashedNewPassword });
     res.status(204).end();
 
   } catch (error) {
@@ -667,19 +537,15 @@ app.put('/api/user/password', authenticateToken, async (req, res) => {
 // 個人設定保存
 app.put('/api/user/settings', authenticateToken, async (req, res) => {
   try {
-    // 個人設定はクライアントサイドでローカルストレージに保存されるため、
-    // サーバーサイドでは成功レスポンスのみ返す
     res.json({ success: true, message: '個人設定を保存しました' });
-
   } catch (error) {
     console.error('個人設定保存エラー:', error);
     res.status(500).json({ error: '個人設定の保存に失敗しました' });
   }
 });
 
-// === システム管理者専用API ===
+// ========== システム管理者API ==========
 
-// システム管理者権限チェックミドルウェア
 const requireSystemAdmin = (req, res, next) => {
   if (!req.user || req.user.role !== 'system_admin') {
     return res.status(403).json({ error: 'システム管理者権限が必要です' });
@@ -690,15 +556,16 @@ const requireSystemAdmin = (req, res, next) => {
 // 全ユーザーデータ取得
 app.get('/api/admin/users', authenticateToken, requireSystemAdmin, async (req, res) => {
   try {
-    const userData = await fs.readFile(USERS_FILE, 'utf8');
-    const users = JSON.parse(userData);
-    const projectData = await fs.readFile(PROJECTS_FILE, 'utf8');
-    const projects = JSON.parse(projectData);
-    
-    // パスワードを除外
-    const usersWithoutPasswords = users.users.map(user => {
+    const users = db.getAllUsers();
+    const usersWithoutPasswords = users.map(user => {
       const { password, ...userWithoutPassword } = user;
-      return userWithoutPassword;
+      const userProjects = db.getProjectsByUserId(user.id);
+      return {
+        ...userWithoutPassword,
+        loginId: user.login_id,
+        displayName: user.display_name,
+        projects: userProjects.map(p => p.id)
+      };
     });
 
     res.status(200).json(usersWithoutPasswords);
@@ -718,22 +585,16 @@ app.post('/api/admin/users', authenticateToken, requireSystemAdmin, async (req, 
       return res.status(400).json({ error: '必須項目が不足しています' });
     }
 
-    const userData = await fs.readFile(USERS_FILE, 'utf8');
-    const data = JSON.parse(userData);
-    
     // 重複チェック
-    const existingUser = data.users.find(u => 
-      u.loginId === loginId || u.email === email
-    );
+    const existingUserByLogin = db.getUserByLoginId(loginId);
+    const existingUserByEmail = db.getUserByEmail(email);
     
-    if (existingUser) {
+    if (existingUserByLogin || existingUserByEmail) {
       return res.status(409).json({ error: 'ログインIDまたはメールアドレスが既に使用されています' });
     }
 
-    // パスワードハッシュ化
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // 新ユーザー作成
     const newUser = {
       id: generateId('user'),
       loginId: loginId,
@@ -741,17 +602,18 @@ app.post('/api/admin/users', authenticateToken, requireSystemAdmin, async (req, 
       email: email,
       password: hashedPassword,
       role: role,
-      projects: ['default'],
       createdAt: new Date().toISOString(),
       lastLogin: null
     };
 
-    data.users.push(newUser);
-    data.lastUpdated = new Date().toISOString();
-
-    await fs.writeFile(USERS_FILE, JSON.stringify(data, null, 2));
+    db.createUser(newUser);
+    db.addProjectMember('default', newUser.id, false);
     
-    res.status(201).location(`/api/admin/users/${newUser.id}`).json(newUser);
+    const { password: _, ...userWithoutPassword } = newUser;
+    res.status(201).location(`/api/admin/users/${newUser.id}`).json({
+      ...userWithoutPassword,
+      projects: ['default']
+    });
 
   } catch (error) {
     console.error('ユーザー作成エラー:', error);
@@ -769,46 +631,33 @@ app.put('/api/admin/users/:userId', authenticateToken, requireSystemAdmin, async
       return res.status(400).json({ error: '必須項目が不足しています' });
     }
 
-    const userData = await fs.readFile(USERS_FILE, 'utf8');
-    const data = JSON.parse(userData);
-    
-    const userIndex = data.users.findIndex(u => u.id === userId);
-    if (userIndex === -1) {
+    const user = db.getUserById(userId);
+    if (!user) {
       return res.status(404).json({ error: 'ユーザーが見つかりません' });
     }
 
     // メールアドレスの重複チェック
-    const emailExists = data.users.some((u, index) => 
-      u.email === email && index !== userIndex
-    );
-    
-    if (emailExists) {
+    const existingUser = db.getUserByEmail(email);
+    if (existingUser && existingUser.id !== userId) {
       return res.status(409).json({ error: 'このメールアドレスは既に使用されています' });
     }
 
-    const newUser = {
-      ...data.users[userIndex],
-      displayName: displayName,
-      email: email,
-      role: role,
-      lastUpdated: new Date().toISOString()
-    }
+    const updates = { displayName, email, role };
     
-    // パスワードが指定されている場合のみ更新
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
-      newUser.password = hashedPassword;
+      updates.password = hashedPassword;
     }
 
-    // プロフィール更新
-    data.users[userIndex] = newUser;
-
-    data.lastUpdated = new Date().toISOString();
-
-    await fs.writeFile(USERS_FILE, JSON.stringify(data, null, 2));
+    db.updateUser(userId, updates);
     
-    const { password: _, ...userWithoutPassword } = newUser;
-    res.status(200).json(userWithoutPassword);
+    const updatedUser = db.getUserById(userId);
+    const { password: _, ...userWithoutPassword } = updatedUser;
+    res.status(200).json({
+      ...userWithoutPassword,
+      loginId: updatedUser.login_id,
+      displayName: updatedUser.display_name
+    });
 
   } catch (error) {
     console.error('ユーザー更新エラー:', error);
@@ -821,25 +670,16 @@ app.delete('/api/admin/users/:userId', authenticateToken, requireSystemAdmin, as
   try {
     const { userId } = req.params;
     
-    // 自分自身は削除できない
     if (userId === req.user.id) {
       return res.status(400).json({ error: '自分自身を削除することはできません' });
     }
 
-    const userData = await fs.readFile(USERS_FILE, 'utf8');
-    const data = JSON.parse(userData);
-    
-    const userIndex = data.users.findIndex(u => u.id === userId);
-    if (userIndex === -1) {
+    const user = db.getUserById(userId);
+    if (!user) {
       return res.status(404).json({ error: 'ユーザーが見つかりません' });
     }
 
-    // ユーザー削除
-    data.users.splice(userIndex, 1);
-    data.lastUpdated = new Date().toISOString();
-
-    await fs.writeFile(USERS_FILE, JSON.stringify(data, null, 2));
-    
+    db.deleteUser(userId);
     res.status(204).end();
 
   } catch (error) {
@@ -851,12 +691,24 @@ app.delete('/api/admin/users/:userId', authenticateToken, requireSystemAdmin, as
 // 全プロジェクトデータ取得
 app.get('/api/admin/projects', authenticateToken, requireSystemAdmin, async (req, res) => {
   try {
-      const data = await fs.readFile(PROJECTS_FILE, 'utf8');
-      const projects = JSON.parse(data);
-      res.status(200).json(projects.projects);
+    const projects = db.getAllProjects();
+    
+    // 各プロジェクトにメンバーと管理者情報を追加
+    const projectsWithMembers = projects.map(project => {
+      const members = db.getProjectMembers(project.id).map(m => m.id);
+      const admins = db.getProjectAdmins(project.id);
+      
+      return {
+        ...project,
+        members,
+        admins
+      };
+    });
+    
+    res.status(200).json(projectsWithMembers);
   } catch (error) {
-      console.error('プロジェクトデータの取得に失敗: ', error);
-      res.status(500).json({ error: 'プロジェクトデータ取得に失敗しました'});
+    console.error('プロジェクトデータの取得に失敗: ', error);
+    res.status(500).json({ error: 'プロジェクトデータ取得に失敗しました'});
   }
 });
 
@@ -869,25 +721,16 @@ app.post('/api/admin/projects', authenticateToken, requireSystemAdmin, async (re
       return res.status(400).json({ error: '必須項目が不足しています' });
     }
 
-    const userData = await fs.readFile(USERS_FILE, 'utf8');
-    const users = JSON.parse(userData);
-    const projectData = await fs.readFile(PROJECTS_FILE, 'utf8');
-    const projects = JSON.parse(projectData);
-
-    // オーナーの存在チェック
-    const ownerUser = users.users.find(u => u.id === owner);
+    const ownerUser = db.getUserById(owner);
     if (!ownerUser) {
       return res.status(400).json({ error: '指定されたオーナーが存在しません' });
     }
 
-    // 新プロジェクト作成
     const newProject = {
       id: generateId("project"),
       name: name,
       description: description || '',
       owner: owner,
-      members: [owner],
-      admins: [owner],
       settings: {
         categories: DEFAULT_SETTINGS.categories,
         priorities: getPrioritiesArray(),
@@ -899,30 +742,14 @@ app.post('/api/admin/projects', authenticateToken, requireSystemAdmin, async (re
       lastUpdated: new Date().toISOString()
     };
 
-    if (!projects.projects) {
-      projects.projects = [];
-    }
+    db.createProject(newProject);
+    db.addProjectMember(newProject.id, owner, true);
     
-    projects.projects.push(newProject);
-    
-    // オーナーのプロジェクトリストに追加
-    const ownerIndex = users.users.findIndex(u => u.id === owner);
-    if (ownerIndex !== -1) {
-      if (!users.users[ownerIndex].projects) {
-        users.users[ownerIndex].projects = [];
-      }
-      if (!users.users[ownerIndex].projects.includes(newProject.id)) {
-        users.users[ownerIndex].projects.push(newProject.id);
-      }
-    }
-
-    users.lastUpdated = new Date().toISOString();
-    projects.lastUpdated = new Date().toISOString();
-
-    await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2));
-    await fs.writeFile(PROJECTS_FILE, JSON.stringify(projects, null, 2));
-    
-    res.status(201).location(`/api/projects/${newProject.id}`).json(newProject);
+    res.status(201).location(`/api/projects/${newProject.id}`).json({
+      ...newProject,
+      members: [owner],
+      admins: [owner]
+    });
 
   } catch (error) {
     console.error('プロジェクト作成エラー:', error);
@@ -940,38 +767,32 @@ app.put('/api/admin/projects/:projectId', authenticateToken, requireSystemAdmin,
       return res.status(400).json({ error: '必須項目が不足しています' });
     }
 
-    const userData = await fs.readFile(USERS_FILE, 'utf8');
-    const users = JSON.parse(userData);
-    const projectData = await fs.readFile(PROJECTS_FILE, 'utf8');
-    const projects = JSON.parse(projectData);
-    
-    
-    const projectIndex = projects.projects?.findIndex(p => p.id === projectId);
-    if (projectIndex === -1 || !projects.projects) {
+    const project = db.getProjectById(projectId);
+    if (!project) {
       return res.status(404).json({ error: 'プロジェクトが見つかりません' });
     }
 
-    // オーナーの存在チェック
-    const ownerUser = users.users.find(u => u.id === owner);
+    const ownerUser = db.getUserById(owner);
     if (!ownerUser) {
       return res.status(400).json({ error: '指定されたオーナーが存在しません' });
     }
 
-    // プロジェクト更新
-    const newProject = {
-      ...projects.projects[projectIndex],
-      name: name,
-      description: description || "",
-      owner: owner,
-      updatedAt: new Date().toISOString(),
-    };
-    projects.projects[projectIndex] = newProject;
-
-    projects.lastUpdated = new Date().toISOString();
-
-    await fs.writeFile(PROJECTS_FILE, JSON.stringify(projects, null, 2));    
+    db.updateProject(projectId, {
+      name,
+      description: description || '',
+      owner,
+      lastUpdated: new Date().toISOString()
+    });
     
-    res.status(200).json(newProject);
+    const updatedProject = db.getProjectById(projectId);
+    const members = db.getProjectMembers(projectId).map(m => m.id);
+    const admins = db.getProjectAdmins(projectId);
+    
+    res.status(200).json({
+      ...updatedProject,
+      members,
+      admins
+    });
 
   } catch (error) {
     console.error('プロジェクト更新エラー:', error);
@@ -984,37 +805,16 @@ app.delete('/api/admin/projects/:projectId', authenticateToken, requireSystemAdm
   try {
     const { projectId } = req.params;
     
-    // デフォルトプロジェクトは削除できない
     if (projectId === 'default') {
       return res.status(400).json({ error: 'デフォルトプロジェクトは削除できません' });
     }
 
-    const userData = await fs.readFile(USERS_FILE, 'utf8');
-    const users = JSON.parse(userData);
-    const projectData = await fs.readFile(PROJECTS_FILE, 'utf8');
-    const projects = JSON.parse(projectData);
-    
-    const projectIndex = projects.projects?.findIndex(p => p.id === projectId);
-    if (projectIndex === -1 || !projects.projects) {
+    const project = db.getProjectById(projectId);
+    if (!project) {
       return res.status(404).json({ error: 'プロジェクトが見つかりません' });
     }
 
-    // プロジェクト削除
-    projects.projects.splice(projectIndex, 1);
-    
-    // 全ユーザーのプロジェクトリストから削除
-    users.users.forEach(user => {
-      if (user.projects) {
-        user.projects = user.projects.filter(p => p !== projectId);
-      }
-    });
-
-    users.lastUpdated = new Date().toISOString();
-    projects.lastUpdated = new Date().toISOString();
-
-    await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2));
-    await fs.writeFile(PROJECTS_FILE, JSON.stringify(projects, null, 2));
-
+    db.deleteProject(projectId);
     res.status(204).end();
 
   } catch (error) {
@@ -1026,11 +826,7 @@ app.delete('/api/admin/projects/:projectId', authenticateToken, requireSystemAdm
 // システム設定保存
 app.put('/api/admin/system-settings', authenticateToken, requireSystemAdmin, async (req, res) => {
   try {
-    const settingsData = req.body;
-    
-    // システム設定を保存（今後実装）
     res.json({ success: true, message: 'システム設定を保存しました' });
-
   } catch (error) {
     console.error('システム設定保存エラー:', error);
     res.status(500).json({ error: 'システム設定の保存に失敗しました' });
@@ -1041,33 +837,17 @@ app.put('/api/admin/system-settings', authenticateToken, requireSystemAdmin, asy
 app.post('/api/admin/backup', authenticateToken, requireSystemAdmin, async (req, res) => {
   try {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const backupDir = path.join(__dirname, 'config', 'backups');
+    const backupDir = path.join(__dirname, 'db', 'backups');
     
     await fs.mkdir(backupDir, { recursive: true });
     
-    // 全データのバックアップ
-    const userData = await fs.readFile(USERS_FILE, 'utf8');
-    const tasksData = await fs.readFile(TICKETS_FILE, 'utf8');
-    const settingsData = await fs.readFile(SETTINGS_FILE, 'utf8');
-    const projectsData = await fs.readFile(PROJECTS_FILE, 'utf8');
-    
-    const backupData = {
-      users: JSON.parse(userData),
-      tasks: JSON.parse(tasksData),
-      settings: JSON.parse(settingsData),
-      projects: JSON.parse(projectsData),
-      backupDate: new Date().toISOString()
-    };
-    
-    const backupFileName = `backup-${timestamp}.json`;
-    const backupPath = path.join(backupDir, backupFileName);
-    
-    await fs.writeFile(backupPath, JSON.stringify(backupData, null, 2));
+    const backupPath = path.join(backupDir, `backup-${timestamp}.db`);
+    fsSync.copyFileSync(DB_PATH, backupPath);
     
     res.json({ 
       success: true, 
       message: 'バックアップを作成しました',
-      filename: backupFileName
+      filename: `backup-${timestamp}.db`
     });
 
   } catch (error) {
@@ -1079,14 +859,18 @@ app.post('/api/admin/backup', authenticateToken, requireSystemAdmin, async (req,
 // データバックアップダウンロード
 app.get('/api/admin/backup/download/data', authenticateToken, requireSystemAdmin, async (req, res) => {
   try {
-    const userData = await fs.readFile(USERS_FILE, 'utf8');
-    const tasksData = await fs.readFile(TICKETS_FILE, 'utf8');
-    const projectsData = await fs.readFile(PROJECTS_FILE, 'utf8');
+    const users = db.getAllUsers().map(u => {
+      const { password, ...userWithoutPassword } = u;
+      return userWithoutPassword;
+    });
+    
+    const tasks = db.getAllTasks();
+    const projects = db.getAllProjects();
     
     const backupData = {
-      users: JSON.parse(userData),
-      tasks: JSON.parse(tasksData),
-      projects: JSON.parse(projectsData),
+      users,
+      tasks,
+      projects,
       exportDate: new Date().toISOString()
     };
     
@@ -1103,10 +887,10 @@ app.get('/api/admin/backup/download/data', authenticateToken, requireSystemAdmin
 // 設定バックアップダウンロード
 app.get('/api/admin/backup/download/settings', authenticateToken, requireSystemAdmin, async (req, res) => {
   try {
-    const settingsData = await fs.readFile(SETTINGS_FILE, 'utf8');
+    const settings = db.getAllSettings();
     
     const backupData = {
-      settings: JSON.parse(settingsData),
+      settings,
       exportDate: new Date().toISOString()
     };
     
@@ -1123,20 +907,18 @@ app.get('/api/admin/backup/download/settings', authenticateToken, requireSystemA
 // データ復元
 app.post('/api/admin/restore', authenticateToken, requireSystemAdmin, async (req, res) => {
   try {
-    // マルチパートデータの処理は今後実装
     res.json({ success: true, message: 'データ復元機能は今後実装予定です' });
-
   } catch (error) {
     console.error('データ復元エラー:', error);
     res.status(500).json({ error: 'データの復元に失敗しました' });
   }
 });
 
-// 設定データを取得
+// ========== 設定API ==========
+
 app.get('/api/settings', authenticateToken, async (req, res) => {
   try {
-    const data = await fs.readFile(SETTINGS_FILE, 'utf8');
-    const settings = JSON.parse(data);
+    const settings = db.getAllSettings();
     res.json(settings);
   } catch (error) {
     console.error('設定読み込みエラー:', error);
@@ -1144,36 +926,22 @@ app.get('/api/settings', authenticateToken, async (req, res) => {
   }
 });
 
-// タスクデータを取得
+// ========== タスクAPI ==========
+
 app.get('/api/tasks', authenticateToken, async (req, res) => {
   try {
     debugLog('タスク取得リクエスト受信:', req.user?.id);
     
-    const data = await fs.readFile(TICKETS_FILE, 'utf8');
+    const tasks = db.getAllTasks();
     
-    // 空ファイルチェック
-    if (!data || data.trim() === '') {
-      console.warn('tickets.jsonが空です。空のタスク配列を返します。');
-      return res.json({ tasks: [], lastUpdated: new Date().toISOString() });
-    }
+    // ユーザーが所属するプロジェクトのタスクのみフィルタ
+    const userProjects = req.user.projects || [];
+    const filteredTasks = tasks.filter(task => userProjects.includes(task.project));
     
-    const tickets = JSON.parse(data);
-    
-    // データ構造の検証
-    if (!tickets.tasks || !Array.isArray(tickets.tasks)) {
-      console.warn('無効なデータ構造。修正して返します。');
-      return res.json({ tasks: [], lastUpdated: tickets.lastUpdated || new Date().toISOString() });
-    }
-    
-    debugLog('タスク取得成功:', tickets.tasks.length, '件');
-    res.json(tickets);
+    debugLog('タスク取得成功:', filteredTasks.length, '件');
+    res.json({ tasks: filteredTasks, lastUpdated: new Date().toISOString() });
   } catch (error) {
     console.error('タスク読み込みエラー:', error.message);
-    // JSONパースエラーの場合は空のデータを返す
-    if (error instanceof SyntaxError) {
-      console.error('JSON解析エラー。空のタスク配列を返します。');
-      return res.json({ tasks: [], lastUpdated: new Date().toISOString() });
-    }
     res.status(500).json({ 
       success: false,
       error: 'タスクの読み込みに失敗しました'
@@ -1181,41 +949,41 @@ app.get('/api/tasks', authenticateToken, async (req, res) => {
   }
 });
 
-// タスクデータを追加
 app.post('/api/tasks', authenticateToken, async (req, res) => {
   try {
     const payload = req.body;
 
-    const data = await fs.readFile(TICKETS_FILE, 'utf8');
-    const tickets = JSON.parse(data);
-
-    const existingProject = tickets.tasks?.find(task => task.title === payload.title && task.project === payload.project);
-    if (existingProject) {
+    // 同名チェック
+    const existingTasks = db.getTasksByProject(payload.project);
+    const duplicate = existingTasks.find(task => task.title === payload.title);
+    
+    if (duplicate) {
       return res.status(409).json({ error: '同名のタスクが存在します' });
     }
 
     const newTask = {
       id: generateId("task"),
-      ...payload,
+      project: payload.project || 'default',
+      title: payload.title,
+      description: payload.description || null,
+      assignee: payload.assignee || null,
+      category: payload.category || null,
+      priority: payload.priority || null,
+      status: payload.status || 'todo',
+      progress: payload.progress || 0,
+      startDate: payload.startDate || null,
+      dueDate: payload.dueDate || null,
+      estimatedHours: payload.estimatedHours || null,
+      actualHours: payload.actualHours || null,
+      tags: payload.tags || [],
+      parentTask: payload.parentTask || null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
 
-    if (!tickets.tasks) {
-      tickets.tasks = [];
-    }
-
-    tickets.tasks.push(newTask);
-    tickets.lastUpdated = new Date().toISOString();
-
-    // ファイルに書き込み
-    await fs.writeFile(TICKETS_FILE, JSON.stringify(tickets, null, 2), 'utf8');
+    db.createTask(newTask);
     
-    debugLog('タスクが正常に保存されました:', {
-      count: tickets.tasks.length,
-      time: new Date().toISOString()
-    });
-    
+    debugLog('タスクが正常に保存されました:', newTask.id);
     res.status(201).location(`/api/tasks/${newTask.id}`).json(newTask);
     
   } catch (error) {
@@ -1227,76 +995,58 @@ app.post('/api/tasks', authenticateToken, async (req, res) => {
   }
 });
 
-// タスク更新
 app.put('/api/tasks/:ticketId', authenticateToken, async (req, res) => {
   try {
     const { ticketId } = req.params;
     const payload = req.body;
 
-    const data = await fs.readFile(TICKETS_FILE, 'utf8');
-    const tickets = JSON.parse(data);
-    
-    
-    const ticketIndex = tickets.tasks?.findIndex(t => t.id === ticketId);
-    if (ticketIndex === -1 || !tickets.tasks) {
-      return res.status(404).json({ error: 'チケットが見つかりません' });
+    const task = db.getTaskById(ticketId);
+    if (!task) {
+      return res.status(404).json({ error: 'タスクが見つかりません' });
     }
 
-    // タスク更新
-    const newTask = {
-      ...tickets.tasks[ticketIndex],
+    const updates = {
       ...payload,
-      updatedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
 
-    tickets.tasks[ticketIndex] = newTask;
-
-    tickets.lastUpdated = new Date().toISOString();
-
-    await fs.writeFile(TICKETS_FILE, JSON.stringify(tickets, null, 2));
+    db.updateTask(ticketId, updates);
     
-    res.status(200).json(newTask);
+    const updatedTask = db.getTaskById(ticketId);
+    res.status(200).json(updatedTask);
 
   } catch (error) {
-    console.error('チケット更新エラー:', error);
-    res.status(500).json({ error: 'チケットの更新に失敗しました' });
+    console.error('タスク更新エラー:', error);
+    res.status(500).json({ error: 'タスクの更新に失敗しました' });
   }
 });
 
-// タスク削除
 app.delete('/api/tasks/:ticketId', authenticateToken, async (req, res) => {
   try {
     const { ticketId } = req.params;
 
-    const data = await fs.readFile(TICKETS_FILE, 'utf8');
-    const tickets = JSON.parse(data);
-    
-    const ticketIndex = tickets.tasks?.findIndex(t => t.id === ticketId);
-    if (ticketIndex === -1 || !tickets.tasks) {
-      return res.status(404).json({ error: 'チケットが見つかりません' });
+    const task = db.getTaskById(ticketId);
+    if (!task) {
+      return res.status(404).json({ error: 'タスクが見つかりません' });
     }
 
-    // チケット削除
-    tickets.tasks.splice(ticketIndex, 1);
-
-    tickets.lastUpdated = new Date().toISOString();
-
-    await fs.writeFile(TICKETS_FILE, JSON.stringify(tickets, null, 2));
-
+    db.deleteTask(ticketId);
     res.status(204).end();
 
   } catch (error) {
-    console.error('チケット削除エラー:', error);
-    res.status(500).json({ error: 'チケットの削除に失敗しました' });
+    console.error('タスク削除エラー:', error);
+    res.status(500).json({ error: 'タスクの削除に失敗しました' });
   }
 });
 
 // バックアップファイルの作成
 app.post('/api/backup', authenticateToken, async (req, res) => {
   try {
-    const data = await fs.readFile(TICKETS_FILE, 'utf8');
-    const backupFile = path.join(__dirname, 'config', `backup_${Date.now()}.json`);
-    await fs.writeFile(backupFile, data, 'utf8');
+    const timestamp = Date.now();
+    const backupFile = path.join(__dirname, 'db', 'backups', `backup_${timestamp}.db`);
+    
+    await fs.mkdir(path.join(__dirname, 'db', 'backups'), { recursive: true });
+    fsSync.copyFileSync(DB_PATH, backupFile);
     
     res.json({ success: true, backupFile: path.basename(backupFile) });
   } catch (error) {
@@ -1305,54 +1055,89 @@ app.post('/api/backup', authenticateToken, async (req, res) => {
   }
 });
 
-// プロジェクトデータ取得
+// ========== プロジェクトAPI ==========
+
 app.get('/api/projects', authenticateToken, async (req, res) => {
-    try {
-        const data = await fs.readFile(PROJECTS_FILE, 'utf8');
-        const projects = JSON.parse(data);
-        const filtered = projects.projects.filter(p => p.members.includes(req.user.id));
-        res.status(200).json(filtered);
-    } catch (error) {
-        console.error('プロジェクトデータの取得に失敗: ', error);
-        res.status(500).json({ error: 'プロジェクトデータ取得に失敗しました'});
-    }
+  try {
+    const projects = db.getProjectsByUserId(req.user.id);
+    
+    // 各プロジェクトにメンバーと管理者情報を追加
+    const projectsWithMembers = projects.map(project => {
+      const members = db.getProjectMembers(project.id).map(m => m.id);
+      const admins = db.getProjectAdmins(project.id);
+      
+      return {
+        ...project,
+        members,
+        admins
+      };
+    });
+    
+    res.status(200).json(projectsWithMembers);
+  } catch (error) {
+    console.error('プロジェクトデータの取得に失敗: ', error);
+    res.status(500).json({ error: 'プロジェクトデータ取得に失敗しました'});
+  }
 });
 
 // プロジェクトメンバー用ユーザー一覧取得
 app.get('/api/users', authenticateToken, async (req, res) => {
   try {
-    const userData = await fs.readFile(USERS_FILE, 'utf8');
-    const data = JSON.parse(userData);
-    
-    // 現在のユーザーの所属プロジェクトを取得
-    const currentUser = data.users.find(u => u.id === req.user.id);
+    const currentUser = db.getUserById(req.user.id);
     if (!currentUser) {
       return res.status(404).json({ error: 'ユーザーが見つかりません' });
     }
 
-    // 同じプロジェクトのメンバーのみを取得（パスワードは除外）
-    const projectUsers = data.users.filter(user => 
-      user.projects.some(project => currentUser.projects.includes(project))
-    );
-    const usersWithoutPasswords = projectUsers.map(user => {
-      const { password, ...userWithoutPassword } = user;
-      return userWithoutPassword;
+    // 同じプロジェクトのメンバーを取得
+    const projects = db.getProjectsByUserId(currentUser.id);
+    const projectIds = projects.map(p => p.id);
+    
+    const userIds = new Set();
+    projectIds.forEach(projectId => {
+      const members = db.getProjectMembers(projectId);
+      members.forEach(member => userIds.add(member.id));
     });
 
-    res.status(200).json(usersWithoutPasswords);
+    const users = Array.from(userIds).map(id => {
+      const user = db.getUserById(id);
+      if (user) {
+        const { password, ...userWithoutPassword } = user;
+        const userProjects = db.getProjectsByUserId(id);
+        return {
+          ...userWithoutPassword,
+          loginId: user.login_id,
+          displayName: user.display_name,
+          projects: userProjects.map(p => p.id)
+        };
+      }
+      return null;
+    }).filter(u => u !== null);
+
+    res.status(200).json(users);
   } catch (error) {
     console.error('ユーザー一覧取得エラー:', error);
     res.status(500).json({ error: 'ユーザー一覧の取得に失敗しました' });
   }
 });
 
-// サーバー起動
+// ========== サーバー起動 ==========
+
+// プロセス終了時にデータベースを閉じる
+process.on('SIGINT', () => {
+  console.log('\nサーバーを終了しています...');
+  db.close();
+  process.exit(0);
+});
+
+process.on('SIGTERM', () => {
+  db.close();
+  process.exit(0);
+});
+
 if (USE_HTTPS) {
-  // SSL証明書のパス
   const sslKeyPath = path.join(__dirname, 'ssl', 'server.key');
   const sslCertPath = path.join(__dirname, 'ssl', 'server.cert');
 
-  // SSL証明書の存在確認
   if (!fsSync.existsSync(sslKeyPath) || !fsSync.existsSync(sslCertPath)) {
     console.error('エラー: SSL証明書が見つかりません。');
     console.error('以下のコマンドでSSL証明書を生成してください:');
@@ -1360,23 +1145,19 @@ if (USE_HTTPS) {
     process.exit(1);
   }
 
-  // HTTPSサーバーのオプション
   const httpsOptions = {
     key: fsSync.readFileSync(sslKeyPath),
     cert: fsSync.readFileSync(sslCertPath)
   };
 
-  // HTTPSサーバーを起動
   https.createServer(httpsOptions, app).listen(HTTPS_PORT, () => {
     console.log(`HTTPSサーバーが起動しました: https://localhost:${HTTPS_PORT}`);
-    console.log(`tickets.jsonファイル: ${TICKETS_FILE}`);
-    console.log(`settings.jsonファイル: ${SETTINGS_FILE}`);
+    console.log(`データベース: ${DB_PATH}`);
     console.log(`静的ファイルディレクトリ: ${path.join(__dirname, 'src')}`);
     console.log('\n警告: 自己署名証明書を使用しています。');
     console.log('ブラウザで証明書の警告が表示される場合は、例外として承認してください。');
   });
 
-  // HTTPからHTTPSへのリダイレクト（オプション）
   if (process.env.REDIRECT_HTTP !== 'false') {
     const http = require('http');
     http.createServer((req, res) => {
@@ -1387,11 +1168,9 @@ if (USE_HTTPS) {
     });
   }
 } else {
-  // HTTPサーバーを起動（HTTPSを無効にした場合）
   app.listen(PORT, () => {
     console.log(`HTTPサーバーが起動しました: http://localhost:${PORT}`);
-    console.log(`tickets.jsonファイル: ${TICKETS_FILE}`);
-    console.log(`settings.jsonファイル: ${SETTINGS_FILE}`);
+    console.log(`データベース: ${DB_PATH}`);
     console.log(`静的ファイルディレクトリ: ${path.join(__dirname, 'src')}`);
   });
 }

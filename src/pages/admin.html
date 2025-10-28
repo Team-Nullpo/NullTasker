@@ -320,7 +320,7 @@
           <div class="form-group">
             <label for="role">権限</label>
             <select id="userRole" name="role" required>
-              <option value="member">メンバー</option>
+              <option value="user">メンバー</option>
               <option value="project_admin">プロジェクト管理者</option>
               <option value="system_admin">システム管理者</option>
             </select>
@@ -379,6 +379,26 @@
             </button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <div id="userDeleteModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>ユーザーの削除</h2>
+          <button class="close-btn close-modal-btn" id="closeUserDelete">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="user-delete-content" id="userDeleteContent">
+          <div class="user-delete-text" id="userDeleteText"></div>
+          <div class="user-delete-button">
+            <button class="btn btn-danger" id="deleteUser">ユーザー削除</button>
+            <button class="btn btn-secondary close-modal-btn">
+              キャンセル
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
