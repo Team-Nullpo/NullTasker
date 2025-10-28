@@ -10,7 +10,7 @@
 
 **データベース移行について**
 
-このプロジェクトは**JSONファイルからSQLiteデータベースに移行しました**。
+このプロジェクトは**JSON ファイルから SQLite データベースに移行しました**。
 
 初回セットアップ時は以下のコマンドを実行してください:
 
@@ -275,28 +275,31 @@ NullTasker/
 
 #### データベーススキーマ (SQLite)
 
-NullTaskerは以下のテーブル構造を使用しています:
+NullTasker は以下のテーブル構造を使用しています:
 
 **users テーブル**
+
 - id (TEXT PRIMARY KEY)
 - login_id (TEXT UNIQUE)
 - display_name (TEXT)
 - email (TEXT UNIQUE)
-- password (TEXT) - bcryptハッシュ
+- password (TEXT) - bcrypt ハッシュ
 - role (TEXT) - 'user', 'project_admin', 'system_admin'
 - created_at (TEXT)
 - last_login (TEXT)
 
 **projects テーブル**
+
 - id (TEXT PRIMARY KEY)
 - name (TEXT)
 - description (TEXT)
 - owner (TEXT) - users.id への外部キー
-- settings (TEXT) - JSON形式
+- settings (TEXT) - JSON 形式
 - created_at (TEXT)
 - last_updated (TEXT)
 
 **project_members テーブル**
+
 - project_id (TEXT)
 - user_id (TEXT)
 - is_admin (INTEGER) - 0 or 1
@@ -304,6 +307,7 @@ NullTaskerは以下のテーブル構造を使用しています:
 - PRIMARY KEY (project_id, user_id)
 
 **tasks テーブル**
+
 - id (TEXT PRIMARY KEY)
 - project (TEXT) - projects.id への外部キー
 - title (TEXT)
@@ -317,14 +321,15 @@ NullTaskerは以下のテーブル構造を使用しています:
 - due_date (TEXT)
 - estimated_hours (REAL)
 - actual_hours (REAL)
-- tags (TEXT) - JSON配列形式
+- tags (TEXT) - JSON 配列形式
 - parent_task (TEXT) - tasks.id への外部キー
 - created_at (TEXT)
 - updated_at (TEXT)
 
 **settings テーブル**
+
 - key (TEXT PRIMARY KEY)
-- value (TEXT) - JSON形式
+- value (TEXT) - JSON 形式
 - last_updated (TEXT)
 
 ## 🎨 ユーザーインターフェース
@@ -362,7 +367,7 @@ npm run reset -- --clean
 
 ### バックアップシステム
 
-- **データベースバックアップ**: SQLiteファイルの定期バックアップ
+- **データベースバックアップ**: SQLite ファイルの定期バックアップ
 - **手動エクスポート**: JSON フォーマットでデータダウンロード
 - **復元機能**: バックアップからのデータ復元
 

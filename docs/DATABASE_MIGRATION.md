@@ -1,17 +1,17 @@
 # データベース移行ガイド
 
-このドキュメントは、NullTaskerをJSON形式からSQLiteデータベースに移行する手順を説明します。
+このドキュメントは、NullTasker を JSON 形式から SQLite データベースに移行する手順を説明します。
 
 ## 📋 概要
 
-NullTasker v1.1.0では、データストレージをJSONファイルからSQLiteデータベースに移行しました。
+NullTasker v1.1.0 では、データストレージを JSON ファイルから SQLite データベースに移行しました。
 
 ### 移行の利点
 
 ✅ **データの整合性**: 外部キー制約によるデータ整合性の保証  
 ✅ **パフォーマンス**: インデックスによる高速な検索・集計  
-✅ **並行処理**: WALモードによる読み書き同時実行  
-✅ **トランザクション**: ACID特性による一貫性保証  
+✅ **並行処理**: WAL モードによる読み書き同時実行  
+✅ **トランザクション**: ACID 特性による一貫性保証  
 ✅ **スケーラビリティ**: 大量データの効率的な管理
 
 ## 🚀 移行手順
@@ -32,7 +32,7 @@ npm install
 
 ### 3. データベースへの移行
 
-#### 方法A: 既存データを移行
+#### 方法 A: 既存データを移行
 
 ```bash
 # JSONデータをSQLiteに移行
@@ -40,11 +40,12 @@ npm run migrate
 ```
 
 このコマンドは以下を実行します:
+
 - 既存データベースのバックアップ作成
 - 新しいデータベースの作成とスキーマ初期化
 - users.json, projects.json, tickets.json, settings.json からのデータインポート
 
-#### 方法B: クリーンインストール
+#### 方法 B: クリーンインストール
 
 ```bash
 # 新規データベースを作成（初期データのみ）
@@ -52,6 +53,7 @@ npm run reset
 ```
 
 このコマンドは以下を実行します:
+
 - 新規データベースの作成
 - 管理者アカウント（admin/admin123）の作成
 - デフォルトプロジェクトの作成
@@ -93,7 +95,8 @@ npm run migrate
 
 ### 既存データが見つからない
 
-JSONファイルが `config/` ディレクトリに存在することを確認してください:
+JSON ファイルが `config/` ディレクトリに存在することを確認してください:
+
 - `config/users.json`
 - `config/projects.json`
 - `config/tickets.json`
@@ -147,7 +150,7 @@ node scripts/reset-data.js --help       # ヘルプ表示
 
 ## 🔍 データベースツール
 
-### SQLiteデータベースの直接操作
+### SQLite データベースの直接操作
 
 ```bash
 # SQLiteコマンドラインツールでデータベースを開く
@@ -160,10 +163,11 @@ SELECT * FROM users;    # 全ユーザー表示
 .quit                   # 終了
 ```
 
-### VS Code拡張機能
+### VS Code 拡張機能
 
-SQLite Viewer拡張機能をインストールすると、VSCode内でデータベースを閲覧できます:
-- 拡張機能ID: `alexcvzz.vscode-sqlite`
+SQLite Viewer 拡張機能をインストールすると、VSCode 内でデータベースを閲覧できます:
+
+- 拡張機能 ID: `alexcvzz.vscode-sqlite`
 
 ## 📚 関連ドキュメント
 
@@ -175,13 +179,15 @@ SQLite Viewer拡張機能をインストールすると、VSCode内でデータ�
 ## 🆘 サポート
 
 問題が発生した場合:
+
 1. [GitHub Issues](https://github.com/Team-Nullpo/NullTasker/issues) で既存の問題を検索
-2. 新しいIssueを作成して問題を報告
+2. 新しい Issue を作成して問題を報告
 3. エラーメッセージとログを添付
 
 ---
 
 **移行作業に関する注意事項:**
+
 - 移行中はサーバーを停止してください
 - バックアップは自動的に作成されますが、重要なデータは手動でもバックアップすることを推奨します
-- 移行後、旧JSONファイルは `config/json-backup/` に保管されます
+- 移行後、旧 JSON ファイルは `config/json-backup/` に保管されます

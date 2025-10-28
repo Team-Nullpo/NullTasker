@@ -559,10 +559,12 @@ app.get('/api/admin/users', authenticateToken, requireSystemAdmin, async (req, r
     const users = db.getAllUsers();
     const usersWithoutPasswords = users.map(user => {
       const { password, ...userWithoutPassword } = user;
+      const userProjects = db.getProjectsByUserId(user.id);
       return {
         ...userWithoutPassword,
         loginId: user.login_id,
-        displayName: user.display_name
+        displayName: user.display_name,
+        projects: userProjects.map(p => p.id)
       };
     });
 
@@ -1100,10 +1102,12 @@ app.get('/api/users', authenticateToken, async (req, res) => {
       const user = db.getUserById(id);
       if (user) {
         const { password, ...userWithoutPassword } = user;
+        const userProjects = db.getProjectsByUserId(id);
         return {
           ...userWithoutPassword,
           loginId: user.login_id,
-          displayName: user.display_name
+          displayName: user.display_name,
+          projects: userProjects.map(p => p.id)
         };
       }
       return null;
