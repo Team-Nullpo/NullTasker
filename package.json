@@ -9,6 +9,7 @@
     "dev": "nodemon server.js",
     "dev:http": "USE_HTTPS=false nodemon server.js",
     "generate-cert": "node scripts/generate-cert.js",
+    "migrate": "node scripts/migrate-to-sqlite.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "reset": "node scripts/reset-data.js",
     "reset:users": "node scripts/reset-data.js --users",
@@ -27,6 +28,7 @@
   "license": "MIT",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "better-sqlite3": "^12.4.1",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "express-rate-limit": "^8.0.1",

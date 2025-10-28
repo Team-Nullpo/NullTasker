@@ -35,6 +35,7 @@ export class TaskManager {
   loadSettings() {
     this.projectId = ProjectManager.getCurrentProjectId();
     this.settings = ProjectManager.getProjectSettings(this.projectId);
+    Utils.debugLog("プロジェクト設定:", this.settings);
   }
 
   loadUsers() {
@@ -61,7 +62,8 @@ export class TaskManager {
     // デバッグ用ログ
     Utils.debugLog("タスク要素:", {
       addBtn: !!elements.addBtn,
-      modal: !!elements.modal,
+      addBtnElement: elements.addBtn,
+      modals: elements.modals?.length || 0,
       form: !!elements.form,
       taskList: !!elements.taskList,
     });
@@ -142,8 +144,12 @@ export class TaskManager {
   setupModalEvents(elements) {
     const { addBtn, modals, closeBtns, deleteTaskBtn } = elements;
 
+    Utils.debugLog("setupModalEvents - addBtn:", addBtn);
+
     if (addBtn) {
+      Utils.debugLog("タスク追加ボタンにイベントリスナーを設定します");
       addBtn.addEventListener("click", () => {
+        Utils.debugLog("タスク追加ボタンがクリックされました");
         this.resetEditState();
         const form = Utils.getElement("#taskForm");
         if (form) {
@@ -155,6 +161,8 @@ export class TaskManager {
         }
         this.openModal("#taskModal");
       });
+    } else {
+      console.error("タスク追加ボタン(#addTaskBtn)が見つかりません");
     }
 
     if (closeBtns)
@@ -207,21 +215,33 @@ export class TaskManager {
       });
     }
 
+    // settingsが存在しない場合は警告してスキップ
+    if (!this.settings) {
+      console.warn("プロジェクト設定が読み込まれていません");
+      return;
+    }
+
     const usernames = this.projectUsers.map(u => { return {
       value: u.id,
       label: u.displayName
     }});
+    
+    // settingsオブジェクトの構造を確認
+    const projectSettings = this.settings?.settings || this.settings;
+    
+    Utils.debugLog("projectSettings:", projectSettings);
+    
     const selectors = [
       { id: "#taskAssignee", options: usernames, hasValue: true },
-      { id: "#taskCategory", options: this.settings.settings.categories },
+      { id: "#taskCategory", options: projectSettings?.categories || [] },
       {
         id: "#taskPriority",
-        options: this.settings.settings.priorities,
+        options: projectSettings?.priorities || [],
         hasValue: true,
       },
       {
         id: "#taskStatus",
-        options: this.settings.settings.statuses,
+        options: projectSettings?.statuses || [],
         hasValue: true,
       },
     ];

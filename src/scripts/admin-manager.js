@@ -11,6 +11,7 @@ export class AdminManager {
     this.currentSection = 'dashboard';
     this.editingProjectId = null;
     this.editingUserId = null;
+    this.deletingUserId = null;
     this.init();
   }
 
@@ -112,13 +113,17 @@ export class AdminManager {
         () => this.downloadSettingsBackup()
       ],
 
+      ['#deleteUser', 'click', () => this.deleteUser(this.deletingUserId)],
+
       // モーダルのクローズ（×ボタン）
       ['#userModal .modal-close', 'click', () => this.closeUserModal()],
       ['#projectModal .modal-close', 'click', () => this.closeProjectModal()],
+      ['#userDeleteModal .close-btn', 'click', () => this.closeUserDeleteModal()],
 
       // モーダルのキャンセルボタン
       ['#userModal .btn.btn-secondary', 'click', () => this.closeUserModal()],
       ['#projectModal .btn.btn-secondary', 'click', () => this.closeProjectModal()],
+      ['#userDeleteModal .btn.btn-secondary', 'click', () => this.closeUserDeleteModal()],
 
       //
       ['#usersTableBody', 'click', e => this.handleUserTableClick(e)],
@@ -144,7 +149,7 @@ export class AdminManager {
     if (!userId) return;
 
     if (button.classList.contains('btn-edit')) this.editUser(userId);
-    else if (button.classList.contains('btn-delete')) this.deleteUser(userId);
+    else if (button.classList.contains('btn-delete')) this.showUserDeleteModal(userId);
   }
 
   handleProjectTableClick(e) {
@@ -375,6 +380,25 @@ export class AdminManager {
     document.getElementById('projectModal').style.display = 'none';
   }
 
+  showUserDeleteModal(userId) {
+    this.deletingUserId = userId;
+    const modal = document.getElementById('userDeleteModal');
+    if (!modal) {
+      console.log("ユーザー削除モーダルが存在しません");
+      return;
+    }
+    modal.classList.add("show");
+  }
+
+  closeUserDeleteModal() {
+    const modal = document.getElementById('userDeleteModal');
+    if (!modal) {
+      console.log("ユーザー削除モーダルが存在しません");
+      return;
+    }
+    modal.classList.remove("show");
+  }
+
   // ユーザーフォーム送信
   async handleUserSubmit(event) {
     event.preventDefault();
@@ -482,15 +506,11 @@ export class AdminManager {
     const user = this.users.find(u => u.id === userId);
     if (!user) return;
 
-    if (!confirm(`ユーザー「${user.displayName}」を削除しますか？`)) {
-      return;
-    }
     await UserManager.removeUser(userId);
     this.showSuccess('ユーザーを削除しました');
     await this.loadData();
     this.loadUsersTable();
     this.updateDashboardStats();
-
   }
 
   // プロジェクト編集
