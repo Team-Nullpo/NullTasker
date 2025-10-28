@@ -1,0 +1,13 @@
+{
+  "appName": "NullTasker",
+  "version": "1.0.0",
+  "theme": "light",
+  "language": "ja",
+  "timezone": "Asia/Tokyo",
+  "features": {
+    "notifications": true,
+    "autoSave": true,
+    "backupEnabled": true
+  },
+  "lastUpdated": "2025-10-24T00:00:18.772Z"
+}

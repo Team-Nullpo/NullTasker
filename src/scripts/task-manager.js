@@ -35,6 +35,7 @@ export class TaskManager {
   loadSettings() {
     this.projectId = ProjectManager.getCurrentProjectId();
     this.settings = ProjectManager.getProjectSettings(this.projectId);
+    Utils.debugLog("プロジェクト設定:", this.settings);
   }
 
   loadUsers() {
@@ -211,17 +212,21 @@ export class TaskManager {
       value: u.id,
       label: u.displayName
     }});
+    
+    // settingsオブジェクトの構造を確認
+    const projectSettings = this.settings?.settings || this.settings;
+    
     const selectors = [
       { id: "#taskAssignee", options: usernames, hasValue: true },
-      { id: "#taskCategory", options: this.settings.settings.categories },
+      { id: "#taskCategory", options: projectSettings?.categories || [] },
       {
         id: "#taskPriority",
-        options: this.settings.settings.priorities,
+        options: projectSettings?.priorities || [],
         hasValue: true,
       },
       {
         id: "#taskStatus",
-        options: this.settings.settings.statuses,
+        options: projectSettings?.statuses || [],
         hasValue: true,
       },
     ];

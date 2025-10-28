@@ -8,13 +8,19 @@
 
 ## 重要:共同開発者へ
 
-各自
+**データベース移行について**
+
+このプロジェクトは**JSONファイルからSQLiteデータベースに移行しました**。
+
+初回セットアップ時は以下のコマンドを実行してください:
 
 ```bash
-git update-index --assume-unchanged config/projects.json config/settings.json config/tickets.json config/users.json
-```
+# データベースへマイグレーション（初回のみ）
+npm run migrate
 
-を実行してください。
+# または、新規データベースを作成
+npm run reset
+```
 
 ## 📋 概要
 
@@ -56,6 +62,11 @@ cd NullTasker
 
 # 依存関係のインストール
 npm install
+
+# データベースの初期化（初回のみ）
+npm run migrate
+# または新規データベース作成
+npm run reset
 
 # SSL証明書の生成（初回のみ必須）
 npm run generate-cert
@@ -115,12 +126,16 @@ NullTasker/
 ├── README.md                   # メインドキュメント
 ├── SECURITY.md                 # セキュリティガイドライン
 ├── package.json               # Node.js プロジェクト設定
-├── server.js                  # バックエンドサーバー
-├── config/                    # 設定・データファイル
-│   ├── settings.json          # アプリケーション設定
-│   ├── tickets.json           # タスクデータ
-│   ├── users.json             # ユーザー認証データ
-│   └── backups/               # バックアップファイル
+├── server.js                  # バックエンドサーバー (SQLite版)
+├── server-json-backup.js      # 旧バックエンドサーバー (JSON版・バックアップ)
+├── db/                        # データベース (NEW!)
+│   ├── nulltasker.db          # SQLiteデータベースファイル
+│   ├── schema.sql             # データベーススキーマ定義
+│   ├── database.js            # データベース管理クラス
+│   └── backups/               # データベースバックアップ
+├── config/                    # 設定ファイル
+│   ├── json-backup/           # 旧JSONファイル（バックアップ）
+│   └── backups/               # 旧バックアップファイル
 ├── docs/                      # ドキュメント
 │   ├── RESET.md               # データリセット説明書
 │   ├── HTTPS_SETUP.md         # HTTPS設定ガイド
@@ -129,7 +144,9 @@ NullTasker/
 │   ├── server.key             # 秘密鍵
 │   └── server.cert            # 証明書
 ├── scripts/                   # 管理・開発用スクリプト
-│   ├── reset-data.js          # データリセットスクリプト
+│   ├── reset-data.js          # データリセットスクリプト (SQLite版)
+│   ├── reset-data-json-backup.js # 旧リセットスクリプト (JSON版)
+│   ├── migrate-to-sqlite.js   # JSON→SQLiteマイグレーションスクリプト
 │   └── generate-cert.js       # SSL証明書生成スクリプト
 └── src/                       # ソースコード
     ├── assets/                # アセット（画像等）
@@ -245,79 +262,70 @@ NullTasker/
 
 - **Node.js**: サーバーサイド JavaScript
 - **Express.js**: Web アプリケーションフレームワーク
+- **better-sqlite3**: 高速・同期型 SQLite ライブラリ
 - **bcrypt**: パスワードハッシュ化ライブラリ
 - **jsonwebtoken**: JWT 認証トークン管理
 - **helmet**: セキュリティヘッダー設定
 - **cors**: クロスオリジンリクエスト対応
 - **express-rate-limit**: レート制限による DoS 攻撃対策
 - **express-validator**: 入力値検証
-- **JSON**: ファイルベースデータストレージ
+- **SQLite**: 軽量・高速なリレーショナルデータベース
 
 ### データ構造
 
-#### タスクデータ（tickets.json）
+#### データベーススキーマ (SQLite)
 
-```json
-{
-  "tasks": [
-    {
-      "id": "task_1724745600123_456",
-      "title": "新機能の設計",
-      "description": "ユーザーインターフェースの設計と仕様策定",
-      "assignee": "田中太郎",
-      "startDate": "2025-08-27",
-      "dueDate": "2025-09-05",
-      "priority": "high",
-      "category": "設計",
-      "status": "in_progress",
-      "progress": 75,
-      "project": "default",
-      "createdAt": "2025-08-27T10:00:00.000Z",
-      "updatedAt": "2025-08-27T15:30:00.000Z"
-    }
-  ],
-  "lastUpdated": "2025-08-27T15:30:00.000Z"
-}
-```
+NullTaskerは以下のテーブル構造を使用しています:
 
-#### ユーザーデータ（users.json）
+**users テーブル**
+- id (TEXT PRIMARY KEY)
+- login_id (TEXT UNIQUE)
+- display_name (TEXT)
+- email (TEXT UNIQUE)
+- password (TEXT) - bcryptハッシュ
+- role (TEXT) - 'user', 'project_admin', 'system_admin'
+- created_at (TEXT)
+- last_login (TEXT)
 
-```json
-{
-  "users": [
-    {
-      "id": "admin",
-      "loginId": "admin",
-      "displayName": "管理者",
-      "email": "admin@nulltasker.com",
-      "password": "$2b$10$06SM2X0CQmFcAbxh7NZaG.n2aeiKU/eZpAtJPmbU0F6/xxsoiMD0.",
-      "role": "system_admin",
-      "projects": ["default"],
-      "createdAt": "2025-09-01T00:00:00.000Z",
-      "lastLogin": null
-    }
-  ],
-  "lastUpdated": "2025-10-14T05:52:42.826Z"
-}
-```
+**projects テーブル**
+- id (TEXT PRIMARY KEY)
+- name (TEXT)
+- description (TEXT)
+- owner (TEXT) - users.id への外部キー
+- settings (TEXT) - JSON形式
+- created_at (TEXT)
+- last_updated (TEXT)
 
-#### 設定データ（settings.json）
+**project_members テーブル**
+- project_id (TEXT)
+- user_id (TEXT)
+- is_admin (INTEGER) - 0 or 1
+- joined_at (TEXT)
+- PRIMARY KEY (project_id, user_id)
 
-```json
-{
-  "appName": "NullTasker",
-  "version": "1.0.0",
-  "theme": "light",
-  "language": "ja",
-  "timezone": "Asia/Tokyo",
-  "features": {
-    "notifications": true,
-    "autoSave": true,
-    "backupEnabled": true
-  },
-  "lastUpdated": "2025-10-14T05:52:42.826Z"
-}
-```
+**tasks テーブル**
+- id (TEXT PRIMARY KEY)
+- project (TEXT) - projects.id への外部キー
+- title (TEXT)
+- description (TEXT)
+- assignee (TEXT) - users.id への外部キー
+- category (TEXT)
+- priority (TEXT) - 'high', 'medium', 'low'
+- status (TEXT) - 'todo', 'in_progress', 'review', 'done'
+- progress (INTEGER) - 0-100
+- start_date (TEXT)
+- due_date (TEXT)
+- estimated_hours (REAL)
+- actual_hours (REAL)
+- tags (TEXT) - JSON配列形式
+- parent_task (TEXT) - tasks.id への外部キー
+- created_at (TEXT)
+- updated_at (TEXT)
+
+**settings テーブル**
+- key (TEXT PRIMARY KEY)
+- value (TEXT) - JSON形式
+- last_updated (TEXT)
 
 ## 🎨 ユーザーインターフェース
 
@@ -335,17 +343,28 @@ NullTasker/
 
 ## 📊 データ管理
 
-### 自動保存機能
+### データベース管理
 
-- **リアルタイム同期**: 変更は即座に localStorage に保存
-- **サーバー同期**: 定期的なサーバー側データ同期
-- **競合解決**: 複数ユーザー編集時の競合処理
+- **SQLite データベース**: 単一ファイルで管理される軽量データベース
+- **WAL モード**: Write-Ahead Logging による並行処理性能向上
+- **外部キー制約**: データ整合性の保証
+- **トランザクション**: ACID 特性によるデータの一貫性
+
+### マイグレーション
+
+```bash
+# JSONデータからSQLiteへの移行
+npm run migrate
+
+# データベースの完全リセット
+npm run reset -- --clean
+```
 
 ### バックアップシステム
 
-- **定期バックアップ**: 設定した間隔で自動バックアップ
+- **データベースバックアップ**: SQLiteファイルの定期バックアップ
 - **手動エクスポート**: JSON フォーマットでデータダウンロード
-- **インポート機能**: 既存データの復元・移行
+- **復元機能**: バックアップからのデータ復元
 
 ### ストレージ管理
 
