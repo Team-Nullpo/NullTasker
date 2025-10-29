@@ -3,9 +3,9 @@
 
 // タスク進捗率の設定
 const TASK_PROGRESS_CONFIG = {
-  MIN: 0,           // 最小値
-  MAX: 100,         // 最大値
-  STEP: 10          // 刻み幅（10%刻み）
+  MIN: 0, // 最小値
+  MAX: 100, // 最大値
+  STEP: 10 // 刻み幅（10%刻み）
 };
 
 // タスク進捗率の定義（よく使う値に名前を付ける）
@@ -20,7 +20,11 @@ const TASK_PROGRESS = {
  */
 function generateProgressOptions() {
   const options = [];
-  for (let i = TASK_PROGRESS_CONFIG.MIN; i <= TASK_PROGRESS_CONFIG.MAX; i += TASK_PROGRESS_CONFIG.STEP) {
+  for (
+    let i = TASK_PROGRESS_CONFIG.MIN;
+    i <= TASK_PROGRESS_CONFIG.MAX;
+    i += TASK_PROGRESS_CONFIG.STEP
+  ) {
     options.push({
       value: i,
       label: `${i}%`
@@ -125,6 +129,61 @@ const DEFAULT_SETTINGS = {
   }
 };
 
+const DEFAULT_PROJECT = {
+      id: 'default',
+      name: 'デフォルトプロジェクト',
+      description: '初期プロジェクト',
+      owner: 'admin',
+      members: ['admin'],
+      admins: ['admin'],
+      settings: {
+        categories: ['企画', '開発', 'デザイン', 'テスト', 'ドキュメント', '会議', 'その他'],
+        priorities: [
+          {
+            value: 'high',
+            label: '高優先度',
+            color: '#c62828'
+          },
+          {
+            value: 'medium',
+            label: '中優先度',
+            color: '#ef6c00'
+          },
+          {
+            value: 'low',
+            label: '低優先度',
+            color: '#2e7d32'
+          }
+        ],
+        statuses: [
+          {
+            value: 'todo',
+            label: '未着手',
+            color: '#666'
+          },
+          {
+            value: 'in_progress',
+            label: '進行中',
+            color: '#1976d2'
+          },
+          {
+            value: 'review',
+            label: 'レビュー中',
+            color: '#f57c00'
+          },
+          {
+            value: 'done',
+            label: '完了',
+            color: '#388e3c'
+          }
+        ],
+        notifications: true,
+        autoAssign: false
+      },
+      createdAt: '2025-09-01T00:00:00.000Z',
+      lastUpdated: '2025-09-07T00:00:00.000Z'
+};
+
 // ヘルパー関数
 function getValidProgressValues() {
   return Object.values(TASK_PROGRESS);
@@ -171,6 +230,7 @@ module.exports = {
   JWT_EXPIRY,
   RATE_LIMIT,
   DEFAULT_SETTINGS,
+  DEFAULT_PROJECT,
   getValidProgressValues,
   getValidPriorityValues,
   getValidStatusValues,

@@ -9,6 +9,7 @@ const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const DatabaseManager = require('../db/database');
+const { DEFAULT_PROJECT } = require("../server-constants")
 
 // データベースパス
 const DB_PATH = path.join(__dirname, '..', 'db', 'nulltasker.db');
@@ -141,20 +142,7 @@ async function insertInitialData(db) {
     
     if (options.all || options.projects) {
       console.log('- デフォルトプロジェクトを作成中...');
-      db.createProject({
-        id: 'default',
-        name: 'デフォルトプロジェクト',
-        description: '初期プロジェクト',
-        owner: 'admin',
-        settings: JSON.stringify({
-          categories: ["企画", "設計", "開発", "テスト", "レビュー", "デプロイ", "その他"],
-          priorities: ["low", "medium", "high", "urgent"],
-          statuses: ["not_started", "in_progress", "completed", "on_hold"],
-          defaultAssignee: "admin"
-        }),
-        createdAt: '2025-09-01T00:00:00.000Z',
-        lastUpdated: new Date().toISOString()
-      });
+      db.createProject(DEFAULT_PROJECT);
       
       // プロジェクトメンバーとして管理者を追加
       db.addProjectMember('default', 'admin', true);
