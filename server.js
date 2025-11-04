@@ -239,7 +239,11 @@ app.post('/api/register', registerValidation, async (req, res) => {
     }
 
     const { password: _, ...userWithoutPassword } = newUser;
-    res.status(201).json(userWithoutPassword);
+    res.status(201).json({
+      success: true,
+      message: 'ユーザー登録が完了しました',
+      user: userWithoutPassword
+    });
 
   } catch (error) {
     console.error('ユーザー登録エラー:', error);
