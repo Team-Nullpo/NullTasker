@@ -1,0 +1,65 @@
+{
+  "tasks": [
+    {
+      "id": "task_1760424353280_53",
+      "title": "NHKrobokon",
+      "description": "",
+      "assignee": "admin",
+      "startDate": "2025-10-13",
+      "dueDate": "202222-02-22",
+      "priority": "high",
+      "category": "開発",
+      "status": "todo",
+      "progress": 0,
+      "project": "default",
+      "createdAt": "2025-10-14T06:45:53.280Z",
+      "updatedAt": "2025-10-14T06:52:32.124Z"
+    },
+    {
+      "id": "task_1760424837511_367",
+      "title": "てｓと２２２",
+      "description": "",
+      "assignee": "admin",
+      "startDate": "2025-10-14",
+      "dueDate": "2025-10-18",
+      "priority": "medium",
+      "category": "ドキュメント",
+      "status": "in_progress",
+      "progress": 0,
+      "project": "default",
+      "createdAt": "2025-10-14T06:53:57.511Z",
+      "updatedAt": "2025-10-14T06:54:39.505Z"
+    },
+    {
+      "id": "task_1760425055388_340",
+      "title": "ｋｓｋｈｆかｊｆ",
+      "description": "",
+      "assignee": "admin",
+      "startDate": "2025-10-12",
+      "dueDate": "2025-10-16",
+      "priority": "medium",
+      "category": "会議",
+      "status": "todo",
+      "progress": 0,
+      "project": "default",
+      "createdAt": "2025-10-14T06:57:35.388Z",
+      "updatedAt": "2025-10-14T07:00:30.073Z"
+    },
+    {
+      "id": "task_1760425277213_136",
+      "title": "はははははははははｈ",
+      "description": "",
+      "assignee": "admin",
+      "startDate": "0001-11-01",
+      "dueDate": "2025-10-14",
+      "priority": "medium",
+      "category": "会議",
+      "status": "in_progress",
+      "progress": 0,
+      "project": "default",
+      "createdAt": "2025-10-14T07:01:17.213Z",
+      "updatedAt": "2025-10-14T07:01:17.213Z"
+    }
+  ],
+  "lastUpdated": "2025-10-14T07:01:17.222Z"
+}
