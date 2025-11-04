@@ -1,6 +1,7 @@
 import { Utils } from "./utils.js";
 import { ProjectManager } from "./project-manager.js";
 import { TicketManager } from "./ticket-manager.js";
+import { SimpleAuth } from "./simple-auth.js";
 
 // カレンダー管理クラス
 export class CalendarManager {
@@ -9,6 +10,7 @@ export class CalendarManager {
     this.currentDate = new Date();
     this.selectedDate = new Date();
     this.viewMode = "month";
+    this.projectId = null;
     this.init();
   }
 
@@ -22,8 +24,9 @@ export class CalendarManager {
   }
 
   loadTasks() {
+    this.projectId = ProjectManager.getCurrentProjectId();
     this.tasks = TicketManager.tasks.filter(
-      (ticket) => ticket.project === ProjectManager.currentProject
+      (ticket) => ticket.project === this.projectId
     );
   }
 
@@ -264,27 +267,27 @@ export class CalendarManager {
     return taskElement;
   }
 
-  quickAddTask() {
+  async quickAddTask() {
     const titleInput = Utils.getElement("#quickTaskInput"); // 修正: HTMLのIDに合わせる
     if (!titleInput || !titleInput.value.trim()) return;
 
-    const newTask = {
-      id: Utils.generateId("task"),
+    const payload = {
       title: titleInput.value.trim(),
-      description: "",
-      assignee: "未割り当て",
+      description: "Added from Calendar",
+      assignee: SimpleAuth.getCurrentUser().id,
       startDate: this.selectedDate.toISOString().split("T")[0], // 開始日も設定
       dueDate: this.selectedDate.toISOString().split("T")[0],
       priority: "medium",
       category: "その他",
       status: "todo",
       progress: 0,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      project: this.projectId
     };
 
-    this.tasks.push(newTask);
-    this.saveTasks();
+    if (!(await TicketManager.createTicket(payload))) {
+      Utils.showNotification("タスク追加に失敗しました", "error");
+      return;
+    }
     titleInput.value = "";
     this.renderCalendar();
     this.renderDailyTasks();
