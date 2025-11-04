@@ -200,10 +200,12 @@ export class GanttManager {
     const row = document.createElement("div");
     row.className = "gantt-task-row";
     row.dataset.taskId = task.id;
+    
+    const assigneeName = this.getAssigneeDisplayName(task);
 
     const columns = [
       { className: "task-name-column", content: task.title, title: task.title },
-      { className: "task-assignee-column", content: task.assignee },
+      { className: "task-assignee-column", content: assigneeName },
       {
         className: "task-duration-column",
         content: this.calculateDuration(task),
@@ -330,10 +332,9 @@ export class GanttManager {
   setupBarEvents(barContainer, task) {
     const startDate = new Date(task.startDate || task.createdAt);
     const endDate = new Date(task.dueDate);
+    const assigneeName = this.getAssigneeDisplayName(task);
 
-    barContainer.title = `${task.title} - ${
-      task.assignee
-    }\n開始日: ${Utils.formatDate(startDate)}\n期日: ${Utils.formatDate(
+    barContainer.title = `${task.title} - ${assigneeName}\n開始日: ${Utils.formatDate(startDate)}\n期日: ${Utils.formatDate(
       endDate
     )}\n進捗: ${task.progress}%`;
 
@@ -378,11 +379,13 @@ export class GanttManager {
   }
 
   createTaskDetailHTML(task) {
+    const assigneeName = this.getAssigneeDisplayName(task);
+    
     return `
       <div class="task-detail-info">
         <h3>${task.title}</h3>
         <p><strong>説明:</strong> ${task.description || "なし"}</p>
-        <p><strong>担当者:</strong> ${task.assignee}</p>
+        <p><strong>担当者:</strong> ${assigneeName}</p>
         <p><strong>期限:</strong> ${Utils.formatDate(task.dueDate)}</p>
         <p><strong>優先度:</strong> ${this.getPriorityText(task.priority)}</p>
         <p><strong>ステータス:</strong> ${this.getStatusText(task.status)}</p>
@@ -405,6 +408,21 @@ export class GanttManager {
       done: "完了",
     };
     return map[status] || "未着手";
+  }
+
+  // タスクオブジェクトから担当者名を取得（assigneeInfo対応）
+  getAssigneeDisplayName(task) {
+    // サーバーから返されたassigneeInfo情報を優先的に使用
+    if (task.assigneeInfo?.name) {
+      return task.assigneeInfo.name;
+    }
+    
+    // フォールバック: assigneeをそのまま表示（IDまたは名前）
+    if (task.assignee) {
+      return task.assignee;
+    }
+    
+    return "未割り当て";
   }
 
   toggleExpand() {

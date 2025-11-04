@@ -936,14 +936,11 @@ app.get('/api/tasks', authenticateToken, async (req, res) => {
   try {
     debugLog('タスク取得リクエスト受信:', req.user?.id);
     
-    const tasks = db.getAllTasks();
+    // ユーザーが所属するプロジェクトのタスクを担当者情報付きで取得
+    const tasks = db.getTasksWithAssigneeInfo(req.user.id);
     
-    // ユーザーが所属するプロジェクトのタスクのみフィルタ
-    const userProjects = req.user.projects || [];
-    const filteredTasks = tasks.filter(task => userProjects.includes(task.project));
-    
-    debugLog('タスク取得成功:', filteredTasks.length, '件');
-    res.json({ tasks: filteredTasks, lastUpdated: new Date().toISOString() });
+    debugLog('タスク取得成功:', tasks.length, '件');
+    res.json({ tasks: tasks, lastUpdated: new Date().toISOString() });
   } catch (error) {
     console.error('タスク読み込みエラー:', error.message);
     res.status(500).json({ 
