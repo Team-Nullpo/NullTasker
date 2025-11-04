@@ -193,7 +193,8 @@ export class CalendarManager {
       taskElement.classList.add("completed");
     }
     taskElement.textContent = task.title;
-    taskElement.title = `${task.title} - ${task.assignee}`;
+    const assigneeName = this.getAssigneeDisplayName(task);
+    taskElement.title = `${task.title} - ${assigneeName}`;
 
     taskElement.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -249,11 +250,13 @@ export class CalendarManager {
   createDailyTaskElement(task) {
     const taskElement = document.createElement("div");
     taskElement.className = "daily-task";
+    
+    const assigneeName = this.getAssigneeDisplayName(task);
 
     taskElement.innerHTML = `
       <div class="task-info">
         <div class="task-title">${task.title}</div>
-        <div class="task-meta">${task.assignee} - ${task.category}</div>
+        <div class="task-meta">${assigneeName} - ${task.category}</div>
       </div>
       <div class="task-priority-badge ${task.priority}">
         ${this.getPriorityText(task.priority)}
@@ -307,11 +310,13 @@ export class CalendarManager {
   }
 
   createTaskDetailHTML(task) {
+    const assigneeName = this.getAssigneeDisplayName(task);
+    
     return `
       <div class="task-detail-info">
         <h3>${task.title}</h3>
         <p><strong>説明:</strong> ${task.description || "なし"}</p>
-        <p><strong>担当者:</strong> ${task.assignee}</p>
+        <p><strong>担当者:</strong> ${assigneeName}</p>
         <p><strong>期限:</strong> ${Utils.formatDate(task.dueDate)}</p>
         <p><strong>優先度:</strong> ${this.getPriorityText(task.priority)}</p>
         <p><strong>ステータス:</strong> ${this.getStatusText(task.status)}</p>
@@ -334,6 +339,21 @@ export class CalendarManager {
       done: "完了",
     };
     return map[status] || "未着手";
+  }
+
+  // タスクオブジェクトから担当者名を取得（assigneeInfo対応）
+  getAssigneeDisplayName(task) {
+    // サーバーから返されたassigneeInfo情報を優先的に使用
+    if (task.assigneeInfo?.name) {
+      return task.assigneeInfo.name;
+    }
+    
+    // フォールバック: assigneeをそのまま表示（IDまたは名前）
+    if (task.assignee) {
+      return task.assignee;
+    }
+    
+    return "未割り当て";
   }
 
   toggleView() {
