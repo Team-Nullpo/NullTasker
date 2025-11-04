@@ -350,6 +350,50 @@ class DatabaseManager {
   }
 
   /**
+   * ユーザーが閲覧可能なタスクを取得（所属プロジェクトのタスク）
+   */
+  getTasksByUserAccess(userId) {
+    const stmt = this.db.prepare(`
+      SELECT DISTINCT t.* FROM tasks t
+      INNER JOIN project_members pm ON t.project = pm.project_id
+      WHERE pm.user_id = ?
+      ORDER BY t.created_at DESC
+    `);
+    const tasks = stmt.all(userId);
+    return tasks.map(t => ({
+      ...t,
+      tags: t.tags ? JSON.parse(t.tags) : []
+    }));
+  }
+
+  /**
+   * プロジェクトメンバー全員が閲覧可能なタスクを取得（担当者情報付き）
+   */
+  getTasksWithAssigneeInfo(userId) {
+    const stmt = this.db.prepare(`
+      SELECT 
+        t.*,
+        u.display_name as assignee_name,
+        u.login_id as assignee_login_id
+      FROM tasks t
+      INNER JOIN project_members pm ON t.project = pm.project_id
+      LEFT JOIN users u ON t.assignee = u.id
+      WHERE pm.user_id = ?
+      ORDER BY t.created_at DESC
+    `);
+    const tasks = stmt.all(userId);
+    return tasks.map(t => ({
+      ...t,
+      tags: t.tags ? JSON.parse(t.tags) : [],
+      assigneeInfo: t.assignee ? {
+        id: t.assignee,
+        name: t.assignee_name,
+        loginId: t.assignee_login_id
+      } : null
+    }));
+  }
+
+  /**
    * タスクを作成
    */
   createTask(task) {
