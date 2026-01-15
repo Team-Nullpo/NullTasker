@@ -21,7 +21,10 @@ export class Utils {
 
   // 日付フォーマット
   static formatDate(dateString) {
-    const date = new Date(dateString);
+    // null/undefined/empty は未設定扱い
+    if (!dateString) return '未設定';
+    const date = dateString instanceof Date ? dateString : new Date(dateString);
+    if (isNaN(date.getTime())) return '未設定';
     return date.toLocaleDateString('ja-JP');
   }
 

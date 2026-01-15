@@ -539,7 +539,7 @@ export class TaskManager {
     const progressText = this.getProgressText(task.progress);
     const priorityText = this.getPriorityText(task.priority);
     const statusText = this.getStatusText(task.status);
-    const assigneeText = this.getAssigneeText(task.assignee);
+    const assigneeText = this.getAssigneeDisplayName(task);
 
     taskDiv.innerHTML = `
       <div class="task-checkbox">
@@ -623,7 +623,29 @@ export class TaskManager {
   }
 
   getAssigneeText(assigneeValue) {
+    // まずローカルのprojectUsersから検索
     const assignee = this.projectUsers.find((u) => u.id === assigneeValue);
-    return assignee ? assignee.displayName : assigneeValue;
+    if (assignee) {
+      return assignee.displayName;
+    }
+    
+    // assigneeValueがない場合は「未割り当て」を返す
+    if (!assigneeValue) {
+      return "未割り当て";
+    }
+    
+    // IDをそのまま返す（フォールバック）
+    return assigneeValue;
+  }
+
+  // タスクオブジェクトから担当者名を取得（assigneeInfo対応）
+  getAssigneeDisplayName(task) {
+    // サーバーから返されたassigneeInfo情報を優先的に使用
+    if (task.assigneeInfo?.name) {
+      return task.assigneeInfo.name;
+    }
+    
+    // フォールバック: assigneeIDから検索
+    return this.getAssigneeText(task.assignee);
   }
 }
