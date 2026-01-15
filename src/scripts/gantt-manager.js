@@ -244,10 +244,14 @@ export class GanttManager {
 
     const startDate = new Date(task.startDate || task.createdAt);
     const endDate = new Date(task.dueDate);
-    const startIndex = this.findDateIndex(dates, startDate);
-    const endIndex = this.findDateIndex(dates, endDate);
+    let startIndex = this.findDateIndex(dates, startDate);
+    let endIndex = this.findDateIndex(dates, endDate);
 
-    if (startIndex >= 0 && endIndex >= 0 && endIndex >= startIndex) {
+    // タイムライン外の部分をクリップして部分的に表示
+    startIndex = Math.max(0, startIndex);
+    endIndex = Math.min(dates.length - 1, endIndex);
+
+    if (startIndex <= endIndex) {
       const barContainer = this.createGanttBar(
         task,
         startIndex,
