@@ -21,9 +21,11 @@ export class GanttManager {
   }
 
   loadTasks() {
-    this.tasks = TicketManager.tasks.filter(
-      (ticket) => ticket.project === ProjectManager.currentProject
-    );
+    // Ensure we use ProjectManager.getCurrentProjectId() to obtain a valid project id
+    const projectId = ProjectManager.getCurrentProjectId
+      ? ProjectManager.getCurrentProjectId()
+      : ProjectManager.currentProject;
+    this.tasks = TicketManager.tasks.filter((ticket) => ticket.project === projectId);
   }
 
   setupEventListeners() {
@@ -31,8 +33,10 @@ export class GanttManager {
       timeScaleSelect: Utils.getElement("#timeScale"),
       prevBtn: Utils.getElement("#prevPeriod"),
       nextBtn: Utils.getElement("#nextPeriod"),
-      taskDetailModal: Utils.getElement("#taskDetailModal"),
-      closeTaskDetailBtn: Utils.getElement("#closeTaskDetail"),
+      // task detail modal and close button are optional on the gantt page;
+      // use document.querySelector to avoid noisy Utils.getElement warnings when absent
+      taskDetailModal: document.querySelector("#taskDetailModal"),
+      closeTaskDetailBtn: document.querySelector("#closeTaskDetail"),
     };
 
     if (elements.timeScaleSelect) {
@@ -241,25 +245,48 @@ export class GanttManager {
   createGanttBarRow(task, dates, cellWidth) {
     const row = document.createElement("div");
     row.className = "gantt-bar-row";
+    // 行内で絶対配置要素を相対基準にする
+    row.style.position = "relative";
+    row.style.minHeight = "40px";
 
-    const startDate = new Date(task.startDate || task.createdAt);
-    const endDate = new Date(task.dueDate);
+    // 安全な日付パース（start がなければ作成日を使う、end が無い場合は start を使う）
+    const startDate = task.startDate
+      ? new Date(task.startDate)
+      : task.createdAt
+      ? new Date(task.createdAt)
+      : null;
+    const endDate = task.dueDate ? new Date(task.dueDate) : startDate ? new Date(startDate) : null;
+
+    // 日付が不正ならバーは描かない（表示崩れを防ぐ）
+    // if (!startDate || isNaN(startDate.getTime()) || !endDate || isNaN(endDate.getTime())) {
+    //   return row;
+    // }
+
     let startIndex = this.findDateIndex(dates, startDate);
     let endIndex = this.findDateIndex(dates, endDate);
 
-    // タイムライン外の部分をクリップして部分的に表示
+    const firstDate = dates[0];
+    const lastDate = dates[dates.length - 1];
+
+    // startIndex/endIndex が -1 の場合は、タイムラインの前後かを判定して部分描画する
+    if (startIndex === -1) {
+      if (startDate < firstDate) startIndex = 0; // 期間開始が前なら先頭から表示
+      else if (startDate > lastDate) startIndex = dates.length; // 完全に後なら重ならない
+    }
+    if (endIndex === -1) {
+      if (endDate > lastDate) endIndex = dates.length - 1; // 終了が後なら最後まで表示
+      else if (endDate < firstDate) endIndex = -1; // 完全に前なら重ならない
+    }
+
+    // オーバーラップがない場合は何も描かない
+    if (startIndex > endIndex || startIndex >= dates.length || endIndex < 0) return row;
+
+    // インデックスを最終的にクリップ
     startIndex = Math.max(0, startIndex);
     endIndex = Math.min(dates.length - 1, endIndex);
 
-    if (startIndex <= endIndex) {
-      const barContainer = this.createGanttBar(
-        task,
-        startIndex,
-        endIndex,
-        cellWidth
-      );
-      row.appendChild(barContainer);
-    }
+    const barContainer = this.createGanttBar(task, startIndex, endIndex, cellWidth);
+    row.appendChild(barContainer);
 
     return row;
   }
@@ -268,12 +295,13 @@ export class GanttManager {
     const barContainer = document.createElement("div");
     barContainer.className = "gantt-bar-container";
 
+    const widthPx = Math.max(4, (endIndex - startIndex + 1) * cellWidth - 4);
     Object.assign(barContainer.style, {
       position: "absolute",
       left: `${startIndex * cellWidth}px`,
-      width: `${(endIndex - startIndex + 1) * cellWidth - 4}px`,
-      height: "20px",
-      top: "10px",
+      width: `${widthPx}px`,
+      height: "24px",
+      top: "0px",
     });
 
     const bar = this.createBarElement(task);
