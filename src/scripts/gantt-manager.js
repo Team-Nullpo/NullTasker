@@ -1,19 +1,19 @@
-import { Utils } from "./utils.js";
-import { ProjectManager } from "./project-manager.js";
-import { TicketManager } from "./ticket-manager.js";
+import { Utils } from './utils.js';
+import { ProjectManager } from './project-manager.js';
+import { TicketManager } from './ticket-manager.js';
 
 // ガントチャート管理クラス
 export class GanttManager {
   constructor() {
     this.tasks = [];
     this.currentDate = new Date();
-    this.timeScale = "week";
+    this.timeScale = 'week';
     this.isExpanded = false;
     this.init();
   }
 
   init() {
-    if (Utils.getElement(".gantt-container")) {
+    if (Utils.getElement('.gantt-container')) {
       this.loadTasks();
       this.setupEventListeners();
       this.renderGantt();
@@ -25,33 +25,33 @@ export class GanttManager {
     const projectId = ProjectManager.getCurrentProjectId
       ? ProjectManager.getCurrentProjectId()
       : ProjectManager.currentProject;
-    this.tasks = TicketManager.tasks.filter((ticket) => ticket.project === projectId);
+    this.tasks = TicketManager.tasks.filter(ticket => ticket.project === projectId);
   }
 
   setupEventListeners() {
     const elements = {
-      timeScaleSelect: Utils.getElement("#timeScale"),
-      prevBtn: Utils.getElement("#prevPeriod"),
-      nextBtn: Utils.getElement("#nextPeriod"),
+      timeScaleSelect: Utils.getElement('#timeScale'),
+      prevBtn: Utils.getElement('#prevPeriod'),
+      nextBtn: Utils.getElement('#nextPeriod'),
       // task detail modal and close button are optional on the gantt page;
       // use document.querySelector to avoid noisy Utils.getElement warnings when absent
-      taskDetailModal: document.querySelector("#taskDetailModal"),
-      closeTaskDetailBtn: document.querySelector("#closeTaskDetail"),
+      taskDetailModal: document.querySelector('#taskDetailModal'),
+      closeTaskDetailBtn: document.querySelector('#closeTaskDetail')
     };
 
     if (elements.timeScaleSelect) {
-      elements.timeScaleSelect.addEventListener("change", (e) => {
+      elements.timeScaleSelect.addEventListener('change', e => {
         this.timeScale = e.target.value;
         this.renderGantt();
       });
     }
 
     if (elements.prevBtn) {
-      elements.prevBtn.addEventListener("click", () => this.navigatePeriod(-1));
+      elements.prevBtn.addEventListener('click', () => this.navigatePeriod(-1));
     }
 
     if (elements.nextBtn) {
-      elements.nextBtn.addEventListener("click", () => this.navigatePeriod(1));
+      elements.nextBtn.addEventListener('click', () => this.navigatePeriod(1));
     }
 
     this.setupModalEvents(elements);
@@ -59,15 +59,15 @@ export class GanttManager {
 
   setupModalEvents({ taskDetailModal, closeTaskDetailBtn }) {
     if (closeTaskDetailBtn) {
-      closeTaskDetailBtn.addEventListener("click", () => {
-        if (taskDetailModal) taskDetailModal.style.display = "none";
+      closeTaskDetailBtn.addEventListener('click', () => {
+        if (taskDetailModal) taskDetailModal.style.display = 'none';
       });
     }
 
     if (taskDetailModal) {
-      taskDetailModal.addEventListener("click", (e) => {
+      taskDetailModal.addEventListener('click', e => {
         if (e.target === taskDetailModal) {
-          taskDetailModal.style.display = "none";
+          taskDetailModal.style.display = 'none';
         }
       });
     }
@@ -75,13 +75,13 @@ export class GanttManager {
 
   navigatePeriod(direction) {
     const adjustments = {
-      month: { method: "setMonth", amount: 1 },
-      week: { method: "setDate", amount: 7 },
-      day: { method: "setDate", amount: 1 },
+      month: { method: 'setMonth', amount: 1 },
+      week: { method: 'setDate', amount: 7 },
+      day: { method: 'setDate', amount: 1 }
     };
 
     const { method, amount } = adjustments[this.timeScale] || adjustments.day;
-    const currentValue = this.currentDate[method.replace("set", "get")]();
+    const currentValue = this.currentDate[method.replace('set', 'get')]();
     this.currentDate[method](currentValue + amount * direction);
 
     this.renderGantt();
@@ -95,7 +95,7 @@ export class GanttManager {
   }
 
   updatePeriodDisplay() {
-    const periodElement = Utils.getElement("#currentPeriod");
+    const periodElement = Utils.getElement('#currentPeriod');
     if (!periodElement) return;
 
     const year = this.currentDate.getFullYear();
@@ -104,10 +104,10 @@ export class GanttManager {
 
     let displayText;
     switch (this.timeScale) {
-      case "month":
+      case 'month':
         displayText = `${year}年${month}月`;
         break;
-      case "week":
+      case 'week':
         const weekStart = new Date(this.currentDate);
         weekStart.setDate(date - this.currentDate.getDay());
         const weekEnd = new Date(weekStart);
@@ -124,15 +124,15 @@ export class GanttManager {
   }
 
   renderTimeline() {
-    const header = Utils.getElement("#ganttTimelineHeader");
+    const header = Utils.getElement('#ganttTimelineHeader');
     if (!header) return;
 
-    header.innerHTML = "";
+    header.innerHTML = '';
     const dates = this.getTimelineDates();
 
-    dates.forEach((date) => {
-      const cell = document.createElement("div");
-      cell.className = "gantt-date-cell";
+    dates.forEach(date => {
+      const cell = document.createElement('div');
+      cell.className = 'gantt-date-cell';
       cell.textContent = this.formatTimelineDate(date);
       header.appendChild(cell);
     });
@@ -143,7 +143,7 @@ export class GanttManager {
     const startDate = new Date(this.currentDate);
 
     switch (this.timeScale) {
-      case "month":
+      case 'month':
         startDate.setDate(1);
         const daysInMonth = new Date(
           startDate.getFullYear(),
@@ -156,10 +156,8 @@ export class GanttManager {
           dates.push(date);
         }
         break;
-      case "week":
-        startDate.setDate(
-          this.currentDate.getDate() - this.currentDate.getDay()
-        );
+      case 'week':
+        startDate.setDate(this.currentDate.getDate() - this.currentDate.getDay());
         for (let i = 0; i < 7; i++) {
           const date = new Date(startDate);
           date.setDate(startDate.getDate() + i);
@@ -179,10 +177,10 @@ export class GanttManager {
 
   formatTimelineDate(date) {
     switch (this.timeScale) {
-      case "month":
+      case 'month':
         return date.getDate();
-      case "week":
-        const days = ["日", "月", "火", "水", "木", "金", "土"];
+      case 'week':
+        const days = ['日', '月', '火', '水', '木', '金', '土'];
         return `${date.getDate()} (${days[date.getDay()]})`;
       default:
         return `${date.getMonth() + 1}/${date.getDate()}`;
@@ -190,64 +188,64 @@ export class GanttManager {
   }
 
   renderTaskList() {
-    const taskRows = Utils.getElement("#ganttTaskRows");
+    const taskRows = Utils.getElement('#ganttTaskRows');
     if (!taskRows) return;
 
-    taskRows.innerHTML = "";
-    this.tasks.forEach((task) => {
+    taskRows.innerHTML = '';
+    this.tasks.forEach(task => {
       const row = this.createTaskRow(task);
       taskRows.appendChild(row);
     });
   }
 
   createTaskRow(task) {
-    const row = document.createElement("div");
-    row.className = "gantt-task-row";
+    const row = document.createElement('div');
+    row.className = 'gantt-task-row';
     row.dataset.taskId = task.id;
-    
+
     const assigneeName = this.getAssigneeDisplayName(task);
 
     const columns = [
-      { className: "task-name-column", content: task.title, title: task.title },
-      { className: "task-assignee-column", content: assigneeName },
+      { className: 'task-name-column', content: task.title, title: task.title },
+      { className: 'task-assignee-column', content: assigneeName },
       {
-        className: "task-duration-column",
-        content: this.calculateDuration(task),
-      },
+        className: 'task-duration-column',
+        content: this.calculateDuration(task)
+      }
     ];
 
     columns.forEach(({ className, content, title }) => {
-      const col = document.createElement("div");
+      const col = document.createElement('div');
       col.className = className;
       col.textContent = content;
       if (title) col.title = title;
       row.appendChild(col);
     });
 
-    row.addEventListener("click", () => this.showTaskDetail(task));
+    row.addEventListener('click', () => this.showTaskDetail(task));
     return row;
   }
 
   renderGanttBars() {
-    const timelineBody = Utils.getElement("#ganttTimelineBody");
+    const timelineBody = Utils.getElement('#ganttTimelineBody');
     if (!timelineBody) return;
 
-    timelineBody.innerHTML = "";
+    timelineBody.innerHTML = '';
     const dates = this.getTimelineDates();
     const cellWidth = 60;
 
-    this.tasks.forEach((task) => {
+    this.tasks.forEach(task => {
       const row = this.createGanttBarRow(task, dates, cellWidth);
       timelineBody.appendChild(row);
     });
   }
 
   createGanttBarRow(task, dates, cellWidth) {
-    const row = document.createElement("div");
-    row.className = "gantt-bar-row";
+    const row = document.createElement('div');
+    row.className = 'gantt-bar-row';
     // 行内で絶対配置要素を相対基準にする
-    row.style.position = "relative";
-    row.style.minHeight = "40px";
+    row.style.position = 'relative';
+    row.style.minHeight = '40px';
 
     // 安全な日付パース（start がなければ作成日を使う、end が無い場合は start を使う）
     const startDate = task.startDate
@@ -262,46 +260,51 @@ export class GanttManager {
     //   return row;
     // }
 
-    let startIndex = this.findDateIndex(dates, startDate);
-    let endIndex = this.findDateIndex(dates, endDate);
+    const startIndex = this.findDateIndex(dates, startDate);
+    const endIndex = this.findDateIndex(dates, endDate);
 
     const firstDate = dates[0];
     const lastDate = dates[dates.length - 1];
 
-    // startIndex/endIndex が -1 の場合は、タイムラインの前後かを判定して部分描画する
-    if (startIndex === -1) {
-      if (startDate < firstDate) startIndex = 0; // 期間開始が前なら先頭から表示
-      else if (startDate > lastDate) startIndex = dates.length; // 完全に後なら重ならない
-    }
-    if (endIndex === -1) {
-      if (endDate > lastDate) endIndex = dates.length - 1; // 終了が後なら最後まで表示
-      else if (endDate < firstDate) endIndex = -1; // 完全に前なら重ならない
+    if (startDate > lastDate || endDate < firstDate) {
+      return row; // 完全に範囲外なら何も描かない
     }
 
-    // オーバーラップがない場合は何も描かない
-    if (startIndex > endIndex || startIndex >= dates.length || endIndex < 0) return row;
-
-    // インデックスを最終的にクリップ
-    startIndex = Math.max(0, startIndex);
-    endIndex = Math.min(dates.length - 1, endIndex);
-
-    const barContainer = this.createGanttBar(task, startIndex, endIndex, cellWidth);
+    const formattedStartIndex = startIndex === -1 ? 0 : startIndex;
+    const formattedEndIndex = endIndex === -1 ? dates.length - 1 : endIndex;
+    const barContainer = this.createGanttBar(
+      task,
+      formattedStartIndex,
+      formattedEndIndex,
+      cellWidth
+    );
     row.appendChild(barContainer);
+
+    console.log('Creating Gantt bar for task:', task.title, {
+      startDate,
+      endDate,
+      startIndex,
+      endIndex,
+      firstDate,
+      lastDate,
+      formattedStartIndex,
+      formattedEndIndex
+    });
 
     return row;
   }
 
   createGanttBar(task, startIndex, endIndex, cellWidth) {
-    const barContainer = document.createElement("div");
-    barContainer.className = "gantt-bar-container";
+    const barContainer = document.createElement('div');
+    barContainer.className = 'gantt-bar-container';
 
     const widthPx = Math.max(4, (endIndex - startIndex + 1) * cellWidth - 4);
     Object.assign(barContainer.style, {
-      position: "absolute",
+      position: 'absolute',
       left: `${startIndex * cellWidth}px`,
       width: `${widthPx}px`,
-      height: "24px",
-      top: "0px",
+      height: '24px',
+      top: '0px'
     });
 
     const bar = this.createBarElement(task);
@@ -312,49 +315,49 @@ export class GanttManager {
   }
 
   createBarElement(task) {
-    const bar = document.createElement("div");
+    const bar = document.createElement('div');
     bar.className = `gantt-bar ${task.priority}`;
-    if (task.status === "done") bar.classList.add("completed");
+    if (task.status === 'done') bar.classList.add('completed');
 
     Object.assign(bar.style, {
-      width: "100%",
-      height: "100%",
-      position: "relative",
-      borderRadius: "10px",
-      display: "flex",
-      alignItems: "center",
-      padding: "0 8px",
-      boxSizing: "border-box",
+      width: '100%',
+      height: '100%',
+      position: 'relative',
+      borderRadius: '10px',
+      display: 'flex',
+      alignItems: 'center',
+      padding: '0 8px',
+      boxSizing: 'border-box'
     });
 
     // 進捗バー
     if (task.progress > 0) {
-      const progressBar = document.createElement("div");
-      progressBar.className = "gantt-progress-bar";
+      const progressBar = document.createElement('div');
+      progressBar.className = 'gantt-progress-bar';
       Object.assign(progressBar.style, {
-        position: "absolute",
-        left: "0",
-        top: "0",
-        height: "100%",
+        position: 'absolute',
+        left: '0',
+        top: '0',
+        height: '100%',
         width: `${task.progress}%`,
-        backgroundColor: "rgba(255, 255, 255, 0.3)",
-        borderRadius: "10px",
-        transition: "width 0.3s ease",
+        backgroundColor: 'rgba(255, 255, 255, 0.3)',
+        borderRadius: '10px',
+        transition: 'width 0.3s ease'
       });
       bar.appendChild(progressBar);
     }
 
     // タスクタイトル
-    const titleSpan = document.createElement("span");
+    const titleSpan = document.createElement('span');
     titleSpan.textContent = task.title;
     Object.assign(titleSpan.style, {
-      position: "relative",
-      zIndex: "2",
-      fontSize: "11px",
-      whiteSpace: "nowrap",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-      color: task.priority === "medium" ? "#212529" : "white",
+      position: 'relative',
+      zIndex: '2',
+      fontSize: '11px',
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      color: task.priority === 'medium' ? '#212529' : 'white'
     });
     bar.appendChild(titleSpan);
 
@@ -366,31 +369,31 @@ export class GanttManager {
     const endDate = new Date(task.dueDate);
     const assigneeName = this.getAssigneeDisplayName(task);
 
-    barContainer.title = `${task.title} - ${assigneeName}\n開始日: ${Utils.formatDate(startDate)}\n期日: ${Utils.formatDate(
-      endDate
-    )}\n進捗: ${task.progress}%`;
+    barContainer.title = `${task.title} - ${assigneeName}\n開始日: ${Utils.formatDate(
+      startDate
+    )}\n期日: ${Utils.formatDate(endDate)}\n進捗: ${task.progress}%`;
 
-    barContainer.addEventListener("click", () => this.showTaskDetail(task));
+    barContainer.addEventListener('click', () => this.showTaskDetail(task));
 
-    barContainer.addEventListener("mouseenter", () => {
+    barContainer.addEventListener('mouseenter', () => {
       Object.assign(barContainer.style, {
-        transform: "translateY(-2px)",
-        boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
-        zIndex: "10",
+        transform: 'translateY(-2px)',
+        boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+        zIndex: '10'
       });
     });
 
-    barContainer.addEventListener("mouseleave", () => {
+    barContainer.addEventListener('mouseleave', () => {
       Object.assign(barContainer.style, {
-        transform: "translateY(0)",
-        boxShadow: "none",
-        zIndex: "1",
+        transform: 'translateY(0)',
+        boxShadow: 'none',
+        zIndex: '1'
       });
     });
   }
 
   findDateIndex(dates, targetDate) {
-    return dates.findIndex((date) => Utils.isSameDate(date, targetDate));
+    return dates.findIndex(date => Utils.isSameDate(date, targetDate));
   }
 
   calculateDuration(task) {
@@ -401,22 +404,22 @@ export class GanttManager {
   }
 
   showTaskDetail(task) {
-    const modal = Utils.getElement("#taskDetailModal");
-    const content = Utils.getElement("#taskDetailContent");
+    const modal = Utils.getElement('#taskDetailModal');
+    const content = Utils.getElement('#taskDetailContent');
 
     if (modal && content) {
       content.innerHTML = this.createTaskDetailHTML(task);
-      modal.style.display = "block";
+      modal.style.display = 'block';
     }
   }
 
   createTaskDetailHTML(task) {
     const assigneeName = this.getAssigneeDisplayName(task);
-    
+
     return `
       <div class="task-detail-info">
         <h3>${task.title}</h3>
-        <p><strong>説明:</strong> ${task.description || "なし"}</p>
+        <p><strong>説明:</strong> ${task.description || 'なし'}</p>
         <p><strong>担当者:</strong> ${assigneeName}</p>
         <p><strong>期限:</strong> ${Utils.formatDate(task.dueDate)}</p>
         <p><strong>優先度:</strong> ${this.getPriorityText(task.priority)}</p>
@@ -428,18 +431,18 @@ export class GanttManager {
   }
 
   getPriorityText(priority) {
-    const map = { high: "高優先度", medium: "中優先度", low: "低優先度" };
-    return map[priority] || "中優先度";
+    const map = { high: '高優先度', medium: '中優先度', low: '低優先度' };
+    return map[priority] || '中優先度';
   }
 
   getStatusText(status) {
     const map = {
-      todo: "未着手",
-      in_progress: "進行中",
-      review: "レビュー中",
-      done: "完了",
+      todo: '未着手',
+      in_progress: '進行中',
+      review: 'レビュー中',
+      done: '完了'
     };
-    return map[status] || "未着手";
+    return map[status] || '未着手';
   }
 
   // タスクオブジェクトから担当者名を取得（assigneeInfo対応）
@@ -448,20 +451,20 @@ export class GanttManager {
     if (task.assigneeInfo?.name) {
       return task.assigneeInfo.name;
     }
-    
+
     // フォールバック: assigneeをそのまま表示（IDまたは名前）
     if (task.assignee) {
       return task.assignee;
     }
-    
-    return "未割り当て";
+
+    return '未割り当て';
   }
 
   toggleExpand() {
     this.isExpanded = !this.isExpanded;
-    const chart = Utils.getElement(".gantt-chart");
+    const chart = Utils.getElement('.gantt-chart');
     if (chart) {
-      chart.style.height = this.isExpanded ? "600px" : "400px";
+      chart.style.height = this.isExpanded ? '600px' : '400px';
     }
   }
 
@@ -470,16 +473,16 @@ export class GanttManager {
       tasks: this.tasks,
       period: this.currentDate.toISOString(),
       timeScale: this.timeScale,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date().toISOString()
     };
 
     const blob = new Blob([JSON.stringify(data, null, 2)], {
-      type: "application/json",
+      type: 'application/json'
     });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
-    a.download = `gantt-chart-${new Date().toISOString().split("T")[0]}.json`;
+    a.download = `gantt-chart-${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -489,5 +492,5 @@ export class GanttManager {
 
 export const ganttFunctions = {
   toggleExpand: () => window.ganttManager?.toggleExpand(),
-  exportGantt: () => window.ganttManager?.exportGantt(),
+  exportGantt: () => window.ganttManager?.exportGantt()
 };
