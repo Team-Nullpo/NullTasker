@@ -74,23 +74,36 @@ logs
 tmp/
 temp/
 
-# BuckUp files
+# Backup files
+config/backups/*
+!config/backups/.gitkeep
 config/backup/*
 !config/backup/.gitkeep
 
+# Config data files (runtime generated)
 config/settings.json
 config/tickets.json
 config/users.json
 config/projects.json
 
-# SSL certificates
+# Database files
+db/*.db
+db/*.db-shm
+db/*.db-wal
+db/backups/*
+!db/backups/.gitkeep
+
+# SSL certificates (generated)
 ssl/*.key
 ssl/*.cert
 ssl/*.csr
 ssl/*.pem
 
-# etc
+# Personal/Development files
 memo.md
-
-#personally
 .prettierrc
+
+# Editor configs
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example

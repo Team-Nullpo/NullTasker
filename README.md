@@ -38,6 +38,8 @@ NullTasker は、学生・チーム向けの Web ベースのタスク管理シ�
 
 ### インストール
 
+詳細なセットアップ手順は [SETUP.md](docs/SETUP.md) をご覧ください。
+
 ```bash
 # リポジトリのクローン
 git clone https://github.com/Team-Nullpo/NullTasker.git
@@ -48,12 +50,10 @@ cd NullTasker
 # 依存関係のインストール
 npm install
 
-# データベースの初期化（初回のみ）
-npm run migrate
-# または新規データベース作成
-npm run reset
+# 環境変数の設定（オプション）
+cp .env.example .env
 
-# SSL証明書の生成（初回のみ必須）
+# SSL証明書の生成（HTTPS使用時）
 npm run generate-cert
 ```
 
@@ -89,10 +89,24 @@ npm run dev:http
 > これは開発用の自己署名証明書を使用しているためで、正常な動作です。  
 > 詳細は [HTTPS 設定ガイド](docs/HTTPS_SETUP.md) または [クイックスタート](docs/QUICKSTART_HTTPS.md) を参照してください。
 
-### データリセット機能
+### データベース管理
+
+#### データリセット
 
 開発・テスト用にデータリセットコマンドを提供しています。
-詳細は `docs/RESET.md`をご覧ください。
+詳細は [RESET.md](docs/RESET.md) をご覧ください。
+
+```bash
+npm run reset-data
+```
+
+#### データベース移行（旧JSON形式から）
+
+```bash
+npm run migrate
+```
+
+詳細は [DATABASE_MIGRATION.md](docs/DATABASE_MIGRATION.md) を参照してください。
 
 ### 初回ログイン
 
@@ -111,29 +125,34 @@ NullTasker/
 ├── README.md                   # メインドキュメント
 ├── SECURITY.md                 # セキュリティガイドライン
 ├── package.json               # Node.js プロジェクト設定
+├── .env.example               # 環境変数設定例
 ├── server.js                  # バックエンドサーバー (SQLite版)
-├── server-json-backup.js      # 旧バックエンドサーバー (JSON版・バックアップ)
-├── db/                        # データベース (NEW!)
-│   ├── nulltasker.db          # SQLiteデータベースファイル
+├── server-constants.js        # サーバー定数定義
+├── db/                        # データベース
+│   ├── README.md              # データベース説明書
+│   ├── nulltasker.db          # SQLiteデータベースファイル（自動生成・Git除外）
 │   ├── schema.sql             # データベーススキーマ定義
 │   ├── database.js            # データベース管理クラス
-│   └── backups/               # データベースバックアップ
-├── config/                    # 設定ファイル
-│   ├── json-backup/           # 旧JSONファイル（バックアップ）
-│   └── backups/               # 旧バックアップファイル
+│   └── backups/               # データベースバックアップ（Git除外）
+├── config/                    # 設定ファイル（ランタイム生成・Git除外）
+│   ├── README.md              # 設定ディレクトリ説明書
+│   └── backups/               # 設定バックアップ（Git除外）
 ├── docs/                      # ドキュメント
+│   ├── SETUP.md               # セットアップガイド
 │   ├── RESET.md               # データリセット説明書
 │   ├── HTTPS_SETUP.md         # HTTPS設定ガイド
-│   └── QUICKSTART_HTTPS.md    # HTTPSクイックスタート
-├── ssl/                       # SSL証明書（gitignoreで除外）
+│   ├── QUICKSTART_HTTPS.md    # HTTPSクイックスタート
+│   └── DATABASE_MIGRATION.md  # データベース移行ガイド
+├── ssl/                       # SSL証明書（自動生成・Git除外）
 │   ├── server.key             # 秘密鍵
 │   └── server.cert            # 証明書
 ├── scripts/                   # 管理・開発用スクリプト
-│   ├── reset-data.js          # データリセットスクリプト (SQLite版)
-│   ├── reset-data-json-backup.js # 旧リセットスクリプト (JSON版)
-│   ├── migrate-to-sqlite.js   # JSON→SQLiteマイグレーションスクリプト
-│   └── generate-cert.js       # SSL証明書生成スクリプト
-└── src/                       # ソースコード
+│   ├── reset-data.js          # データリセットスクリプト
+│   ├── migrate-to-sqlite.js   # JSON→SQLiteマイグレーション
+│   ├── generate-cert.js       # SSL証明書生成
+│   ├── test-api.js            # API動作テスト
+│   └── test-admin-api.js      # 管理者API動作テスト
+└── src/                       # フロントエンドソースコード
     ├── assets/                # アセット（画像等）
     │   └── logo.png           # アプリケーションロゴ
     ├── pages/                 # HTMLページ
