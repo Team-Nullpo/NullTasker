@@ -2,8 +2,19 @@
    NullTasker - Main Styles (Modular Approach)
    ========================================================================== */
 
-/* このファイルは base.css, layout.css, components.css, sidebar.css, 
-   pages.css, user-dropdown.css, responsive.css と組み合わせて使用します */
+/*
+ * このファイルは以下のファイルと組み合わせて使用します：
+ * - variables.css (CSS変数定義)
+ * - base.css (リセット、基本スタイル)
+ * - layout.css (レイアウトコンポーネント)
+ * - components.css (共通コンポーネント)
+ * - sidebar.css (サイドバー)
+ * - pages.css (ページ固有スタイル)
+ * - user-dropdown.css (ユーザードロップダウン)
+ * - responsive.css (レスポンシブデザイン)
+ *
+ * NOTE: このファイルは段階的に非推奨となり、各モジュールファイルに統合されます
+ */
 
 /* ==========================================================================
    Legacy Compatibility - 既存の依存関係維持
@@ -15,87 +26,24 @@ input, select, textarea, button {
   border-radius: var(--border-radius-sm);
 }
 
-/* アプリケーションコンテナ */
-.app-container {
-  display: flex;
-  min-height: 100vh;
-  background-color: #f8f9fa;
-}
-
-/* メインコンテンツエリア（layout.cssと重複回避のため削除される予定） */
-/* 現在layout.cssで管理されている */
-
-/* ヘッダーとボディはlayout.cssで管理されている */
-
 /* セクション共通スタイル */
 .settings-section {
-  background: white;
-  border-radius: 12px;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e0e0e0;
+  background: var(--card-bg);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-8);
+  margin-bottom: var(--space-8);
+  box-shadow: var(--shadow-md);
+  border: var(--border-width-thin) solid var(--border-color-light);
 }
 
 .settings-section h2 {
-  margin: 0 0 1.5rem 0;
-  color: #333;
-  font-size: 1.25rem;
+  margin: 0 0 var(--space-6) 0;
+  color: var(--text-primary);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-}
-
-/* ボタン共通スタイル */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 10px 20px;
-  border: none;
-  border-radius: var(--border-radius);
-  font-size: 14px;
-  font-weight: 500;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.btn-primary {
-  background: var(--primary-color);
-  color: white;
-}
-
-.btn-primary:hover {
-  background: var(--primary-dark);
-}
-
-.btn-secondary {
-  background: var(--secondary-color);
-  color: white;
-}
-
-.btn-secondary:hover {
-  background: var(--secondary-dark);
-}
-
-.btn-success {
-  background: var(--success-color);
-  color: white;
-}
-
-.btn-success:hover {
-  background: var(--success-dark);
-}
-
-.btn-warning {
-  background: var(--warning-color);
-  color: var(--gray-800);
-}
-
-.btn-warning:hover {
-  background: var(--warning-dark);
+  gap: var(--space-2);
 }
 
 .btn-danger {
