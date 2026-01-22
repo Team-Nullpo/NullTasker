@@ -5,7 +5,7 @@ export class SimpleAuth {
   static getToken() {
     return localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN) || sessionStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
   }
-  
+
   static getCurrentUser() {
     const userStr = localStorage.getItem(STORAGE_KEYS.USER) || sessionStorage.getItem(STORAGE_KEYS.USER);
     if (userStr) {
@@ -18,13 +18,13 @@ export class SimpleAuth {
     }
     return null;
   }
-  
+
   static isLoggedIn() {
     const token = this.getToken();
     const user = this.getCurrentUser();
     return !!token && !!user;
   }
-  
+
   static requireAuth() {
     if (!this.isLoggedIn()) {
       // 無限ループ防止フラグを設定
@@ -34,7 +34,7 @@ export class SimpleAuth {
     }
     return true;
   }
-  
+
   static getAuthHeaders() {
     const token = this.getToken();
     return {
@@ -42,18 +42,18 @@ export class SimpleAuth {
       'Authorization': token ? `Bearer ${token}` : ''
     };
   }
-  
+
   static hasRole(requiredRole) {
     const user = this.getCurrentUser();
     return user && user.role === requiredRole;
   }
-  
+
   static updateCurrentUser(updatedUser) {
     if (updatedUser) {
       localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updatedUser));
     }
   }
-  
+
   static initUserIcon() {
     const userIcon = document.getElementById('userIcon');
     if (!userIcon) return;
@@ -64,7 +64,7 @@ export class SimpleAuth {
 
     // ドロップダウンメニューを作成
     this.createUserDropdown(userIcon, user);
-    
+
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
       console.log('ユーザーアイコン初期化完了');
     }
@@ -96,18 +96,18 @@ export class SimpleAuth {
 
     // 基本メニュー項目
     const basicMenuItems = [
-      { icon: 'fas fa-user', text: 'プロフィール', action: () => window.location.href = '/src/pages/user-profile.html' }
+      { icon: 'fas fa-user', text: 'プロフィール', action: () => window.location.href = 'user-profile.html' }
     ];
 
     // 管理者メニュー項目（system_adminまたはproject_adminの場合のみ）
     const adminMenuItems = [];
     if (user.role === 'system_admin') {
       adminMenuItems.push(
-        { icon: 'fas fa-cogs', text: 'システム管理', action: () => window.location.href = '/src/pages/admin.html' }
+        { icon: 'fas fa-cogs', text: 'システム管理', action: () => window.location.href = 'admin.html' }
       );
     } else if (user.role === 'project_admin') {
       adminMenuItems.push(
-        { icon: 'fas fa-users', text: 'メンバー管理', action: () => window.location.href = '/src/pages/admin.html?tab=members' }
+        { icon: 'fas fa-users', text: 'メンバー管理', action: () => window.location.href = 'admin.html?tab=members' }
       );
     }
 
@@ -116,12 +116,12 @@ export class SimpleAuth {
       const menuItem = document.createElement('div');
       menuItem.className = 'user-dropdown-item';
       menuItem.innerHTML = `<i class="${item.icon}"></i> ${item.text}`;
-      
+
       menuItem.addEventListener('click', () => {
         dropdown.style.display = 'none';
         item.action();
       });
-      
+
       menuItems.appendChild(menuItem);
     });
 
@@ -134,11 +134,11 @@ export class SimpleAuth {
     const logoutItem = document.createElement('div');
     logoutItem.className = 'user-dropdown-logout';
     logoutItem.innerHTML = '<i class="fas fa-sign-out-alt"></i> ログアウト';
-    
+
     logoutItem.addEventListener('click', () => {
       this.logout();
     });
-    
+
     menuItems.appendChild(logoutItem);
 
     // ドロップダウンを組み立て
@@ -179,7 +179,7 @@ export class SimpleAuth {
       window.location.href = '/src/pages/login.html';
     }
   }
-  
+
   static clearAuth() {
     localStorage.removeItem('authToken');
     localStorage.removeItem('refreshToken');
