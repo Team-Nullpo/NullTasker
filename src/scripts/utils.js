@@ -14,9 +14,9 @@ export class Utils {
    * デバッグモード判定（開発環境のみログ出力）
    */
   static get DEBUG_MODE() {
-    return window.location.hostname === 'localhost' || 
-           window.location.hostname === '127.0.0.1' ||
-           window.location.hostname.includes('192.168');
+    return window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1' ||
+      window.location.hostname.includes('192.168');
   }
 
   /**
@@ -85,10 +85,10 @@ export class Utils {
    */
   static formatDate(dateString, format = 'full') {
     if (!dateString) return '未設定';
-    
+
     const date = dateString instanceof Date ? dateString : new Date(dateString);
     if (isNaN(date.getTime())) return '未設定';
-    
+
     switch (format) {
       case 'short':
         return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
@@ -107,10 +107,10 @@ export class Utils {
    */
   static formatDateTime(dateString) {
     if (!dateString) return '未設定';
-    
+
     const date = dateString instanceof Date ? dateString : new Date(dateString);
     if (isNaN(date.getTime())) return '未設定';
-    
+
     return date.toLocaleString('ja-JP');
   }
 
@@ -121,17 +121,17 @@ export class Utils {
    */
   static formatRelativeTime(dateString) {
     if (!dateString) return '不明';
-    
+
     const date = dateString instanceof Date ? dateString : new Date(dateString);
     if (isNaN(date.getTime())) return '不明';
-    
+
     const now = new Date();
     const diffMs = now - date;
     const diffSec = Math.floor(diffMs / 1000);
     const diffMin = Math.floor(diffSec / 60);
     const diffHour = Math.floor(diffMin / 60);
     const diffDay = Math.floor(diffHour / 24);
-    
+
     if (diffSec < 60) return 'たった今';
     if (diffMin < 60) return `${diffMin}分前`;
     if (diffHour < 24) return `${diffHour}時間前`;
@@ -149,8 +149,8 @@ export class Utils {
    */
   static isSameDate(date1, date2) {
     return date1.getFullYear() === date2.getFullYear() &&
-           date1.getMonth() === date2.getMonth() &&
-           date1.getDate() === date2.getDate();
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate();
   }
 
   /**
@@ -215,11 +215,11 @@ export class Utils {
    */
   static formatBytes(bytes, decimals = 2) {
     if (bytes === 0) return '0 Bytes';
-    
+
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
+
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(decimals))} ${sizes[i]}`;
   }
 
@@ -278,7 +278,7 @@ export class Utils {
    */
   static createElement(tag, attributes = {}, content = '') {
     const element = document.createElement(tag);
-    
+
     Object.entries(attributes).forEach(([key, value]) => {
       if (key === 'class') {
         element.className = value;
@@ -290,11 +290,11 @@ export class Utils {
         element[key] = value;
       }
     });
-    
+
     if (content) {
       element.textContent = content;
     }
-    
+
     return element;
   }
 
@@ -312,10 +312,10 @@ export class Utils {
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.textContent = message;
-    
+
     const backgroundColor = NOTIFICATION_COLORS[type] || NOTIFICATION_COLORS[NOTIFICATION_TYPE.INFO];
     const textColor = type === NOTIFICATION_TYPE.WARNING ? '#212529' : 'white';
-    
+
     notification.style.cssText = `
       position: fixed;
       top: var(--space-5, 20px);
@@ -332,9 +332,9 @@ export class Utils {
       word-wrap: break-word;
       animation: slideInRight 0.3s ease;
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
       notification.style.animation = 'slideOutRight 0.3s ease';
       setTimeout(() => {
@@ -482,7 +482,7 @@ export class Utils {
    */
   static debounce(func, delay = 300) {
     let timeoutId;
-    return function(...args) {
+    return function (...args) {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => func.apply(this, args), delay);
     };

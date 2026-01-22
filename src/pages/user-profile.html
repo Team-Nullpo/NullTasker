@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -23,14 +24,15 @@
   <script type="module" src="../scripts/simple-auth.js"></script>
   <script type="module" src="../scripts/user-profile.js"></script>
 </head>
+
 <body>
   <div class="app-container">
-    
+
     <!-- トグルボタン（サイドバーの外に配置） -->
     <button id="toggleSidebar" class="toggle-btn">
       <i class="fas fa-bars"></i>
     </button>
-    
+
     <!-- サイドバー -->
     <aside class="sidebar" id="sidebar">
       <div class="logo">
@@ -64,15 +66,15 @@
           <a href="index.html">ホーム</a> > 個人設定
         </nav>
       </div>
-      
+
       <div class="main-body">
-        
+
         <!-- 成功メッセージ -->
         <div id="successMessage" class="alert alert-success" style="display: none;">
           <i class="fas fa-check-circle"></i>
           <span id="successText"></span>
         </div>
-        
+
         <!-- エラーメッセージ -->
         <div id="errorMessage" class="alert alert-error" style="display: none;">
           <i class="fas fa-exclamation-triangle"></i>
@@ -83,7 +85,7 @@
         <section class="settings-section">
           <h2><i class="fas fa-user"></i> プロフィール情報</h2>
           <form id="profileForm" class="settings-form">
-            
+
             <div class="form-group">
               <label for="loginId">ログインID</label>
               <input type="text" id="loginId" name="loginId" readonly>
@@ -121,7 +123,7 @@
         <section class="settings-section">
           <h2><i class="fas fa-lock"></i> パスワード変更</h2>
           <form id="passwordForm" class="settings-form">
-            
+
             <div class="form-group">
               <label for="currentPassword">現在のパスワード</label>
               <div class="password-input">
@@ -166,7 +168,7 @@
         <section class="settings-section">
           <h2><i class="fas fa-cog"></i> 個人設定</h2>
           <form id="personalSettingsForm" class="settings-form">
-            
+
             <div class="form-group">
               <label for="theme">テーマ</label>
               <select id="theme" name="theme">
@@ -255,4 +257,5 @@
   <script type="module" src="../scripts/main.js"></script>
   <script type="module" src="../scripts/user-profile.js"></script>
 </body>
+
 </html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,14 +19,15 @@
   <script type="module" src="../scripts/simple-auth.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
+
 <body>
   <div class="app-container">
-    
+
     <!-- トグルボタン -->
     <button id="toggleSidebar" class="toggle-btn">
       <i class="fas fa-bars"></i>
     </button>
-    
+
     <!-- サイドバー -->
     <aside class="sidebar" id="sidebar">
       <div class="logo">
@@ -68,7 +70,7 @@
                 <option value="quarter">四半期</option>
               </select>
             </div>
-            
+
             <div class="date-navigation">
               <button class="nav-btn" id="prevPeriod">
                 <i class="fas fa-chevron-left"></i>
@@ -78,7 +80,7 @@
                 <i class="fas fa-chevron-right"></i>
               </button>
             </div>
-            
+
             <div class="gantt-actions">
               <button class="btn btn-primary" id="todayGantt">今日</button>
               <button class="btn btn-secondary" id="exportGantt">
@@ -98,7 +100,7 @@
                 <!-- タスクリストが動的に生成されます -->
               </div>
             </div>
-            
+
             <div class="gantt-timeline">
               <div class="gantt-timeline-header" id="ganttTimelineHeader">
                 <!-- タイムラインヘッダーが動的に生成されます -->
@@ -164,4 +166,5 @@
   <!-- JavaScriptファイルの読み込み -->
   <script type="module" src="../scripts/main.js"></script>
 </body>
+
 </html>

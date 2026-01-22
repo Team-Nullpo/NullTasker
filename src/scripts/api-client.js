@@ -89,7 +89,7 @@ export class APIClient {
     // レスポンスボディを取得
     let data;
     const contentType = response.headers.get('content-type');
-    
+
     if (contentType && contentType.includes('application/json')) {
       data = await response.json();
     } else {
@@ -113,7 +113,7 @@ export class APIClient {
    */
   static async get(endpoint, params = {}, options = {}) {
     const url = new URL(`${this.BASE_URL}${endpoint}`, window.location.origin);
-    
+
     // クエリパラメータを追加
     Object.entries(params).forEach(([key, value]) => {
       if (value !== null && value !== undefined) {
@@ -275,15 +275,15 @@ export class ErrorHandler {
     if (error instanceof APIError) {
       return error.message;
     }
-    
+
     if (error.name === 'NetworkError' || error.message.includes('Failed to fetch')) {
       return 'ネットワークエラーが発生しました。接続を確認してください。';
     }
-    
+
     if (error.name === 'AbortError') {
       return 'リクエストがキャンセルされました。';
     }
-    
+
     return error.message || '不明なエラーが発生しました。';
   }
 
@@ -293,10 +293,10 @@ export class ErrorHandler {
   static handle(error, context = '') {
     const message = this.getErrorMessage(error);
     const fullMessage = context ? `${context}: ${message}` : message;
-    
+
     Utils.debugLog('エラー:', error);
     Utils.showNotification(fullMessage, 'error');
-    
+
     // 開発環境では詳細をコンソールに出力
     if (Utils.DEBUG_MODE) {
       console.error('Error Details:', {

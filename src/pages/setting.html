@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,14 +19,15 @@
   <script type="module" src="../scripts/simple-auth.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
+
 <body>
   <div class="app-container">
-    
+
     <!-- トグルボタン -->
     <button id="toggleSidebar" class="toggle-btn">
       <i class="fas fa-bars"></i>
     </button>
-    
+
     <!-- サイドバー -->
     <aside class="sidebar" id="sidebar">
       <div class="logo">
@@ -59,7 +61,7 @@
       </div>
       <div class="main-body">
         <div class="settings-container">
-          
+
           <!-- メンバー設定 -->
           <section class="settings-section">
             <h2><i class="fas fa-users"></i> メンバー設定</h2>
@@ -99,7 +101,7 @@
                   <span class="slider"></span>
                 </label>
               </div>
-              
+
               <div class="setting-item">
                 <span>タスクの期限が近い時に通知</span>
                 <label class="switch">
@@ -107,7 +109,7 @@
                   <span class="slider"></span>
                 </label>
               </div>
-              
+
               <div class="setting-item">
                 <span>新しいタスクが追加された時に通知</span>
                 <label class="switch">
@@ -129,7 +131,7 @@
                 </div>
                 <p>65% 使用中 (6.5MB / 10MB)</p>
               </div>
-              
+
               <div class="action-buttons">
                 <button class="btn btn-primary" id="exportDataBtn">
                   <i class="fas fa-download"></i> データをエクスポート
@@ -192,4 +194,5 @@
   <!-- JavaScriptファイルの読み込み -->
   <script type="module" src="../scripts/main.js"></script>
 </body>
+
 </html>
