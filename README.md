@@ -253,216 +253,82 @@ NullTasker/
 - **通知設定**: メール・デスクトップ・リマインダー設定
 - **データ管理**: インポート・エクスポート・バックアップ機能
 
-## 🔧 技術仕様
+## 🔧 技術スタック
 
 ### フロントエンド
 
-- **HTML5**: セマンティックマークアップ
-- **CSS3**: FlexBox・Grid・アニメーション
-- **Vanilla JavaScript**: ES6+モジュラー設計
+- **HTML5/CSS3**: セマンティックマークアップ、FlexBox/Grid
+- **Vanilla JavaScript (ES6+)**: モジュラー設計
 - **LocalStorage**: クライアントサイドデータ永続化
 
 ### バックエンド
 
-- **Node.js**: サーバーサイド JavaScript
-- **Express.js**: Web アプリケーションフレームワーク
-- **better-sqlite3**: 高速・同期型 SQLite ライブラリ
-- **bcrypt**: パスワードハッシュ化ライブラリ
-- **jsonwebtoken**: JWT 認証トークン管理
-- **helmet**: セキュリティヘッダー設定
-- **cors**: クロスオリジンリクエスト対応
-- **express-rate-limit**: レート制限による DoS 攻撃対策
+- **Node.js + Express.js**: Web アプリケーションフレームワーク
+- **SQLite (better-sqlite3)**: 軽量・高速なデータベース
+- **JWT**: トークンベース認証
+- **bcrypt**: パスワードハッシュ化
+- **Helmet**: セキュリティヘッダー
 - **express-validator**: 入力値検証
-- **SQLite**: 軽量・高速なリレーショナルデータベース
 
-### データ構造
+詳細な技術仕様は [API ドキュメント](docs/API.md) と [アーキテクチャドキュメント](docs/ARCHITECTURE.md) を参照してください。
 
-#### データベーススキーマ (SQLite)
+## 📚 ドキュメント
 
-NullTasker は以下のテーブル構造を使用しています:
-
-**users テーブル**
-
-- id (TEXT PRIMARY KEY)
-- login_id (TEXT UNIQUE)
-- display_name (TEXT)
-- email (TEXT UNIQUE)
-- password (TEXT) - bcrypt ハッシュ
-- role (TEXT) - 'user', 'project_admin', 'system_admin'
-- created_at (TEXT)
-- last_login (TEXT)
-
-**projects テーブル**
-
-- id (TEXT PRIMARY KEY)
-- name (TEXT)
-- description (TEXT)
-- owner (TEXT) - users.id への外部キー
-- settings (TEXT) - JSON 形式
-- created_at (TEXT)
-- last_updated (TEXT)
-
-**project_members テーブル**
-
-- project_id (TEXT)
-- user_id (TEXT)
-- is_admin (INTEGER) - 0 or 1
-- joined_at (TEXT)
-- PRIMARY KEY (project_id, user_id)
-
-**tasks テーブル**
-
-- id (TEXT PRIMARY KEY)
-- project (TEXT) - projects.id への外部キー
-- title (TEXT)
-- description (TEXT)
-- assignee (TEXT) - users.id への外部キー
-- category (TEXT)
-- priority (TEXT) - 'high', 'medium', 'low'
-- status (TEXT) - 'todo', 'in_progress', 'review', 'done'
-- progress (INTEGER) - 0-100
-- start_date (TEXT)
-- due_date (TEXT)
-- estimated_hours (REAL)
-- actual_hours (REAL)
-- tags (TEXT) - JSON 配列形式
-- parent_task (TEXT) - tasks.id への外部キー
-- created_at (TEXT)
-- updated_at (TEXT)
-
-**settings テーブル**
-
-- key (TEXT PRIMARY KEY)
-- value (TEXT) - JSON 形式
-- last_updated (TEXT)
+- **[セットアップガイド](docs/SETUP.md)** - 詳細なインストール手順
+- **[開発ガイド](docs/DEVELOPMENT.md)** - 開発環境とコーディング規約
+- **[API ドキュメント](docs/API.md)** - API 仕様とエンドポイント
+- **[アーキテクチャ](docs/ARCHITECTURE.md)** - システム設計と構造
+- **[コントリビューションガイド](docs/CONTRIBUTING.md)** - プロジェクトへの貢献方法
+- **[データベース移行](docs/DATABASE_MIGRATION.md)** - JSON→SQLite 移行ガイド
+- **[HTTPS 設定](docs/HTTPS_SETUP.md)** - SSL/TLS 証明書設定
+- **[データリセット](docs/RESET.md)** - データベースリセット手順
+- **[セキュリティ](docs/SECURITY.md)** - セキュリティ設定と対策
+- **[プライバシーポリシー](docs/PRIVACY_POLICY.md)** - プライバシー保護方針
+- **[利用規約](docs/TERMS_OF_SERVICE.md)** - サービス利用規約
 
 ## 🎨 ユーザーインターフェース
 
 ### デスクトップ版
-
-- **サイドバーナビゲーション**: 折りたたみ可能な左側メニュー
-- **レスポンシブレイアウト**: 画面サイズに応じた最適表示
-- **キーボードショートカット**: `Ctrl+B`でサイドバー切り替え
+- サイドバーナビゲーション（折りたたみ可能）
+- レスポンシブレイアウト
+- キーボードショートカット: `Ctrl+B`でサイドバー切り替え
 
 ### モバイル版
-
-- **ボトムナビゲーション**: タッチフレンドリーな下部メニュー
-- **スワイプジェスチャー**: 直感的な操作体験
-- **最適化 UI**: 小画面での視認性とユーザビリティ
-
-## 📊 データ管理
-
-### データベース管理
-
-- **SQLite データベース**: 単一ファイルで管理される軽量データベース
-- **WAL モード**: Write-Ahead Logging による並行処理性能向上
-- **外部キー制約**: データ整合性の保証
-- **トランザクション**: ACID 特性によるデータの一貫性
-
-### マイグレーション
-
-```bash
-# JSONデータからSQLiteへの移行
-npm run migrate
-
-# データベースの完全リセット
-npm run reset -- --clean
-```
-
-### バックアップシステム
-
-- **データベースバックアップ**: SQLite ファイルの定期バックアップ
-- **手動エクスポート**: JSON フォーマットでデータダウンロード
-- **復元機能**: バックアップからのデータ復元
-
-### ストレージ管理
-
-- **使用量表示**: ローカルストレージ使用量の可視化
-- **データクリア**: 全データの一括削除機能
-- **デバッグモード**: 開発者向けストレージ詳細表示
-
-### API 仕様
-
-### 認証 API
-
-```http
-POST /api/login          # ユーザーログイン
-POST /api/register       # ユーザー登録
-POST /api/logout         # ログアウト
-POST /api/validate-token # トークン検証
-GET  /api/user           # ユーザー情報取得
-PUT  /api/user/profile   # プロフィール更新
-PUT  /api/user/password  # パスワード変更
-```
-
-### タスク API
-
-```http
-GET  /api/tasks          # 全タスク取得（認証必須）
-POST /api/tasks          # タスクデータ保存（認証必須）
-```
-
-### 管理者 API
-
-```http
-GET  /api/admin/users        # 全ユーザー取得（システム管理者のみ）
-POST /api/admin/users        # ユーザー作成（システム管理者のみ）
-PUT  /api/admin/users/:id    # ユーザー更新（システム管理者のみ）
-DELETE /api/admin/users/:id  # ユーザー削除（システム管理者のみ）
-POST /api/admin/projects     # 新規プロジェクト追加 (システム管理者のみ)
-PUT /api/admin/projects/:id  # プロジェクト更新 (システム管理者のみ)
-```
-
-### バックアップ API
-
-```http
-POST /api/backup         # データバックアップ（認証必須）
-```
-
-### 設定 API
-
-```http
-GET  /api/settings       # 設定取得（認証必須）
-```
+- ボトムナビゲーション（タッチフレンドリー）
+- スワイプジェスチャー対応
+- 小画面最適化 UI
 
 ## 🛠️ 開発・カスタマイズ
 
-### 開発環境セットアップ
+### 開発環境
 
 ```bash
 # 開発サーバー起動（ホットリロード）
 npm run dev
 
-# 本番サーバー起動
-npm start
-
 # データリセット（開発・テスト用）
-npm run reset
+npm run reset-data
 
-# デバッグモード
-DEBUG=nulltasker:* npm run dev
+# API テスト
+npm run test-api
+npm run test-admin-api
 ```
 
-### 開発・デバッグツール
+詳細は [開発ガイド](docs/DEVELOPMENT.md) を参照してください。
 
-- **debug-storage.html**: LocalStorage の内容確認とクリア
-- **debug-users.html**: ユーザーデータの詳細確認
-- **test-login.html**: ログイン機能のテスト
-- **test-css.html**: CSS スタイルのテスト
+### カスタマイズ
 
-### カスタマイズポイント
-
-- **テーマ変更**: `src/styles/`ディレクトリの CSS ファイルでカラースキーム調整
-- **機能拡張**: `src/scripts/`の各マネージャークラスで機能追加
-- **データスキーマ**: JSON スキーマの拡張・変更
+- **テーマ変更**: `src/styles/` の CSS ファイルを編集
+- **機能拡張**: `src/scripts/` のマネージャークラスで機能追加
 - **UI 拡張**: HTML テンプレートと CSS スタイル追加
-- **権限システム**: ロールベースアクセス制御の拡張
+
+詳細は [アーキテクチャドキュメント](docs/ARCHITECTURE.md) を参照してください。
 
 ## 🚨 トラブルシューティング
 
-### よくある問題
+よくある問題と解決方法については [セットアップガイド](docs/SETUP.md#トラブルシューティング) を参照してください。
 
-#### サーバー起動エラー
+### クイックヘルプ
 
 ```bash
 # ポート使用状況確認
@@ -472,55 +338,37 @@ lsof -i :3000
 npm cache clean --force
 rm -rf node_modules package-lock.json
 npm install
-```
 
-#### データが保存されない
-
-1. **ブラウザ設定**: LocalStorage が有効か確認
-2. **ディスク容量**: 十分な空き容量があるか確認
-3. **権限確認**: ファイル書き込み権限を確認
-
-#### パフォーマンス問題
-
-1. **ブラウザキャッシュ**: キャッシュクリアを実行
-2. **データサイズ**: 大量データ時の分割読み込み
-3. **メモリ使用量**: ブラウザタブの整理
-
-### ログ確認
-
-```bash
-# アプリケーションログ（コンソール出力）
-npm run dev
-
-# データリセット操作ログ
-npm run reset -- --verbose
+# データベースリセット
+npm run reset-data
 ```
 
 ## 🔒 セキュリティ
 
-### 実装済みセキュリティ機能
+実装済みセキュリティ機能:
+- bcrypt パスワードハッシュ化
+- JWT 認証
+- レート制限（DoS 対策）
+- 入力検証
+- セキュリティヘッダー（Helmet）
+- CSP（XSS 対策）
+- CORS 設定
 
-- **パスワードハッシュ化**: bcrypt による安全なパスワード保存
-- **JWT 認証**: ステートレストークン認証
-- **レート制限**: 総合・ログイン・API 別のレート制限
-- **入力検証**: express-validator による包括的な入力値検証
-- **セキュリティヘッダー**: Helmet による各種セキュリティヘッダー設定
-- **CSP（Content Security Policy）**: XSS 攻撃対策
-- **CORS 設定**: クロスオリジンリクエストの厳格な制御
+詳細は [セキュリティガイド](docs/SECURITY.md) を参照してください。
 
-### セキュリティ設定
+セキュリティ上の問題を発見した場合は、公開 Issue ではなく、プロジェクトメンテナーに直接連絡してください。
 
-```javascript
-// 本番環境では必須
-JWT_SECRET=your-super-secure-secret-key
+## 🤝 コントリビューション
 
-// CORS設定（本番環境）
-ALLOWED_ORIGINS=https://yourdomain.com
+プロジェクトへの貢献を歓迎します！
 
-// レート制限設定
-RATE_LIMIT_WINDOW_MS=900000  // 15分
-RATE_LIMIT_MAX_REQUESTS=100  // 最大リクエスト数
-```
+1. リポジトリをフォーク
+2. 機能ブランチを作成 (`git checkout -b feature/amazing-feature`)
+3. 変更をコミット (`git commit -m 'feat: 素晴らしい機能を追加'`)
+4. ブランチにプッシュ (`git push origin feature/amazing-feature`)
+5. プルリクエストを作成
+
+詳細は [コントリビューションガイド](docs/CONTRIBUTING.md) を参照してください。
 
 ## 📝 ライセンス
 
@@ -528,9 +376,15 @@ MIT License - 詳細は [LICENSE](LICENSE) ファイルを参照してくださ�
 
 ## 📞 サポート
 
-- **Issues**: [GitHub Issues](https://github.com/Team-Nullpo/NullTasker/issues)
-- **Wiki**: [プロジェクト Wiki](https://github.com/Team-Nullpo/NullTasker/wiki)
-- **Discussions**: [GitHub Discussions](https://github.com/Team-Nullpo/NullTasker/discussions)
+- **バグ報告・機能提案**: [GitHub Issues](https://github.com/Team-Nullpo/NullTasker/issues)
+- **質問・議論**: [GitHub Discussions](https://github.com/Team-Nullpo/NullTasker/discussions)
+- **ドキュメント**: [docs/](docs/) ディレクトリ
+
+## 📖 関連リンク
+
+- [プロジェクトホーム](https://github.com/Team-Nullpo/NullTasker)
+- [リリースノート](https://github.com/Team-Nullpo/NullTasker/releases)
+- [コントリビューター](https://github.com/Team-Nullpo/NullTasker/graphs/contributors)
 
 ---
 
