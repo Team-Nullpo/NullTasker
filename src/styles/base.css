@@ -14,7 +14,8 @@
   padding: 0;
 }
 
-body, html {
+body,
+html {
   height: 100%;
   font-family: var(--font-family-base);
   background-color: var(--bg-secondary);
@@ -50,7 +51,7 @@ body.theme-dark {
   --text-tertiary: #98989d;
   --border-color: #48484a;
   --shadow-color: rgba(0, 0, 0, 0.6);
-  
+
   --light-bg: #2c2c2e;
   --gray-100: #3a3a3c;
   --gray-200: #48484a;
@@ -380,7 +381,7 @@ body.theme-dark .slider {
   background-color: #4a4a4a;
 }
 
-body.theme-dark input:checked + .slider {
+body.theme-dark input:checked+.slider {
   background-color: var(--primary-color);
 }
 

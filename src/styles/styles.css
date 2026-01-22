@@ -21,7 +21,10 @@
    ========================================================================== */
 
 /* 基本フォーム要素 */
-input, select, textarea, button {
+input,
+select,
+textarea,
+button {
   font-family: inherit;
   border-radius: var(--border-radius-sm);
 }
