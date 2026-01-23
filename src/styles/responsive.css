@@ -95,11 +95,12 @@
 
   .main-header {
     margin-bottom: var(--spacing-lg);
-    padding-top: var(--spacing-xl);
-    background-color: var(--light-bg);
     padding: var(--spacing-lg);
+    background-color: var(--light-bg);
     border-radius: var(--border-radius-sm);
     border: 2px solid var(--primary-color);
+    flex-direction: column;
+    gap: var(--spacing-md);
   }
 
   .main-header h1 {
@@ -124,6 +125,79 @@
   /* ボトムナビゲーションを表示 */
   .bottom-navigation {
     display: flex;
+  }
+
+  /* ホーム画面のモバイル対応 */
+  .header-actions {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    align-items: stretch;
+  }
+
+  .welcome-text {
+    font-size: var(--font-size-sm);
+  }
+
+  .dashboard-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+  }
+
+  .stat-card {
+    flex-direction: column;
+    text-align: center;
+    padding: var(--spacing-lg);
+  }
+
+  .stat-icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .stat-icon i {
+    font-size: 24px;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+  }
+
+  .dashboard-content {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+
+  .section-header h2 {
+    font-size: var(--font-size-lg);
+  }
+
+  .task-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .task-card-meta {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  .progress-circle {
+    width: 150px;
+    height: 150px;
+  }
+
+  .progress-percentage {
+    font-size: 2rem;
+  }
+
+  .quick-actions {
+    grid-template-columns: 1fr;
   }
 
   /* タスクページのモバイル対応 */

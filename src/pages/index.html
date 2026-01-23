@@ -54,11 +54,153 @@
     <!-- メインコンテンツ -->
     <main class="main-content" id="mainContent">
       <div class="main-header">
-        <h1>ダッシュボード</h1>
+        <h1><i class="fas fa-home"></i> ダッシュボード</h1>
+        <div class="header-actions">
+          <span class="welcome-text" id="welcomeText">ようこそ</span>
+          <button class="btn btn-primary" id="quickAddTask">
+            <i class="fas fa-plus-circle"></i> クイック追加
+          </button>
+        </div>
       </div>
       <div class="main-body">
-        <p>NullTasker プロジェクト管理システムへようこそ！</p>
-        <p>サイドバーからタスク管理、カレンダー、ガントチャートなどの機能をご利用いただけます。</p>
+        <!-- 統計カード -->
+        <div class="dashboard-stats">
+          <div class="stat-card card-purple">
+            <div class="stat-icon">
+              <i class="fas fa-clipboard-list"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">全タスク</div>
+              <div class="stat-value" id="totalTasksHome">0</div>
+            </div>
+          </div>
+          <div class="stat-card card-blue">
+            <div class="stat-icon">
+              <i class="fas fa-hourglass-half"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">進行中</div>
+              <div class="stat-value" id="inProgressHome">0</div>
+            </div>
+          </div>
+          <div class="stat-card card-green">
+            <div class="stat-icon">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">完了</div>
+              <div class="stat-value" id="completedHome">0</div>
+            </div>
+          </div>
+          <div class="stat-card card-red">
+            <div class="stat-icon">
+              <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">期限切れ</div>
+              <div class="stat-value" id="overdueHome">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- メインコンテンツエリア -->
+        <div class="dashboard-content">
+          <!-- 左カラム -->
+          <div class="dashboard-left">
+            <!-- 今日のタスク -->
+            <div class="dashboard-section">
+              <div class="section-header">
+                <h2><i class="fas fa-calendar-day"></i> 今日のタスク</h2>
+                <a href="task.html" class="view-all-link">すべて表示 <i class="fas fa-arrow-right"></i></a>
+              </div>
+              <div class="task-cards" id="todayTasks">
+                <!-- 動的に生成 -->
+              </div>
+            </div>
+
+            <!-- 期限が近いタスク -->
+            <div class="dashboard-section">
+              <div class="section-header">
+                <h2><i class="fas fa-clock"></i> 期限が近いタスク</h2>
+                <a href="task.html" class="view-all-link">すべて表示 <i class="fas fa-arrow-right"></i></a>
+              </div>
+              <div class="task-cards" id="upcomingTasks">
+                <!-- 動的に生成 -->
+              </div>
+            </div>
+          </div>
+
+          <!-- 右カラム -->
+          <div class="dashboard-right">
+            <!-- プロジェクト進捗 -->
+            <div class="dashboard-section">
+              <div class="section-header">
+                <h2><i class="fas fa-chart-pie"></i> プロジェクト進捗</h2>
+              </div>
+              <div class="progress-widget">
+                <div class="progress-circle" id="progressCircle">
+                  <svg viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" class="progress-bg"></circle>
+                    <circle cx="50" cy="50" r="45" class="progress-fill" id="progressFill"></circle>
+                  </svg>
+                  <div class="progress-text">
+                    <span class="progress-percentage" id="progressPercentage">0%</span>
+                    <span class="progress-label">完了</span>
+                  </div>
+                </div>
+                <div class="progress-stats">
+                  <div class="progress-stat">
+                    <span class="stat-dot stat-completed"></span>
+                    <span>完了: <strong id="completedCount">0</strong></span>
+                  </div>
+                  <div class="progress-stat">
+                    <span class="stat-dot stat-in-progress"></span>
+                    <span>進行中: <strong id="inProgressCount">0</strong></span>
+                  </div>
+                  <div class="progress-stat">
+                    <span class="stat-dot stat-todo"></span>
+                    <span>未着手: <strong id="todoCount">0</strong></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- クイックアクション -->
+            <div class="dashboard-section">
+              <div class="section-header">
+                <h2><i class="fas fa-bolt"></i> クイックアクション</h2>
+              </div>
+              <div class="quick-actions">
+                <a href="task.html" class="action-card">
+                  <i class="fas fa-tasks"></i>
+                  <span>タスク管理</span>
+                </a>
+                <a href="calendar.html" class="action-card">
+                  <i class="fas fa-calendar"></i>
+                  <span>カレンダー</span>
+                </a>
+                <a href="gantt.html" class="action-card">
+                  <i class="fas fa-chart-gantt"></i>
+                  <span>ガントチャート</span>
+                </a>
+                <a href="setting.html" class="action-card">
+                  <i class="fas fa-cog"></i>
+                  <span>設定</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- 最近のアクティビティ -->
+            <div class="dashboard-section">
+              <div class="section-header">
+                <h2><i class="fas fa-history"></i> 最近のアクティビティ</h2>
+              </div>
+              <div class="activity-list" id="recentActivity">
+                <!-- 動的に生成 -->
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
 
