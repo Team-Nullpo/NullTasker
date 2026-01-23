@@ -1,17 +1,23 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ユーザー登録 - NullTasker</title>
   <link rel="icon" type="image/x-icon" href="../assets/favicon.ico" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../styles/variables.css" />
   <link rel="stylesheet" href="../styles/base.css" />
   <link rel="stylesheet" href="../styles/components.css" />
-  <link rel="stylesheet" href="../styles/components-dark.css" />
-  <link rel="stylesheet" href="../styles/styles.css" />
   <link rel="stylesheet" href="../styles/login.css" />
+  <link rel="stylesheet" href="../styles/responsive.css" />
+
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
+
 <body>
   <div class="login-container">
     <div class="login-card register-card">
@@ -20,67 +26,40 @@
         <h1>NullTasker</h1>
         <p>新規ユーザー登録</p>
       </div>
-      
+
       <form id="registerForm" class="login-form">
         <div class="form-group">
           <label for="loginId">ログインID <span class="required">*</span></label>
           <div class="input-wrapper">
             <i class="fas fa-user input-icon"></i>
-            <input 
-              type="text" 
-              id="loginId" 
-              name="loginId" 
-              required 
-              placeholder="3-20文字の英数字、_、-のみ"
-              pattern="[a-zA-Z0-9_-]{3,20}"
-              title="3-20文字の英数字、アンダースコア、ハイフンのみ使用可能"
-            />
+            <input type="text" id="loginId" name="loginId" required placeholder="3-20文字の英数字、_、-のみ"
+              pattern="[a-zA-Z0-9_-]{3,20}" title="3-20文字の英数字、アンダースコア、ハイフンのみ使用可能" />
           </div>
           <small class="input-help">3-20文字の英数字、アンダースコア、ハイフンのみ</small>
         </div>
-        
+
         <div class="form-group">
           <label for="displayName">表示名 <span class="required">*</span></label>
           <div class="input-wrapper">
             <i class="fas fa-id-badge input-icon"></i>
-            <input 
-              type="text" 
-              id="displayName" 
-              name="displayName" 
-              required 
-              placeholder="表示名を入力"
-              maxlength="50"
-            />
+            <input type="text" id="displayName" name="displayName" required placeholder="表示名を入力" maxlength="50" />
           </div>
         </div>
-        
+
         <div class="form-group">
           <label for="email">メールアドレス <span class="required">*</span></label>
           <div class="input-wrapper">
             <i class="fas fa-envelope input-icon"></i>
-            <input 
-              type="email" 
-              id="email" 
-              name="email" 
-              required 
-              placeholder="example@domain.com"
-            />
+            <input type="email" id="email" name="email" required placeholder="example@domain.com" />
           </div>
         </div>
-        
+
         <div class="form-group">
           <label for="password">パスワード <span class="required">*</span></label>
           <div class="input-wrapper">
             <i class="fas fa-lock input-icon"></i>
-            <input 
-              type="password" 
-              id="password" 
-              name="password" 
-              required 
-              placeholder="8文字以上の複合パスワード"
-              minlength="8"
-              maxlength="128"
-            />
+            <input type="password" id="password" name="password" required placeholder="8文字以上の複合パスワード" minlength="8"
+              maxlength="128" />
             <button type="button" class="password-toggle" id="passwordToggle">
               <i class="fas fa-eye"></i>
             </button>
@@ -88,48 +67,44 @@
           <div class="password-strength" id="passwordStrength"></div>
           <small class="input-help">8文字以上で、大文字・小文字・数字をそれぞれ1文字以上含む</small>
         </div>
-        
+
         <div class="form-group">
           <label for="passwordConfirm">パスワード確認 <span class="required">*</span></label>
           <div class="input-wrapper">
             <i class="fas fa-lock input-icon"></i>
-            <input 
-              type="password" 
-              id="passwordConfirm" 
-              name="passwordConfirm" 
-              required 
-              placeholder="パスワードを再入力"
-            />
+            <input type="password" id="passwordConfirm" name="passwordConfirm" required placeholder="パスワードを再入力" />
             <button type="button" class="password-toggle" id="passwordConfirmToggle">
               <i class="fas fa-eye"></i>
             </button>
           </div>
           <div class="password-match" id="passwordMatch"></div>
         </div>
-        
+
         <div class="form-options">
           <label class="checkbox-wrapper">
             <input type="checkbox" id="agreeTerms" name="agreeTerms" required />
             <span class="checkmark"></span>
-            <a href="terms.html" class="terms-link" target="_blank">利用規約</a>と<a href="privacy.html" class="privacy-link" target="_blank">プライバシーポリシー</a>に同意する
+            <a href="terms.html" class="terms-link" target="_blank">利用規約</a>と<a href="privacy.html" class="privacy-link"
+              target="_blank">プライバシーポリシー</a>に同意する
           </label>
         </div>
-        
+
         <button type="submit" class="login-btn register-btn">
           <i class="fas fa-user-plus"></i>
           アカウントを作成
         </button>
-        
+
         <div class="error-message" id="errorMessage" style="display: none;"></div>
         <div class="success-message" id="successMessage" style="display: none;"></div>
       </form>
-      
+
       <div class="login-footer">
         <p>すでにアカウントをお持ちですか？ <a href="login.html" class="login-link">ログインする</a></p>
       </div>
     </div>
   </div>
-  
+
   <script src="../scripts/register.js"></script>
 </body>
+
 </html>

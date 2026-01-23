@@ -1,32 +1,35 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>システム管理 - NullTasker</title>
   <link rel="icon" type="image/x-icon" href="../assets/favicon.ico" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../styles/variables.css" />
   <link rel="stylesheet" href="../styles/base.css" />
   <link rel="stylesheet" href="../styles/layout.css" />
   <link rel="stylesheet" href="../styles/components.css" />
-  <link rel="stylesheet" href="../styles/components-dark.css" />
   <link rel="stylesheet" href="../styles/sidebar.css" />
-  <link rel="stylesheet" href="../styles/pages.css" />
   <link rel="stylesheet" href="../styles/user-dropdown.css" />
-  <link rel="stylesheet" href="../styles/responsive.css" />
-  <link rel="stylesheet" href="../styles/styles.css" />
+  <link rel="stylesheet" href="../styles/pages.css" />
   <link rel="stylesheet" href="../styles/admin.css" />
+  <link rel="stylesheet" href="../styles/responsive.css" />
   <script type="module" src="../scripts/simple-auth.js"></script>
   <script type="module" src="../scripts/admin-manager.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
+
 <body>
   <div class="app-container">
-    
+
     <!-- トグルボタン（サイドバーの外に配置） -->
     <button id="toggleSidebar" class="toggle-btn">
       <i class="fas fa-bars"></i>
     </button>
-    
+
     <!-- サイドバー -->
     <aside class="sidebar" id="sidebar">
       <div class="logo">
@@ -60,15 +63,15 @@
           <a href="index.html">ホーム</a> > システム管理
         </nav>
       </div>
-      
+
       <div class="main-body">
-        
+
         <!-- 成功メッセージ -->
         <div id="successMessage" class="alert alert-success" style="display: none;">
           <i class="fas fa-check-circle"></i>
           <span id="successText"></span>
         </div>
-        
+
         <!-- エラーメッセージ -->
         <div id="errorMessage" class="alert alert-error" style="display: none;">
           <i class="fas fa-exclamation-triangle"></i>
@@ -78,7 +81,7 @@
         <!-- 管理ダッシュボード -->
         <section class="admin-dashboard">
           <div class="dashboard-cards">
-            
+
             <div class="dashboard-card" id="dashboardUser">
               <div class="card-icon">
                 <i class="fas fa-users"></i>
@@ -300,7 +303,7 @@
           <h3 id="userModalTitle">新規ユーザー</h3>
           <button class="modal-close">&times;</button>
         </div>
-        <form id="userForm" class="modal-form"> 
+        <form id="userForm" class="modal-form">
 
           <div class="form-group">
             <label for="loginId">ログインID</label>
@@ -352,7 +355,7 @@
           <button class="modal-close">&times;</button>
         </div>
         <form id="projectForm" class="modal-form">
-          
+
           <div class="form-group">
             <label for="projectName">プロジェクト名</label>
             <input type="text" id="projectName" name="name" required>
@@ -436,4 +439,5 @@
   <script type="module" src="../scripts/main.js"></script>
   <script type="module" src="../scripts/admin-manager.js"></script>
 </body>
+
 </html>

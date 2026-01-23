@@ -1,120 +1,139 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="NullTasker ログインページ - プロジェクト管理システムへのログイン">
   <title>ログイン - NullTasker</title>
-  <link rel="icon" type="image/x-icon" href="../assets/favicon.ico" />
-  <link rel="stylesheet" href="../styles/base.css" />
-  <link rel="stylesheet" href="../styles/layout.css" />
-  <link rel="stylesheet" href="../styles/components.css" />
-  <link rel="stylesheet" href="../styles/components-dark.css" />
-  <link rel="stylesheet" href="../styles/login.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="../assets/favicon.ico">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../styles/variables.css">
+  <link rel="stylesheet" href="../styles/base.css">
+  <link rel="stylesheet" href="../styles/components.css">
+  <link rel="stylesheet" href="../styles/login.css">
+  <link rel="stylesheet" href="../styles/responsive.css">
+  <link rel="stylesheet" href="../styles/components-dark.css">
+  <link rel="stylesheet" href="../styles/login.css">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
   <div class="login-container">
-    <div class="login-card">
-      <div class="login-header">
-        <img src="../assets/logo.png" alt="NullTasker Logo" class="login-logo" />
+    <article class="login-card">
+      <header class="login-header">
+        <img src="../assets/logo.png" alt="NullTasker ロゴ" class="login-logo">
         <h1>NullTasker</h1>
         <p>プロジェクト管理システム</p>
-      </div>
-      
-      <form id="loginForm" class="login-form">
+      </header>
+
+      <form id="loginForm" class="login-form" novalidate>
         <div class="form-group">
           <label for="loginId">ログインID</label>
           <div class="input-wrapper">
-            <i class="fas fa-user input-icon"></i>
-            <input type="text" id="loginId" name="loginId" required placeholder="ログインIDを入力" />
+            <i class="fas fa-user input-icon" aria-hidden="true"></i>
+            <input type="text" id="loginId" name="loginId" required placeholder="ログインIDを入力" autocomplete="username"
+              aria-required="true">
           </div>
         </div>
-        
+
         <div class="form-group">
           <label for="password">パスワード</label>
           <div class="input-wrapper">
-            <i class="fas fa-lock input-icon"></i>
-            <input type="password" id="password" name="password" required placeholder="パスワードを入力" minlength="1" />
-            <button type="button" class="password-toggle" id="passwordToggle">
-              <i class="fas fa-eye"></i>
+            <i class="fas fa-lock input-icon" aria-hidden="true"></i>
+            <input type="password" id="password" name="password" required placeholder="パスワードを入力" minlength="1"
+              autocomplete="current-password" aria-required="true">
+            <button type="button" class="password-toggle" id="passwordToggle" aria-label="パスワードの表示/非表示を切り替え">
+              <i class="fas fa-eye" aria-hidden="true"></i>
             </button>
           </div>
         </div>
-        
+
         <div class="form-options">
           <label class="checkbox-wrapper">
-            <input type="checkbox" id="rememberMe" name="rememberMe" />
+            <input type="checkbox" id="rememberMe" name="rememberMe">
             <span class="checkmark"></span>
             ログイン状態を保持する
           </label>
         </div>
-        
+
         <button type="submit" class="login-btn">
-          <i class="fas fa-sign-in-alt"></i>
+          <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
           ログイン
         </button>
-        
-        <div class="error-message" id="errorMessage" style="display: none;"></div>
+
+        <div class="error-message" id="errorMessage" role="alert" aria-live="polite" style="display: none;">
+        </div>
       </form>
-      
-      <div class="login-footer">
-        <p>アカウントをお持ちでない場合は <a href="register.html" class="register-link">新規登録</a></p>
+
+      <footer class="login-footer">
+        <p>
+          アカウントをお持ちでない場合は
+          <a href="register.html" class="register-link">新規登録</a>
+        </p>
         <p>パスワードを忘れた場合は、管理者にお問い合わせください。</p>
-      </div>
-    </div>
+      </footer>
+    </article>
   </div>
-  
+
+  <!-- Scripts -->
+  <script type="module" src="../scripts/auth-interceptor.js"></script>
   <script type="module">
-    // ログインフォームの処理
+    import { Utils } from '../scripts/utils.js';
+
     document.addEventListener('DOMContentLoaded', () => {
       const loginForm = document.getElementById('loginForm');
       const errorMessage = document.getElementById('errorMessage');
       const passwordInput = document.getElementById('password');
       const passwordToggle = document.getElementById('passwordToggle');
-      
+
       // パスワード表示/非表示切り替え
       if (passwordToggle) {
         passwordToggle.addEventListener('click', () => {
           const type = passwordInput.type === 'password' ? 'text' : 'password';
           passwordInput.type = type;
-          
+
           const icon = passwordToggle.querySelector('i');
           icon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
         });
       }
-      
-      // 無限ループ防止: リダイレクトフラグをチェック
+
+      // 既にログイン済みの場合はダッシュボードにリダイレクト
       const redirectFromMain = sessionStorage.getItem('redirectedFromMain');
-      if (redirectFromMain) {
-        sessionStorage.removeItem('redirectedFromMain');
-      } else {
-        // 既にログイン済みの場合はダッシュボードにリダイレクト
+      if (!redirectFromMain) {
         const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
         const user = localStorage.getItem('user') || sessionStorage.getItem('user');
-        
+
         if (token && user) {
           window.location.href = '/';
           return;
         }
+      } else {
+        sessionStorage.removeItem('redirectedFromMain');
       }
-      
+
       loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         const loginId = document.getElementById('loginId').value.trim();
         const password = document.getElementById('password').value;
         const rememberMe = document.getElementById('rememberMe').checked;
-        
+
         if (!loginId || !password) {
           showError('ログインIDとパスワードを入力してください。');
           return;
         }
-        
+
         try {
           const loginBtn = document.querySelector('.login-btn');
           loginBtn.disabled = true;
           loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ログイン中...';
-          
+
           const response = await fetch('/api/login', {
             method: 'POST',
             headers: {
@@ -122,22 +141,15 @@
             },
             body: JSON.stringify({ loginId, password })
           });
-          
+
           const data = await response.json();
-          
+
           if (data.success) {
-            // トークンを保存
-            if (rememberMe) {
-              localStorage.setItem('authToken', data.token);
-              localStorage.setItem('refreshToken', data.refreshToken);
-              localStorage.setItem('user', JSON.stringify(data.user));
-            } else {
-              sessionStorage.setItem('authToken', data.token);
-              sessionStorage.setItem('refreshToken', data.refreshToken);
-              sessionStorage.setItem('user', JSON.stringify(data.user));
-            }
-            
-            // ダッシュボードにリダイレクト
+            const storage = rememberMe ? localStorage : sessionStorage;
+            storage.setItem('authToken', data.token);
+            storage.setItem('refreshToken', data.refreshToken);
+            storage.setItem('user', JSON.stringify(data.user));
+
             window.location.href = '/';
           } else {
             showError(data.message || 'ログインに失敗しました。');
@@ -151,7 +163,7 @@
           loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> ログイン';
         }
       });
-      
+
       function showError(message) {
         errorMessage.textContent = message;
         errorMessage.style.display = 'block';
@@ -162,4 +174,5 @@
     });
   </script>
 </body>
+
 </html>

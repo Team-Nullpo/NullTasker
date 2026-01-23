@@ -2,73 +2,106 @@
    Components - 共通コンポーネント
    ========================================================================== */
 
-/* ボタンスタイル */
+/* =====  ボタンスタイル ===== */
 .btn {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md) var(--spacing-xl);
-  border: none;
-  border-radius: var(--border-radius);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-decoration: none;
   justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border: var(--border-width-thin) solid transparent;
+  border-radius: var(--border-radius-base);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  font-family: inherit;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
 }
 
-.btn:hover {
+.btn:hover:not(:disabled) {
   transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
-.btn:active {
+.btn:active:not(:disabled) {
   transform: translateY(0);
 }
 
-.btn-primary {
-  background-color: var(--primary-color);
-  color: white;
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-.btn-primary:hover {
+/* ボタンバリエーション */
+.btn-primary {
+  background-color: var(--primary-color);
+  color: var(--text-inverted);
+}
+
+.btn-primary:hover:not(:disabled) {
   background-color: var(--primary-dark);
 }
 
 .btn-secondary {
   background-color: var(--secondary-color);
-  color: white;
+  color: var(--text-inverted);
 }
 
-.btn-secondary:hover {
+.btn-secondary:hover:not(:disabled) {
   background-color: var(--secondary-dark);
 }
 
 .btn-success {
   background-color: var(--success-color);
-  color: white;
+  color: var(--text-inverted);
 }
 
-.btn-success:hover {
+.btn-success:hover:not(:disabled) {
   background-color: var(--success-dark);
 }
 
 .btn-warning {
   background-color: var(--warning-color);
-  color: var(--gray-900);
+  color: var(--text-primary);
 }
 
-.btn-warning:hover {
+.btn-warning:hover:not(:disabled) {
   background-color: var(--warning-dark);
 }
 
 .btn-danger {
   background-color: var(--danger-color);
-  color: white;
+  color: var(--text-inverted);
 }
 
-.btn-danger:hover {
+.btn-danger:hover:not(:disabled) {
   background-color: var(--danger-dark);
+}
+
+/* アウトラインボタン */
+.btn-outline-primary {
+  background-color: transparent;
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover:not(:disabled) {
+  background-color: var(--primary-color);
+  color: var(--text-inverted);
+}
+
+/* ボタンサイズバリエーション */
+.btn-sm {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-xs);
+}
+
+.btn-lg {
+  padding: var(--space-4) var(--space-6);
+  font-size: var(--font-size-base);
 }
 
 /* フォームコンポーネント */
@@ -167,6 +200,7 @@
     opacity: 0;
     transform: translateY(-50px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -377,11 +411,11 @@
   border-radius: 50%;
 }
 
-input:checked + .slider {
+input:checked+.slider {
   background-color: var(--primary-color);
 }
 
-input:checked + .slider:before {
+input:checked+.slider:before {
   transform: translateX(26px);
 }
 
@@ -395,7 +429,7 @@ input:checked + .slider:before {
   border-radius: 8px;
   padding: 10px;
   min-width: 200px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   margin-bottom: 10px;
 }

@@ -1,30 +1,33 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Calendar - NullTasker</title>
   <link rel="icon" type="image/x-icon" href="../assets/favicon.ico" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../styles/variables.css" />
   <link rel="stylesheet" href="../styles/base.css" />
   <link rel="stylesheet" href="../styles/layout.css" />
   <link rel="stylesheet" href="../styles/components.css" />
-  <link rel="stylesheet" href="../styles/components-dark.css" />
   <link rel="stylesheet" href="../styles/sidebar.css" />
-  <link rel="stylesheet" href="../styles/pages.css" />
   <link rel="stylesheet" href="../styles/user-dropdown.css" />
+  <link rel="stylesheet" href="../styles/pages.css" />
   <link rel="stylesheet" href="../styles/responsive.css" />
-  <link rel="stylesheet" href="../styles/styles.css" />
   <script type="module" src="../scripts/simple-auth.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
+
 <body>
   <div class="app-container">
-    
+
     <!-- トグルボタン -->
     <button id="toggleSidebar" class="toggle-btn">
       <i class="fas fa-bars"></i>
     </button>
-    
+
     <!-- サイドバー -->
     <aside class="sidebar" id="sidebar">
       <div class="logo">
@@ -92,20 +95,20 @@
               </div>
             </div>
           </div>
-          
+
           <div class="calendar-sidebar">
             <div class="sidebar-header">
               <h3>選択された日付</h3>
               <p class="selected-date" id="selectedDate">2025年8月27日</p>
             </div>
-            
+
             <div class="daily-tasks">
               <h4>今日のタスク</h4>
               <div id="dailyTaskList">
                 <!-- 日別タスクが表示されます -->
               </div>
             </div>
-            
+
             <div class="quick-add-section">
               <h4>クイック追加</h4>
               <div class="quick-add-form">
@@ -153,4 +156,5 @@
   <!-- JavaScriptファイルの読み込み -->
   <script type="module" src="../scripts/main.js"></script>
 </body>
+
 </html>
