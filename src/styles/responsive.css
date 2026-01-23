@@ -388,7 +388,33 @@
   .gantt-controls {
     flex-direction: column;
     align-items: stretch;
-    gap: var(--spacing-lg);
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+  }
+
+  .gantt-controls-left,
+  .gantt-controls-right {
+    width: 100%;
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .time-scale-controls {
+    width: 100%;
+  }
+
+  .time-scale-controls select {
+    width: 100%;
+  }
+
+  .date-navigation {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .gantt-stats {
+    width: 100%;
+    justify-content: space-around;
   }
 
   .gantt-chart {
@@ -399,7 +425,20 @@
   .gantt-task-list {
     width: 100%;
     border-right: none;
-    border-bottom: 1px solid var(--gray-200);
+    border-bottom: 2px solid var(--gray-200);
+  }
+
+  .gantt-task-header {
+    height: 44px;
+  }
+
+  .task-name-column {
+    font-size: var(--font-size-sm);
+  }
+
+  .task-assignee-column,
+  .task-duration-column {
+    font-size: var(--font-size-xs);
   }
 
   .gantt-timeline {
@@ -407,7 +446,13 @@
   }
 
   .gantt-legend {
+    flex-direction: column;
+    align-items: flex-start;
     gap: var(--spacing-md);
+  }
+
+  .legend-items {
+    width: 100%;
   }
 
   .legend-item {
@@ -416,6 +461,7 @@
 
   .current-period {
     min-width: auto;
+    font-size: var(--font-size-sm);
   }
 
   /* カレンダーのモバイル対応 */
