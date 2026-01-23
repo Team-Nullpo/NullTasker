@@ -27,7 +27,6 @@ export class AdminManager {
       await this.loadData();
       this.setupEventListeners();
       this.updateDashboardStats();
-      this.populateProjectForm();
     } catch (error) {
       console.error('初期化エラー:', error);
       this.showError('初期化に失敗しました');
@@ -35,10 +34,8 @@ export class AdminManager {
   }
 
   async loadData() {
-    await ProjectManager.fetchProjectSettings(true);
-    this.projects = ProjectManager.getProjectSettings();
     await UserManager.fetchUsers(true);
-    this.users = UserManager.getUsers();
+    this.users = UserManager.users;
   }
 
   setupEventListeners() {
@@ -51,7 +48,6 @@ export class AdminManager {
     const mappings = [
       // ダッシュボード → 各セクション
       ['#dashboardUser', 'click', () => this.showSection('users')],
-      ['#dashboardProject', 'click', () => this.showSection('projects')],
       ['#dashboardSystem', 'click', () => this.showSection('system')],
       ['#dashboardBackup', 'click', () => this.showSection('backup')],
       ['#dashboardCategories', 'click', () => this.showSection('categories')],
@@ -60,31 +56,15 @@ export class AdminManager {
 
       // 各フォーム送信
       ['#userForm', 'submit', this.handleUserSubmit.bind(this)],
-      ['#projectForm', 'submit', this.handleProjectSubmit.bind(this)],
       ['#systemSettingsForm', 'submit', this.handleSystemSettingsSubmit.bind(this)],
 
       // ファイル復元
       ['#restoreFile', 'change', this.handleFileRestore.bind(this)],
 
-      // プロジェクト遷移
-      ['#projectSelect', 'change', this.changeProject.bind(this)],
-
       // ユーザー管理セクション
       ['#usersSection .section-actions .btn.btn-primary', 'click', () => this.showUserModal()],
       [
         '#usersSection .section-actions .btn.btn-secondary',
-        'click',
-        () => this.showSection('dashboard')
-      ],
-
-      // プロジェクト管理セクション
-      [
-        '#projectsSection .section-actions .btn.btn-primary',
-        'click',
-        () => this.showProjectModal()
-      ],
-      [
-        '#projectsSection .section-actions .btn.btn-secondary',
         'click',
         () => this.showSection('dashboard')
       ],
@@ -128,8 +108,7 @@ export class AdminManager {
       ['#userDeleteModal .btn.btn-secondary', 'click', () => this.closeUserDeleteModal()],
 
       //
-      ['#usersTableBody', 'click', e => this.handleUserTableClick(e)],
-      ['#projectsTableBody', 'click', e => this.handleProjectTableClick(e)]
+      ['#usersTableBody', 'click', e => this.handleUserTableClick(e)]
     ];
 
     mappings.forEach(([selector, event, handler]) => add(selector, event, handler));
@@ -174,49 +153,8 @@ export class AdminManager {
     else if (button.classList.contains('btn-delete')) this.showUserDeleteModal(userId);
   }
 
-  handleProjectTableClick(e) {
-    const button = e.target.closest('button');
-    if (!button) return;
-
-    const container = button.closest('tr');
-    const projectId = container?.dataset.project;
-    if (!projectId) return;
-
-    if (button.classList.contains('btn-edit')) this.editProject(projectId);
-    else if (button.classList.contains('btn-delete')) this.deleteProject(projectId);
-  }
-
-  async changeProject() {
-    const projectChange = document.getElementById('projectSelect');
-    const destination = projectChange.value;
-    if (!this.projects.find(project => project.id === destination)) {
-      console.error('指定のプロジェクトが見つかりません');
-      return;
-    }
-    ProjectManager.setCurrentProject(destination);
-    await ProjectManager.fetchProjectSettings();
-  }
-
-  populateProjectForm() {
-    const projectForm = document.getElementById('projectSelect');
-    if (!projectForm) {
-      console.error('プロジェクト移動メニューが見つかりません');
-      return;
-    }
-    console.log(this.projects);
-    projectForm.innerHTML = '';
-    this.projects.forEach(project => {
-      const option = document.createElement('option');
-      option.value = project.id;
-      option.label = project.name;
-      option.selected = project.id === ProjectManager.getCurrentProjectId();
-      projectForm.appendChild(option);
-    });
-  }
-
   updateDashboardStats() {
     const userCountEl = document.getElementById('userCount');
-    const projectCountEl = document.getElementById('projectCount');
 
     // 設定を読み込み
     const settings = Utils.getFromStorage('appSettings') || { users: [], categories: [], priorities: [], statuses: [] };
@@ -226,10 +164,6 @@ export class AdminManager {
 
     if (userCountEl) {
       userCountEl.textContent = `${this.users.length} ユーザー`;
-    }
-
-    if (projectCountEl) {
-      projectCountEl.textContent = `${this.projects.length} プロジェクト`;
     }
 
     if (categoryCountEl) {
@@ -307,7 +241,6 @@ export class AdminManager {
         <td><span class="role-badge role-${user.role}">${this.getRoleDisplayName(
         user.role
       )}</span></td>
-        <td>${user.projects ? user.projects.join(', ') : '-'}</td>
         <td>${user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('ja-JP') : '未ログイン'
         }</td>
         <td>
@@ -701,10 +634,9 @@ export class AdminManager {
   getRoleDisplayName(role) {
     const roleNames = {
       system_admin: 'システム管理者',
-      project_admin: 'プロジェクト管理者',
-      member: 'メンバー'
+      user: 'メンバー'
     };
-    return roleNames[role] || 'ゲスト';
+    return roleNames[role] || 'メンバー';
   }
 
   generateProjectId(name) {

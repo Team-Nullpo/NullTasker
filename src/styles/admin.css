@@ -140,12 +140,7 @@
   color: white;
 }
 
-.role-badge.role-project_admin {
-  background: #007bff;
-  color: white;
-}
-
-.role-badge.role-member {
+.role-badge.role-user {
   background: #28a745;
   color: white;
 }
@@ -509,11 +504,7 @@ body.theme-dark .role-badge.role-system_admin {
   background: #ff453a;
 }
 
-body.theme-dark .role-badge.role-project_admin {
-  background: #0a84ff;
-}
-
-body.theme-dark .role-badge.role-member {
+body.theme-dark .role-badge.role-user {
   background: #30d158;
 }
 

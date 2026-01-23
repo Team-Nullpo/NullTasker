@@ -39,10 +39,6 @@
   gap: var(--spacing-lg);
 }
 
-.sidebar.collapsed #projectSelect {
-  display: none;
-}
-
 /* ロゴエリア */
 .logo {
   display: flex;
@@ -166,17 +162,9 @@
 .bottom-section {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: var(--spacing-md);
   margin-top: auto;
-}
-
-#projectSelect {
-  padding: var(--spacing-sm) var(--spacing-md);
-  font-size: var(--font-size-base);
-  border: 1px solid #ccc;
-  border-radius: var(--border-radius-sm);
-  background-color: white;
 }
 
 .user-icon {

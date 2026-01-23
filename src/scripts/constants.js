@@ -66,8 +66,6 @@ export const TASK_STATUS_CONFIG = {
 // ユーザーロールの定義
 export const USER_ROLE = {
   SYSTEM_ADMIN: 'system_admin',
-  PROJECT_ADMIN: 'project_admin',
-  MEMBER: 'member',
   USER: 'user'
 };
 
@@ -126,22 +124,22 @@ export const API_ENDPOINTS = {
   VERIFY_TOKEN: '/api/verify-token',
   REFRESH: '/api/refresh',
   VALIDATE_TOKEN: '/api/validate-token',
-  
+
   // ユーザー
   USER: '/api/user',
   USER_PROFILE: '/api/user/profile',
   USER_PASSWORD: '/api/user/password',
   USER_SETTINGS: '/api/user/settings',
-  
+
   // タスク
   TASKS: '/api/tasks',
-  
+
   // 設定
   SETTINGS: '/api/settings',
-  
+
   // バックアップ
   BACKUP: '/api/backup',
-  
+
   // 管理者
   ADMIN_USERS: '/api/admin/users',
   ADMIN_PROJECTS: '/api/admin/projects',
@@ -150,7 +148,7 @@ export const API_ENDPOINTS = {
   ADMIN_BACKUP_DATA: '/api/admin/backup/download/data',
   ADMIN_BACKUP_SETTINGS: '/api/admin/backup/download/settings',
   ADMIN_RESTORE: '/api/admin/restore',
-  
+
   // その他
   USERS: '/api/users'
 };

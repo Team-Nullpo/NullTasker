@@ -56,11 +56,21 @@ export class SimpleAuth {
 
   static initUserIcon() {
     const userIcon = document.getElementById('userIcon');
-    if (!userIcon) return;
+    console.log('userIcon element:', userIcon);
+    
+    if (!userIcon) {
+      console.warn('userIcon element not found');
+      return;
+    }
 
     // ユーザー情報を取得
     const user = this.getCurrentUser();
-    if (!user) return;
+    console.log('current user:', user);
+    
+    if (!user) {
+      console.warn('no current user found');
+      return;
+    }
 
     // ドロップダウンメニューを作成
     this.createUserDropdown(userIcon, user);
@@ -99,15 +109,11 @@ export class SimpleAuth {
       { icon: 'fas fa-user', text: 'プロフィール', action: () => window.location.href = 'user-profile.html' }
     ];
 
-    // 管理者メニュー項目（system_adminまたはproject_adminの場合のみ）
+    // 管理者メニュー項目（system_adminの場合のみ）
     const adminMenuItems = [];
     if (user.role === 'system_admin') {
       adminMenuItems.push(
         { icon: 'fas fa-cogs', text: 'システム管理', action: () => window.location.href = 'admin.html' }
-      );
-    } else if (user.role === 'project_admin') {
-      adminMenuItems.push(
-        { icon: 'fas fa-users', text: 'メンバー管理', action: () => window.location.href = 'admin.html?tab=members' }
       );
     }
 
@@ -147,13 +153,22 @@ export class SimpleAuth {
 
     // ユーザーアイコンにドロップダウンを追加
     userIcon.style.position = 'relative';
+    userIcon.style.cursor = 'pointer';
     userIcon.appendChild(dropdown);
 
     // クリックイベント
     userIcon.addEventListener('click', (e) => {
+      console.log('userIcon clicked');
       e.stopPropagation();
       const isVisible = dropdown.style.display === 'block';
       dropdown.style.display = isVisible ? 'none' : 'block';
+      console.log('dropdown display:', dropdown.style.display);
+      console.log('dropdown position:', {
+        position: dropdown.style.position,
+        bottom: dropdown.style.bottom,
+        right: dropdown.style.right,
+        zIndex: dropdown.style.zIndex
+      });
     });
 
     // 外部クリックで閉じる
@@ -167,8 +182,7 @@ export class SimpleAuth {
   static getRoleDisplayName(role) {
     const roleMap = {
       'system_admin': 'システム管理者',
-      'project_admin': 'プロジェクト管理者',
-      'member': 'メンバー'
+      'user': 'メンバー'
     };
     return roleMap[role] || 'メンバー';
   }

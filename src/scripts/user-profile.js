@@ -344,10 +344,9 @@ export class UserProfileManager {
   getRoleDisplayName(role) {
     const roleNames = {
       'system_admin': 'システム管理者',
-      'project_admin': 'プロジェクト管理者',
-      'member': 'メンバー'
+      'user': 'メンバー'
     };
-    return roleNames[role] || 'ゲスト';
+    return roleNames[role] || 'メンバー';
   }
 
   showSuccess(message) {

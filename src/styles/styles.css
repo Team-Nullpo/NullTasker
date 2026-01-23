@@ -162,16 +162,8 @@ body.theme-dark .form-group select[disabled] {
 .bottom-section {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: var(--spacing-md);
   margin-top: auto;
   padding: 0 16px 16px 16px;
-}
-
-#projectSelect {
-  padding: var(--spacing-sm) var(--spacing-md);
-  font-size: var(--font-size-base);
-  border: 1px solid #ccc;
-  border-radius: var(--border-radius-sm);
-  background-color: white;
 }

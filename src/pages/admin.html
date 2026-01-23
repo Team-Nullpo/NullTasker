@@ -46,9 +46,6 @@
         <a href="gantt.html"><i class="fas fa-chart-bar"></i><span>Gantt</span></a>
       </nav>
       <div class="bottom-section">
-        <select id="projectSelect">
-          <option value="default">デフォルトプロジェクト</option>
-        </select>
         <div class="user-icon" id="userIcon">
           <i class="fas fa-user-circle"></i>
         </div>
@@ -90,17 +87,6 @@
                 <h3>ユーザー管理</h3>
                 <p class="card-count" id="userCount">読み込み中...</p>
                 <p class="card-description">ユーザーの作成・編集・削除</p>
-              </div>
-            </div>
-
-            <div class="dashboard-card" id="dashboardProject">
-              <div class="card-icon">
-                <i class="fas fa-project-diagram"></i>
-              </div>
-              <div class="card-content">
-                <h3>プロジェクト管理</h3>
-                <p class="card-count" id="projectCount">読み込み中...</p>
-                <p class="card-description">プロジェクトの作成・設定・削除</p>
               </div>
             </div>
 
@@ -184,7 +170,6 @@
                   <th>表示名</th>
                   <th>メールアドレス</th>
                   <th>権限</th>
-                  <th>所属プロジェクト</th>
                   <th>最終ログイン</th>
                   <th>操作</th>
                 </tr>
@@ -462,7 +447,6 @@
             <label for="role">権限</label>
             <select id="userRole" name="role" required>
               <option value="user">メンバー</option>
-              <option value="project_admin">プロジェクト管理者</option>
               <option value="system_admin">システム管理者</option>
             </select>
           </div>
