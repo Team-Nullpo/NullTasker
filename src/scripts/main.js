@@ -5,13 +5,13 @@ import { GanttManager } from "./gantt-manager.js";
 import { SidebarManager } from "./sidebar.js";
 import { Utils } from "./utils.js";
 import { SimpleAuth } from "./simple-auth.js";
-import { SettingsManager } from "./settings-manager.js";
 import { ProjectManager } from "./project-manager.js";
 import { UserManager } from "./user-manager.js";
 import { AdminManager } from "./admin-manager.js";
 import { TicketManager } from "./ticket-manager.js";
 import { UserProfileManager } from "./user-profile.js";
 import { AuthInterceptor } from "./auth-interceptor.js";
+import { HomeManager } from "./home-manager.js";
 
 // アプリケーション初期化
 document.addEventListener("DOMContentLoaded", async () => {
@@ -115,6 +115,15 @@ function getCurrentPage() {
 async function initializePageManager(page) {
   try {
     switch (page) {
+      case "dashboard":
+        Utils.debugLog("ホーム画面を初期化中...");
+        if (typeof HomeManager !== "undefined") {
+          window.homeManager = new HomeManager();
+        } else {
+          console.warn("HomeManager が見つかりません");
+        }
+        break;
+
       case "task":
         Utils.debugLog("タスク管理を初期化中...");
         if (typeof TaskManager !== "undefined") {
@@ -142,14 +151,6 @@ async function initializePageManager(page) {
         }
         break;
 
-      case "settings":
-        Utils.debugLog("設定管理を初期化中...");
-        if (typeof SettingsManager !== "undefined") {
-          window.settingsManager = new SettingsManager();
-        } else {
-          console.warn("SettingsManager が見つかりません");
-        }
-        break;
       case "admin":
         Utils.debugLog("管理者設定画面を初期化中...");
         if (typeof AdminManager !== "undefined") {
@@ -158,14 +159,14 @@ async function initializePageManager(page) {
           console.warn("AdminManager が見つかりません");
         }
         break;
-        case "user-profile":
-          Utils.debugLog("個人設定画面を初期化中...");
-          if (typeof UserProfileManager !== "undefined") {
-            window.settingsManager = new UserProfileManager();
-          } else {
-            console.warn("UserProfileManager が見つかりません");
-          }
-          break;
+      case "user-profile":
+        Utils.debugLog("個人設定画面を初期化中...");
+        if (typeof UserProfileManager !== "undefined") {
+          window.settingsManager = new UserProfileManager();
+        } else {
+          console.warn("UserProfileManager が見つかりません");
+        }
+        break;
 
       case "dashboard":
       default:
@@ -243,13 +244,12 @@ function displayRecentTasks(tasks) {
       taskElement.innerHTML = `
         <div class="task-info">
           <h4>${task.title || "タイトルなし"}</h4>
-          <p>${task.assignee || "未割り当て"} - ${
-        task.category || "カテゴリなし"
-      }</p>
+          <p>${task.assignee || "未割り当て"} - ${task.category || "カテゴリなし"
+        }</p>
         </div>
         <div class="task-status ${task.status || "todo"}">${getStatusText(
-        task.status
-      )}</div>
+          task.status
+        )}</div>
       `;
       recentTasksContainer.appendChild(taskElement);
     });
