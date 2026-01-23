@@ -1,9 +1,11 @@
 import { Utils } from './utils.js';
+import { SimpleAuth } from './simple-auth.js';
 
 // 設定管理クラス
 export class SettingsManager {
   constructor() {
     this.settings = this.getDefaultSettings();
+    this.currentTab = 'user';
     this.init();
   }
 
@@ -11,28 +13,74 @@ export class SettingsManager {
     return {
       users: ['田中太郎', '佐藤花子', '山田次郎', '鈴木美咲', '高橋健一'],
       categories: ['企画', '開発', 'デザイン', 'テスト', 'ドキュメント', '会議', 'その他'],
-      projectName: 'NullTasker Project',
-      projectDescription: 'チームでのタスク管理を効率化するプロジェクトです。',
       notifications: {
-        email: true,
         desktop: false,
-        taskReminder: true
-      },
-      display: {
-        theme: 'light',
-        language: 'ja',
-        tasksPerPage: 20
+        deadline: false,
+        newTask: false
       }
     };
   }
 
   init() {
     this.loadSettings();
-    
+
     if (Utils.getElement('.settings-container')) {
+      this.setupTabs();
+      this.setupAdminAccess();
       this.renderSettings();
       this.setupEventListeners();
-      this.setupSettingsButtons(); // 新しいメソッド追加
+    }
+  }
+
+  setupTabs() {
+    const tabs = document.querySelectorAll('.settings-tab');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabName = tab.dataset.tab;
+        this.switchTab(tabName);
+      });
+    });
+  }
+
+  switchTab(tabName) {
+    // タブボタンの切り替え
+    document.querySelectorAll('.settings-tab').forEach(tab => {
+      tab.classList.remove('active');
+      if (tab.dataset.tab === tabName) {
+        tab.classList.add('active');
+      }
+    });
+
+    // タブコンテンツの切り替え
+    document.querySelectorAll('.tab-content').forEach(content => {
+      content.classList.remove('active');
+    });
+
+    const targetContent = tabName === 'user' ?
+      Utils.getElement('#userTab') :
+      Utils.getElement('#adminTabContent');
+
+    if (targetContent) {
+      targetContent.classList.add('active');
+    }
+
+    this.currentTab = tabName;
+  }
+
+  setupAdminAccess() {
+    const user = SimpleAuth.getCurrentUser();
+    const adminTab = Utils.getElement('#adminTab');
+    const adminTabContent = Utils.getElement('#adminTabContent');
+
+    // 管理者権限チェック（system_admin または project_admin のみ）
+    const isAdmin = user && (user.role === 'system_admin' || user.role === 'project_admin');
+
+    if (!isAdmin && adminTab) {
+      adminTab.style.display = 'none';
+    }
+
+    if (!isAdmin && adminTabContent) {
+      adminTabContent.style.display = 'none';
     }
   }
 
@@ -64,31 +112,21 @@ export class SettingsManager {
         { value: 'done', label: '完了', color: '#388e3c' }
       ]
     };
-    
+
     if (window.taskManager) {
       window.taskManager.settings = globalSettings;
     }
   }
 
   renderSettings() {
-    this.renderProjectSettings();
     this.renderUsers();
     this.renderCategories();
     this.renderNotificationSettings();
-    this.renderDisplaySettings();
     this.updateStorageInfo();
   }
 
-  renderProjectSettings() {
-    const projectName = Utils.getElement('#projectName');
-    const projectDescription = Utils.getElement('#projectDescription');
-    
-    if (projectName) projectName.value = this.settings.projectName;
-    if (projectDescription) projectDescription.value = this.settings.projectDescription;
-  }
-
   renderUsers() {
-    const usersList = Utils.getElement('#membersList'); // 修正: HTMLのIDに合わせる
+    const usersList = Utils.getElement('#membersList');
     if (!usersList) return;
 
     usersList.innerHTML = '';
@@ -118,18 +156,18 @@ export class SettingsManager {
         <i class="fas fa-times"></i> 削除
       </button>
     `;
-    
+
     const removeBtn = item.querySelector('.remove-btn');
     removeBtn.addEventListener('click', removeCallback);
-    
+
     return item;
   }
 
   renderNotificationSettings() {
     const settings = [
-      { id: '#emailNotification', value: this.settings.notifications.email },
-      { id: '#desktopNotification', value: this.settings.notifications.desktop },
-      { id: '#taskReminder', value: this.settings.notifications.taskReminder }
+      { id: '#desktopNotifications', value: this.settings.notifications.desktop },
+      { id: '#deadlineNotifications', value: this.settings.notifications.deadline },
+      { id: '#newTaskNotifications', value: this.settings.notifications.newTask }
     ];
 
     settings.forEach(({ id, value }) => {
@@ -138,24 +176,11 @@ export class SettingsManager {
     });
   }
 
-  renderDisplaySettings() {
-    const settings = [
-      { id: '#theme', value: this.settings.display.theme },
-      { id: '#language', value: this.settings.display.language },
-      { id: '#tasksPerPage', value: this.settings.display.tasksPerPage }
-    ];
-
-    settings.forEach(({ id, value }) => {
-      const element = Utils.getElement(id);
-      if (element) element.value = value;
-    });
-  }
-
   updateStorageInfo() {
     const storageUsed = this.calculateStorageUsage();
     const storageBar = Utils.getElement('.storage-used');
     const storageText = Utils.getElement('.storage-info p');
-    
+
     if (storageBar && storageText) {
       const percentage = Math.min((storageUsed / (10 * 1024 * 1024)) * 100, 100);
       storageBar.style.width = `${percentage}%`;
@@ -174,44 +199,24 @@ export class SettingsManager {
   }
 
   setupEventListeners() {
-    // プロジェクト設定
-    this.setupProjectSettings();
-    
     // 通知設定
     this.setupNotificationSettings();
-    
-    // 表示設定
-    this.setupDisplaySettings();
-    
+
     // メンバーとカテゴリー管理
     this.setupMemberManagement();
     this.setupCategoryManagement();
-  }
 
-  setupProjectSettings() {
-    const projectName = Utils.getElement('#projectName');
-    const projectDescription = Utils.getElement('#projectDescription');
-    
-    if (projectName) {
-      projectName.addEventListener('change', (e) => {
-        this.settings.projectName = e.target.value;
-      });
-    }
-    
-    if (projectDescription) {
-      projectDescription.addEventListener('change', (e) => {
-        this.settings.projectDescription = e.target.value;
-      });
-    }
+    // ボタン類
+    this.setupButtons();
   }
 
   setupNotificationSettings() {
     const notifications = [
-      { id: '#emailNotification', key: 'email' },
-      { id: '#desktopNotification', key: 'desktop' },
-      { id: '#taskReminder', key: 'taskReminder' }
+      { id: '#desktopNotifications', key: 'desktop' },
+      { id: '#deadlineNotifications', key: 'deadline' },
+      { id: '#newTaskNotifications', key: 'newTask' }
     ];
-    
+
     notifications.forEach(({ id, key }) => {
       const element = Utils.getElement(id);
       if (element) {
@@ -222,29 +227,14 @@ export class SettingsManager {
     });
   }
 
-  setupDisplaySettings() {
-    const displaySettings = ['language', 'tasksPerPage'];
-    
-    displaySettings.forEach(setting => {
-      const element = Utils.getElement(`#${setting}`);
-      if (element) {
-        element.addEventListener('change', (e) => {
-          this.settings.display[setting] = e.target.value;
-        });
-      }
-    });
-  }
-
   setupMemberManagement() {
     const addMemberBtn = Utils.getElement('#addMemberBtn');
     const memberInput = Utils.getElement('#memberInput');
-    
-    console.log('メンバー管理要素:', { addMemberBtn: !!addMemberBtn, memberInput: !!memberInput });
-    
+
     if (addMemberBtn) {
       addMemberBtn.addEventListener('click', () => this.addMember());
     }
-    
+
     if (memberInput) {
       memberInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
@@ -257,13 +247,11 @@ export class SettingsManager {
   setupCategoryManagement() {
     const addCategoryBtn = Utils.getElement('#addCategoryBtn');
     const categoryInput = Utils.getElement('#categoryInput');
-    
-    console.log('カテゴリー管理要素:', { addCategoryBtn: !!addCategoryBtn, categoryInput: !!categoryInput });
-    
+
     if (addCategoryBtn) {
       addCategoryBtn.addEventListener('click', () => this.addCategory());
     }
-    
+
     if (categoryInput) {
       categoryInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
@@ -273,9 +261,10 @@ export class SettingsManager {
     }
   }
 
-  setupSettingsButtons() {
+  setupButtons() {
     const buttons = {
-      saveSettingsBtn: () => this.saveAllSettings(),
+      saveUserSettingsBtn: () => this.saveAllSettings(),
+      saveAdminSettingsBtn: () => this.saveAllSettings(),
       resetSettingsBtn: () => this.resetSettings(),
       exportDataBtn: () => this.exportData(),
       importDataBtn: () => this.importData(),
@@ -297,7 +286,7 @@ export class SettingsManager {
   }
 
   addMember() {
-    const memberInput = Utils.getElement('#memberInput'); // 修正: HTMLのIDに合わせる
+    const memberInput = Utils.getElement('#memberInput');
     if (!memberInput) return;
 
     const userName = memberInput.value.trim();
@@ -310,6 +299,7 @@ export class SettingsManager {
 
     this.settings.users.push(userName);
     this.renderUsers();
+    this.saveSettings();
     memberInput.value = '';
     Utils.showNotification('メンバーが追加されました', 'success');
   }
@@ -318,12 +308,13 @@ export class SettingsManager {
     if (confirm('このユーザーを削除しますか？')) {
       this.settings.users.splice(index, 1);
       this.renderUsers();
+      this.saveSettings();
       Utils.showNotification('ユーザーが削除されました', 'success');
     }
   }
 
   addCategory() {
-    const categoryInput = Utils.getElement('#categoryInput'); // 修正: HTMLのIDに合わせる
+    const categoryInput = Utils.getElement('#categoryInput');
     if (!categoryInput) return;
 
     const categoryName = categoryInput.value.trim();
@@ -336,6 +327,7 @@ export class SettingsManager {
 
     this.settings.categories.push(categoryName);
     this.renderCategories();
+    this.saveSettings();
     categoryInput.value = '';
     Utils.showNotification('カテゴリが追加されました', 'success');
   }
@@ -344,6 +336,7 @@ export class SettingsManager {
     if (confirm('このカテゴリを削除しますか？')) {
       this.settings.categories.splice(index, 1);
       this.renderCategories();
+      this.saveSettings();
       Utils.showNotification('カテゴリが削除されました', 'success');
     }
   }
@@ -366,7 +359,7 @@ export class SettingsManager {
     URL.revokeObjectURL(url);
 
     Utils.showNotification('データがエクスポートされました', 'success');
-  }
+  } Input
 
   importData() {
     const fileInput = Utils.getElement('#importFile');
@@ -381,20 +374,20 @@ export class SettingsManager {
     reader.onload = (e) => {
       try {
         const data = JSON.parse(e.target.result);
-        
+
         if (confirm('現在のデータを上書きしますか？この操作は元に戻せません。')) {
           if (data.settings) {
             this.settings = { ...this.settings, ...data.settings };
             this.renderSettings();
           }
-          
+
           if (data.tasks) {
             Utils.saveToStorage('tasks', data.tasks);
           }
-          
+
           this.saveSettings();
           Utils.showNotification('データがインポートされました', 'success');
-          
+
           setTimeout(() => location.reload(), 1500);
         }
       } catch (error) {
@@ -414,24 +407,20 @@ export class SettingsManager {
       }
     }
   }
-
-  saveAllSettings() {
-    this.saveSettings();
-    // テーマの変更をすぐに保存
-    const theme = this.settings.display.theme;
+  const theme = this.settings.display.theme;
     Utils.saveToStorage('userTheme', theme);
     this.applyTheme(theme);
-    Utils.showNotification('設定が保存されました', 'success');
+Utils.showNotification('設定が保存されました', 'success');
   }
 
-  resetSettings() {
-    if (confirm('設定をリセットしますか？')) {
-      localStorage.removeItem('appSettings');
-      this.settings = this.getDefaultSettings();
-      this.renderSettings();
-      Utils.showNotification('設定がリセットされました', 'success');
-    }
+resetSettings() {
+  if (confirm('設定をリセットしますか？')) {
+    localStorage.removeItem('appSettings');
+    this.settings = this.getDefaultSettings();
+    this.renderSettings();
+    Utils.showNotification('設定がリセットされました', 'success');
   }
+}
 }
 
 // グローバル関数として設定関数を公開

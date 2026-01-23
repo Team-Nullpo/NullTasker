@@ -261,11 +261,15 @@ export class TaskManager {
     // settingsオブジェクトの構造を確認
     const projectSettings = this.settings?.settings || this.settings;
 
+    // appSettingsから分類を取得
+    const appSettings = Utils.getFromStorage('appSettings') || { categories: [] };
+
     Utils.debugLog("projectSettings:", projectSettings);
+    Utils.debugLog("appSettings:", appSettings);
 
     const selectors = [
       { id: "#taskAssignee", options: usernames, hasValue: true },
-      { id: "#taskCategory", options: projectSettings?.categories || [] },
+      { id: "#taskCategory", options: appSettings.categories || [] },
       {
         id: "#taskPriority",
         options: projectSettings?.priorities || [],
