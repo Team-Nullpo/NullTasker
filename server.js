@@ -82,7 +82,7 @@ app.use(helmet({
 }));
 
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
+  origin: process.env.NODE_ENV === 'production'
     ? ['https://yourdomain.com']
     : ['http://localhost:3000', 'http://127.0.0.1:3000', 'https://localhost:3443', 'https://127.0.0.1:3443'],
   credentials: true
@@ -172,7 +172,7 @@ app.get('/', (req, res) => {
 });
 
 // ページルーティング
-const pages = ['login', 'register', 'index', 'task', 'calendar', 'gantt', 'setting', 'debug-storage'];
+const pages = ['login', 'register', 'index', 'task', 'calendar', 'gantt', 'setting', 'debug-storage', 'admin', 'user-profile'];
 pages.forEach(page => {
   app.get(`/${page}`, (req, res) => {
     res.sendFile(path.join(__dirname, 'src', 'pages', `${page}.html`));
@@ -207,11 +207,11 @@ app.post('/api/register', registerValidation, async (req, res) => {
     // 既存ユーザーチェック
     const existingUserByLogin = db.getUserByLoginId(loginId);
     const existingUserByEmail = email ? db.getUserByEmail(email) : null;
-    
+
     if (existingUserByLogin || existingUserByEmail) {
-      return res.status(409).json({ 
-        success: false, 
-        message: '既に登録済みのログインIDまたはメールアドレスです' 
+      return res.status(409).json({
+        success: false,
+        message: '既に登録済みのログインIDまたはメールアドレスです'
       });
     }
 
@@ -231,7 +231,7 @@ app.post('/api/register', registerValidation, async (req, res) => {
     };
 
     db.createUser(newUser);
-    
+
     // デフォルトプロジェクトのメンバーに追加
     const defaultProject = db.getProjectById("default");
     if (defaultProject) {
@@ -247,9 +247,9 @@ app.post('/api/register', registerValidation, async (req, res) => {
 
   } catch (error) {
     console.error('ユーザー登録エラー:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'サーバーエラーが発生しました' 
+    res.status(500).json({
+      success: false,
+      message: 'サーバーエラーが発生しました'
     });
   }
 });
@@ -269,27 +269,27 @@ app.post('/api/login', loginValidation, async (req, res) => {
     const { loginId, password, rememberMe } = req.body;
 
     if (!loginId || !password) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'ログインIDとパスワードを入力してください' 
+      return res.status(400).json({
+        success: false,
+        message: 'ログインIDとパスワードを入力してください'
       });
     }
 
     // ユーザーを検索
     const user = db.getUserByLoginId(loginId) || db.getUserById(loginId);
     if (!user) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'ログインIDまたはパスワードが正しくありません' 
+      return res.status(401).json({
+        success: false,
+        message: 'ログインIDまたはパスワードが正しくありません'
       });
     }
 
     // パスワード確認
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'ログインIDまたはパスワードが正しくありません' 
+      return res.status(401).json({
+        success: false,
+        message: 'ログインIDまたはパスワードが正しくありません'
       });
     }
 
@@ -299,7 +299,7 @@ app.post('/api/login', loginValidation, async (req, res) => {
 
     // JWTトークンを生成
     const accessToken = jwt.sign(
-      { 
+      {
         id: user.id,
         loginId: user.login_id,
         displayName: user.display_name,
@@ -338,9 +338,9 @@ app.post('/api/login', loginValidation, async (req, res) => {
 
   } catch (error) {
     console.error('ログインエラー:', NODE_ENV === 'development' ? error : error.message);
-    res.status(500).json({ 
-      success: false, 
-      message: 'サーバーエラーが発生しました' 
+    res.status(500).json({
+      success: false,
+      message: 'サーバーエラーが発生しました'
     });
   }
 });
@@ -352,17 +352,17 @@ app.post('/api/verify-token', (req, res) => {
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'トークンが提供されていません' 
+      return res.status(401).json({
+        success: false,
+        message: 'トークンが提供されていません'
       });
     }
 
     jwt.verify(token, JWT_SECRET, (err, user) => {
       if (err) {
-        return res.status(403).json({ 
-          success: false, 
-          message: 'トークンが無効です' 
+        return res.status(403).json({
+          success: false,
+          message: 'トークンが無効です'
         });
       }
 
@@ -375,9 +375,9 @@ app.post('/api/verify-token', (req, res) => {
 
   } catch (error) {
     console.error('トークン検証エラー:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'サーバーエラーが発生しました' 
+    res.status(500).json({
+      success: false,
+      message: 'サーバーエラーが発生しました'
     });
   }
 });
@@ -386,7 +386,7 @@ app.post('/api/verify-token', (req, res) => {
 app.post('/api/refresh', async (req, res) => {
   try {
     const { refreshToken } = req.body;
-    
+
     if (!refreshToken) {
       return res.status(401).json({
         success: false,
@@ -395,7 +395,7 @@ app.post('/api/refresh', async (req, res) => {
     }
 
     const decoded = jwt.verify(refreshToken, JWT_SECRET);
-    
+
     if (decoded.type !== 'refresh') {
       return res.status(403).json({
         success: false,
@@ -404,7 +404,7 @@ app.post('/api/refresh', async (req, res) => {
     }
 
     const user = db.getUserById(decoded.id);
-    
+
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -416,7 +416,7 @@ app.post('/api/refresh', async (req, res) => {
     const projectIds = projects.map(p => p.id);
 
     const newAccessToken = jwt.sign(
-      { 
+      {
         id: user.id,
         loginId: user.login_id,
         displayName: user.display_name,
@@ -478,7 +478,7 @@ app.get('/api/user', authenticateToken, async (req, res) => {
 app.put('/api/user/profile', authenticateToken, async (req, res) => {
   try {
     const { displayName, email } = req.body;
-    
+
     if (!displayName || !email) {
       return res.status(400).json({ error: '表示名とメールアドレスは必須です' });
     }
@@ -490,10 +490,10 @@ app.put('/api/user/profile', authenticateToken, async (req, res) => {
     }
 
     db.updateUser(req.user.id, { displayName, email });
-    
+
     const user = db.getUserById(req.user.id);
     const { password: _, ...userWithoutPassword } = user;
-    
+
     res.status(200).json({
       ...userWithoutPassword,
       loginId: user.login_id,
@@ -510,7 +510,7 @@ app.put('/api/user/profile', authenticateToken, async (req, res) => {
 app.put('/api/user/password', authenticateToken, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
-    
+
     if (!currentPassword || !newPassword) {
       return res.status(400).json({ error: '現在のパスワードと新しいパスワードは必須です' });
     }
@@ -528,7 +528,7 @@ app.put('/api/user/password', authenticateToken, async (req, res) => {
 
     // 新しいパスワードをハッシュ化
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-    
+
     db.updateUser(req.user.id, { password: hashedNewPassword });
     res.status(204).end();
 
@@ -584,7 +584,7 @@ app.get('/api/admin/users', authenticateToken, requireSystemAdmin, async (req, r
 app.post('/api/admin/users', authenticateToken, requireSystemAdmin, async (req, res) => {
   try {
     const { loginId, displayName, email, role, password } = req.body;
-    
+
     if (!loginId || !displayName || !email || !role || !password) {
       return res.status(400).json({ error: '必須項目が不足しています' });
     }
@@ -592,13 +592,13 @@ app.post('/api/admin/users', authenticateToken, requireSystemAdmin, async (req, 
     // 重複チェック
     const existingUserByLogin = db.getUserByLoginId(loginId);
     const existingUserByEmail = db.getUserByEmail(email);
-    
+
     if (existingUserByLogin || existingUserByEmail) {
       return res.status(409).json({ error: 'ログインIDまたはメールアドレスが既に使用されています' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    
+
     const newUser = {
       id: generateId('user'),
       loginId: loginId,
@@ -612,7 +612,7 @@ app.post('/api/admin/users', authenticateToken, requireSystemAdmin, async (req, 
 
     db.createUser(newUser);
     db.addProjectMember('default', newUser.id, false);
-    
+
     const { password: _, ...userWithoutPassword } = newUser;
     res.status(201).location(`/api/admin/users/${newUser.id}`).json({
       ...userWithoutPassword,
@@ -630,7 +630,7 @@ app.put('/api/admin/users/:userId', authenticateToken, requireSystemAdmin, async
   try {
     const { userId } = req.params;
     const { displayName, email, role, password } = req.body;
-    
+
     if (!displayName || !email || !role) {
       return res.status(400).json({ error: '必須項目が不足しています' });
     }
@@ -647,14 +647,14 @@ app.put('/api/admin/users/:userId', authenticateToken, requireSystemAdmin, async
     }
 
     const updates = { displayName, email, role };
-    
+
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
       updates.password = hashedPassword;
     }
 
     db.updateUser(userId, updates);
-    
+
     const updatedUser = db.getUserById(userId);
     const { password: _, ...userWithoutPassword } = updatedUser;
     res.status(200).json({
@@ -673,7 +673,7 @@ app.put('/api/admin/users/:userId', authenticateToken, requireSystemAdmin, async
 app.delete('/api/admin/users/:userId', authenticateToken, requireSystemAdmin, async (req, res) => {
   try {
     const { userId } = req.params;
-    
+
     if (userId === req.user.id) {
       return res.status(400).json({ error: '自分自身を削除することはできません' });
     }
@@ -696,23 +696,23 @@ app.delete('/api/admin/users/:userId', authenticateToken, requireSystemAdmin, as
 app.get('/api/admin/projects', authenticateToken, requireSystemAdmin, async (req, res) => {
   try {
     const projects = db.getAllProjects();
-    
+
     // 各プロジェクトにメンバーと管理者情報を追加
     const projectsWithMembers = projects.map(project => {
       const members = db.getProjectMembers(project.id).map(m => m.id);
       const admins = db.getProjectAdmins(project.id);
-      
+
       return {
         ...project,
         members,
         admins
       };
     });
-    
+
     res.status(200).json(projectsWithMembers);
   } catch (error) {
     console.error('プロジェクトデータの取得に失敗: ', error);
-    res.status(500).json({ error: 'プロジェクトデータ取得に失敗しました'});
+    res.status(500).json({ error: 'プロジェクトデータ取得に失敗しました' });
   }
 });
 
@@ -720,7 +720,7 @@ app.get('/api/admin/projects', authenticateToken, requireSystemAdmin, async (req
 app.post('/api/admin/projects', authenticateToken, requireSystemAdmin, async (req, res) => {
   try {
     const { name, description, owner } = req.body;
-    
+
     if (!name || !owner) {
       return res.status(400).json({ error: '必須項目が不足しています' });
     }
@@ -748,7 +748,7 @@ app.post('/api/admin/projects', authenticateToken, requireSystemAdmin, async (re
 
     db.createProject(newProject);
     db.addProjectMember(newProject.id, owner, true);
-    
+
     res.status(201).location(`/api/projects/${newProject.id}`).json({
       ...newProject,
       members: [owner],
@@ -766,7 +766,7 @@ app.put('/api/admin/projects/:projectId', authenticateToken, requireSystemAdmin,
   try {
     const { projectId } = req.params;
     const { name, description, owner } = req.body;
-    
+
     if (!name || !owner) {
       return res.status(400).json({ error: '必須項目が不足しています' });
     }
@@ -787,11 +787,11 @@ app.put('/api/admin/projects/:projectId', authenticateToken, requireSystemAdmin,
       owner,
       lastUpdated: new Date().toISOString()
     });
-    
+
     const updatedProject = db.getProjectById(projectId);
     const members = db.getProjectMembers(projectId).map(m => m.id);
     const admins = db.getProjectAdmins(projectId);
-    
+
     res.status(200).json({
       ...updatedProject,
       members,
@@ -808,7 +808,7 @@ app.put('/api/admin/projects/:projectId', authenticateToken, requireSystemAdmin,
 app.delete('/api/admin/projects/:projectId', authenticateToken, requireSystemAdmin, async (req, res) => {
   try {
     const { projectId } = req.params;
-    
+
     if (projectId === 'default') {
       return res.status(400).json({ error: 'デフォルトプロジェクトは削除できません' });
     }
@@ -842,14 +842,14 @@ app.post('/api/admin/backup', authenticateToken, requireSystemAdmin, async (req,
   try {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const backupDir = path.join(__dirname, 'db', 'backups');
-    
+
     await fs.mkdir(backupDir, { recursive: true });
-    
+
     const backupPath = path.join(backupDir, `backup-${timestamp}.db`);
     fsSync.copyFileSync(DB_PATH, backupPath);
-    
-    res.json({ 
-      success: true, 
+
+    res.json({
+      success: true,
       message: 'バックアップを作成しました',
       filename: `backup-${timestamp}.db`
     });
@@ -867,17 +867,17 @@ app.get('/api/admin/backup/download/data', authenticateToken, requireSystemAdmin
       const { password, ...userWithoutPassword } = u;
       return userWithoutPassword;
     });
-    
+
     const tasks = db.getAllTasks();
     const projects = db.getAllProjects();
-    
+
     const backupData = {
       users,
       tasks,
       projects,
       exportDate: new Date().toISOString()
     };
-    
+
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Content-Disposition', 'attachment; filename="nulltasker-data-backup.json"');
     res.send(JSON.stringify(backupData, null, 2));
@@ -892,12 +892,12 @@ app.get('/api/admin/backup/download/data', authenticateToken, requireSystemAdmin
 app.get('/api/admin/backup/download/settings', authenticateToken, requireSystemAdmin, async (req, res) => {
   try {
     const settings = db.getAllSettings();
-    
+
     const backupData = {
       settings,
       exportDate: new Date().toISOString()
     };
-    
+
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Content-Disposition', 'attachment; filename="nulltasker-settings-backup.json"');
     res.send(JSON.stringify(backupData, null, 2));
@@ -935,15 +935,15 @@ app.get('/api/settings', authenticateToken, async (req, res) => {
 app.get('/api/tasks', authenticateToken, async (req, res) => {
   try {
     debugLog('タスク取得リクエスト受信:', req.user?.id);
-    
+
     // ユーザーが所属するプロジェクトのタスクを担当者情報付きで取得
     const tasks = db.getTasksWithAssigneeInfo(req.user.id);
-    
+
     debugLog('タスク取得成功:', tasks.length, '件');
     res.json({ tasks: tasks, lastUpdated: new Date().toISOString() });
   } catch (error) {
     console.error('タスク読み込みエラー:', error.message);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
       error: 'タスクの読み込みに失敗しました'
     });
@@ -957,7 +957,7 @@ app.post('/api/tasks', authenticateToken, async (req, res) => {
     // 同名チェック
     const existingTasks = db.getTasksByProject(payload.project);
     const duplicate = existingTasks.find(task => task.title === payload.title);
-    
+
     if (duplicate) {
       return res.status(409).json({ error: '同名のタスクが存在します' });
     }
@@ -983,13 +983,13 @@ app.post('/api/tasks', authenticateToken, async (req, res) => {
     };
 
     db.createTask(newTask);
-    
+
     debugLog('タスクが正常に保存されました:', newTask.id);
     res.status(201).location(`/api/tasks/${newTask.id}`).json(newTask);
-    
+
   } catch (error) {
     console.error('タスク保存エラー:', error.message);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
       error: 'タスクの保存に失敗しました'
     });
@@ -1012,7 +1012,7 @@ app.put('/api/tasks/:ticketId', authenticateToken, async (req, res) => {
     };
 
     db.updateTask(ticketId, updates);
-    
+
     const updatedTask = db.getTaskById(ticketId);
     res.status(200).json(updatedTask);
 
@@ -1045,10 +1045,10 @@ app.post('/api/backup', authenticateToken, async (req, res) => {
   try {
     const timestamp = Date.now();
     const backupFile = path.join(__dirname, 'db', 'backups', `backup_${timestamp}.db`);
-    
+
     await fs.mkdir(path.join(__dirname, 'db', 'backups'), { recursive: true });
     fsSync.copyFileSync(DB_PATH, backupFile);
-    
+
     res.json({ success: true, backupFile: path.basename(backupFile) });
   } catch (error) {
     console.error('バックアップ作成エラー:', error);
@@ -1061,23 +1061,23 @@ app.post('/api/backup', authenticateToken, async (req, res) => {
 app.get('/api/projects', authenticateToken, async (req, res) => {
   try {
     const projects = db.getProjectsByUserId(req.user.id);
-    
+
     // 各プロジェクトにメンバーと管理者情報を追加
     const projectsWithMembers = projects.map(project => {
       const members = db.getProjectMembers(project.id).map(m => m.id);
       const admins = db.getProjectAdmins(project.id);
-      
+
       return {
         ...project,
         members,
         admins
       };
     });
-    
+
     res.status(200).json(projectsWithMembers);
   } catch (error) {
     console.error('プロジェクトデータの取得に失敗: ', error);
-    res.status(500).json({ error: 'プロジェクトデータ取得に失敗しました'});
+    res.status(500).json({ error: 'プロジェクトデータ取得に失敗しました' });
   }
 });
 
@@ -1092,7 +1092,7 @@ app.get('/api/users', authenticateToken, async (req, res) => {
     // 同じプロジェクトのメンバーを取得
     const projects = db.getProjectsByUserId(currentUser.id);
     const projectIds = projects.map(p => p.id);
-    
+
     const userIds = new Set();
     projectIds.forEach(projectId => {
       const members = db.getProjectMembers(projectId);
