@@ -8,25 +8,32 @@ export class UserManager {
   static users = [];
 
   static async fetchUsers(admin = false) {
+    console.log('UserManager.fetchUsers starting with admin =', admin);
     return LoadingManager.wrap(async () => {
       try {
         const url = admin ? '/api/admin/users' : '/api/users';
         Logger.debug(`Fetching users from: ${url}`);
+        console.log(`Fetching users from: ${url}`);
         const res = await fetch(url, {
           headers: SimpleAuth.getAuthHeaders()
         });
         Logger.debug(`Response status: ${res.status}`);
+        console.log(`Response status: ${res.status}`);
         if (!res.ok) {
           const errorText = await res.text();
           Logger.error('Server error response:', errorText);
+          console.error('Server error response:', errorText);
           throw new Error(`HTTP error! status: ${res.status}, message: ${errorText}`);
         }
         const data = await res.json();
         Logger.debug('Fetched users:', data);
+        console.log('Fetched users:', data);
         this.users = data;
+        console.log('UserManager.users set to:', this.users);
       } catch (error) {
         Logger.error('ユーザーデータの読み込みに失敗しました:', error);
         Logger.error('Error details:', error.message);
+        console.error('ユーザーデータの読み込みに失敗しました:', error);
         this.users = []; // エラー時は空配列を設定
       }
     }, 'ユーザーデータを読み込んでいます...');

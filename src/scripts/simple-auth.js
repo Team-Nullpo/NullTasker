@@ -57,7 +57,7 @@ export class SimpleAuth {
   static initUserIcon() {
     const userIcon = document.getElementById('userIcon');
     console.log('userIcon element:', userIcon);
-    
+
     if (!userIcon) {
       console.warn('userIcon element not found');
       return;
@@ -66,7 +66,7 @@ export class SimpleAuth {
     // ユーザー情報を取得
     const user = this.getCurrentUser();
     console.log('current user:', user);
-    
+
     if (!user) {
       console.warn('no current user found');
       return;

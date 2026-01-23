@@ -34,8 +34,12 @@ export class AdminManager {
   }
 
   async loadData() {
+    console.log('Admin loadData: Starting user fetch...');
     await UserManager.fetchUsers(true);
     this.users = UserManager.users;
+    console.log('Admin loadData: UserManager.users =', UserManager.users);
+    console.log('Admin loadData: this.users =', this.users);
+    console.log('Admin loadData: Users count =', this.users.length);
   }
 
   setupEventListeners() {
@@ -226,12 +230,23 @@ export class AdminManager {
 
   // ユーザーテーブル読み込み
   loadUsersTable() {
+    console.log('loadUsersTable: Starting with users =', this.users);
     const tbody = document.getElementById('usersTableBody');
-    if (!tbody) return;
+    if (!tbody) {
+      console.error('usersTableBody element not found');
+      return;
+    }
 
     tbody.innerHTML = '';
 
-    this.users.forEach(user => {
+    if (!this.users || this.users.length === 0) {
+      console.warn('No users to display');
+      tbody.innerHTML = '<tr><td colspan="6">ユーザーが見つかりません</td></tr>';
+      return;
+    }
+
+    this.users.forEach((user, index) => {
+      console.log(`Processing user ${index}:`, user);
       const row = document.createElement('tr');
       row.setAttribute('data-user', user.id);
       row.innerHTML = `
@@ -254,6 +269,8 @@ export class AdminManager {
       `;
       tbody.appendChild(row);
     });
+
+    console.log('loadUsersTable: Completed, rows added =', this.users.length);
   }
 
   // プロジェクトテーブル読み込み
