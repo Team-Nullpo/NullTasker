@@ -493,3 +493,42 @@ body.theme-dark .bottom-navigation .nav-item:hover {
   color: var(--text-secondary);
   background-color: rgba(10, 132, 255, 0.1);
 }
+
+/* ダークテーマ - モバイルメニュー */
+body.theme-dark .mobile-menu-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+body.theme-dark .mobile-menu-content {
+  background: #1c1c1e;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+}
+
+body.theme-dark .mobile-menu-header {
+  background: linear-gradient(135deg, #0a84ff, #5856d6);
+}
+
+body.theme-dark .mobile-menu-item {
+  color: var(--text-primary);
+}
+
+body.theme-dark .mobile-menu-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+body.theme-dark .mobile-menu-item i {
+  color: #0a84ff;
+}
+
+body.theme-dark .mobile-menu-logout {
+  color: #ff453a;
+  border-top-color: var(--border-color);
+}
+
+body.theme-dark .mobile-menu-logout i {
+  color: #ff453a;
+}
+
+body.theme-dark .mobile-menu-logout:hover {
+  background: rgba(255, 69, 58, 0.1);
+}

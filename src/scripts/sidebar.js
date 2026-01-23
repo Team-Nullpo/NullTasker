@@ -58,22 +58,8 @@ export class SidebarManager {
   }
 
   initializeBottombar() {
-    const { role } = SimpleAuth.getCurrentUser();
-    const barItems = [];
-    if (role === 'system_admin') {
-      barItems.push({
-        icon: 'fas fa-cogs', text: 'システム管理', href: 'admin.html'
-      })
-    }
-    barItems.forEach(item => {
-      const menuItem = document.createElement('a');
-      menuItem.setAttribute('href', item.href)
-      menuItem.className = 'nav-item';
-      menuItem.innerHTML = `<i class="${item.icon}"></i>
-      <span>${item.text}</span>`;
-
-      this.bottombar.appendChild(menuItem);
-    })
+    // ボトムナビゲーションの初期化
+    // システム管理リンクはMoreメニューに統合されたため、ここでは何もしない
   }
 
   applySidebarState() {

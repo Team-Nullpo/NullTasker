@@ -535,9 +535,7 @@
       </a>
       <a href="task.html" class="nav-item">
         <i class="fas fa-tasks"></i>
-        input type="file" id="importFileInput" style="display: none;" accept=".json">
-
-        < <span>Task</span>
+        <span>Task</span>
       </a>
       <a href="calendar.html" class="nav-item">
         <i class="fas fa-calendar"></i>
@@ -547,11 +545,34 @@
         <i class="fas fa-chart-bar"></i>
         <span>Gantt</span>
       </a>
-      <a href="user-profile.html" class="nav-item">
-        <i class="fas fa-user-circle"></i>
-        <span>Profile</span>
-      </a>
+      <button class="nav-item" id="mobileMoreBtn" aria-label="その他のメニュー">
+        <i class="fas fa-ellipsis-h"></i>
+        <span>More</span>
+      </button>
     </nav>
+
+    <!-- モバイル用メニューモーダル -->
+    <div id="mobileMenuModal" class="mobile-menu-modal">
+      <div class="mobile-menu-overlay"></div>
+      <div class="mobile-menu-content">
+        <div class="mobile-menu-header">
+          <span id="mobileMenuUserName">ユーザー</span>
+          <button id="closeMobileMenu" class="mobile-menu-close">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="mobile-menu-items">
+          <a href="user-profile.html" class="mobile-menu-item">
+            <i class="fas fa-user"></i>
+            <span>プロフィール</span>
+          </a>
+          <button id="mobileLogoutBtn" class="mobile-menu-item mobile-menu-logout">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>ログアウト</span>
+          </button>
+        </div>
+      </div>
+    </div>
 
   </div>
 

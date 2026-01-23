@@ -56,24 +56,22 @@ export class SimpleAuth {
 
   static initUserIcon() {
     const userIcon = document.getElementById('userIcon');
-    console.log('userIcon element:', userIcon);
-
-    if (!userIcon) {
-      console.warn('userIcon element not found');
-      return;
-    }
 
     // ユーザー情報を取得
     const user = this.getCurrentUser();
-    console.log('current user:', user);
 
     if (!user) {
       console.warn('no current user found');
       return;
     }
 
-    // ドロップダウンメニューを作成
-    this.createUserDropdown(userIcon, user);
+    // デスクトップ用ドロップダウンメニューを作成
+    if (userIcon) {
+      this.createUserDropdown(userIcon, user);
+    }
+
+    // モバイル用メニューを初期化
+    this.initMobileMenu(user);
 
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
       console.log('ユーザーアイコン初期化完了');
@@ -185,6 +183,58 @@ export class SimpleAuth {
       'user': 'メンバー'
     };
     return roleMap[role] || 'メンバー';
+  }
+
+  static initMobileMenu(user) {
+    const moreBtn = document.getElementById('mobileMoreBtn');
+    const menuModal = document.getElementById('mobileMenuModal');
+    const closeBtn = document.getElementById('closeMobileMenu');
+    const overlay = menuModal?.querySelector('.mobile-menu-overlay');
+    const logoutBtn = document.getElementById('mobileLogoutBtn');
+    const userName = document.getElementById('mobileMenuUserName');
+    const adminLink = document.getElementById('mobileAdminLink');
+
+    if (!moreBtn || !menuModal) {
+      return;
+    }
+
+    // ユーザー名を設定
+    if (userName) {
+      userName.textContent = user.displayName || user.id;
+    }
+
+    // 管理者リンクを表示（system_adminの場合のみ）
+    if (adminLink && user.role === 'system_admin') {
+      adminLink.style.display = 'flex';
+    }
+
+    // Moreボタンクリックでメニューを開く
+    moreBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      menuModal.classList.add('active');
+    });
+
+    // 閉じるボタン
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        menuModal.classList.remove('active');
+      });
+    }
+
+    // オーバーレイクリックで閉じる
+    if (overlay) {
+      overlay.addEventListener('click', () => {
+        menuModal.classList.remove('active');
+      });
+    }
+
+    // ログアウトボタン
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => {
+        this.logout();
+      });
+    }
   }
 
   static logout() {
