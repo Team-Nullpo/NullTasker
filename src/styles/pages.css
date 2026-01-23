@@ -2368,46 +2368,67 @@ body.theme-dark .add-task-btn:hover {
 
 /* 優先度タグ - ダークテーマ */
 body.theme-dark .task-priority.high {
-  background-color: rgba(255, 69, 58, 0.2);
+  background: linear-gradient(135deg, rgba(255, 69, 58, 0.25) 0%, rgba(255, 69, 58, 0.15) 100%);
   color: #ff6961;
-  font-weight: 600;
+  font-weight: 700;
+  border: 1.5px solid rgba(255, 69, 58, 0.4);
+  box-shadow: 0 2px 8px rgba(255, 69, 58, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 body.theme-dark .task-priority.medium {
-  background-color: rgba(255, 159, 10, 0.2);
+  background: linear-gradient(135deg, rgba(255, 159, 10, 0.25) 0%, rgba(255, 159, 10, 0.15) 100%);
   color: #ffb340;
-  font-weight: 600;
+  font-weight: 700;
+  border: 1.5px solid rgba(255, 159, 10, 0.4);
+  box-shadow: 0 2px 8px rgba(255, 159, 10, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 body.theme-dark .task-priority.low {
-  background-color: rgba(48, 209, 88, 0.2);
+  background: linear-gradient(135deg, rgba(48, 209, 88, 0.25) 0%, rgba(48, 209, 88, 0.15) 100%);
   color: #5dd879;
-  font-weight: 600;
+  font-weight: 700;
+  border: 1.5px solid rgba(48, 209, 88, 0.4);
+  box-shadow: 0 2px 8px rgba(48, 209, 88, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* ステータスタグ - ダークテーマ */
 body.theme-dark .task-status.todo {
-  background-color: rgba(152, 152, 157, 0.2);
-  color: #98989d;
-  font-weight: 600;
+  background: linear-gradient(135deg, rgba(152, 152, 157, 0.25) 0%, rgba(152, 152, 157, 0.15) 100%);
+  color: #b4b4b9;
+  font-weight: 700;
+  border: 1.5px solid rgba(152, 152, 157, 0.4);
+  box-shadow: 0 2px 8px rgba(152, 152, 157, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 body.theme-dark .task-status.in_progress {
-  background-color: rgba(10, 132, 255, 0.2);
-  color: #409cff;
-  font-weight: 600;
+  background: linear-gradient(135deg, rgba(10, 132, 255, 0.25) 0%, rgba(10, 132, 255, 0.15) 100%);
+  color: #5eb0ff;
+  font-weight: 700;
+  border: 1.5px solid rgba(10, 132, 255, 0.4);
+  box-shadow: 0 2px 8px rgba(10, 132, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 body.theme-dark .task-status.review {
-  background-color: rgba(255, 159, 10, 0.2);
-  color: #ffb340;
-  font-weight: 600;
+  background: linear-gradient(135deg, rgba(191, 90, 242, 0.25) 0%, rgba(191, 90, 242, 0.15) 100%);
+  color: #c77dff;
+  font-weight: 700;
+  border: 1.5px solid rgba(191, 90, 242, 0.4);
+  box-shadow: 0 2px 8px rgba(191, 90, 242, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 body.theme-dark .task-status.done {
-  background-color: rgba(48, 209, 88, 0.2);
+  background: linear-gradient(135deg, rgba(48, 209, 88, 0.25) 0%, rgba(48, 209, 88, 0.15) 100%);
   color: #5dd879;
-  font-weight: 600;
+  font-weight: 700;
+  border: 1.5px solid rgba(48, 209, 88, 0.4);
+  box-shadow: 0 2px 8px rgba(48, 209, 88, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* カレンダーページ - ダークテーマ */
@@ -2666,4 +2687,457 @@ body.theme-dark .recent-task-item h4 {
 
 body.theme-dark .recent-task-item p {
   color: var(--text-secondary);
+}
+
+/* ダッシュボード追加要素 - ダークテーマ */
+body.theme-dark .dashboard-section {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+body.theme-dark .section-header {
+  border-bottom-color: var(--border-color);
+}
+
+body.theme-dark .section-header h2 {
+  color: var(--text-primary);
+}
+
+body.theme-dark .section-header h2 i {
+  color: #0a84ff;
+}
+
+body.theme-dark .view-all-link {
+  color: #0a84ff;
+}
+
+body.theme-dark .view-all-link:hover {
+  color: #409cff;
+}
+
+body.theme-dark .task-card {
+  background-color: var(--bg-tertiary);
+  border-left-color: #0a84ff;
+}
+
+body.theme-dark .task-card:hover {
+  background-color: #3a3a3c;
+}
+
+body.theme-dark .task-card-icon {
+  background-color: #2c2c2e;
+}
+
+body.theme-dark .task-card-icon i {
+  color: #0a84ff;
+}
+
+body.theme-dark .task-card-title {
+  color: var(--text-primary);
+}
+
+body.theme-dark .task-card-meta {
+  color: var(--text-secondary);
+}
+
+body.theme-dark .task-card-priority.high {
+  background: linear-gradient(135deg, rgba(255, 69, 58, 0.3) 0%, rgba(255, 69, 58, 0.2) 100%);
+  color: #ff8a80;
+  font-weight: 800;
+  border: 1px solid rgba(255, 69, 58, 0.5);
+  box-shadow: 0 2px 6px rgba(255, 69, 58, 0.25);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+body.theme-dark .task-card-priority.medium {
+  background: linear-gradient(135deg, rgba(255, 159, 10, 0.3) 0%, rgba(255, 159, 10, 0.2) 100%);
+  color: #ffc266;
+  font-weight: 800;
+  border: 1px solid rgba(255, 159, 10, 0.5);
+  box-shadow: 0 2px 6px rgba(255, 159, 10, 0.25);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+body.theme-dark .task-card-priority.low {
+  background: linear-gradient(135deg, rgba(48, 209, 88, 0.3) 0%, rgba(48, 209, 88, 0.2) 100%);
+  color: #69f0ae;
+  font-weight: 800;
+  border: 1px solid rgba(48, 209, 88, 0.5);
+  box-shadow: 0 2px 6px rgba(48, 209, 88, 0.25);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+body.theme-dark .progress-circle .progress-bg {
+  stroke: #3a3a3c;
+}
+
+body.theme-dark .progress-percentage {
+  color: var(--text-primary);
+}
+
+body.theme-dark .progress-label {
+  color: var(--text-secondary);
+}
+
+body.theme-dark .progress-stat {
+  color: var(--text-primary);
+}
+
+body.theme-dark .action-card {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+body.theme-dark .action-card:hover {
+  background-color: #0a84ff;
+  color: white;
+  box-shadow: 0 6px 20px rgba(10, 132, 255, 0.4);
+}
+
+body.theme-dark .activity-item {
+  background-color: var(--bg-tertiary);
+  border-left-color: #0a84ff;
+}
+
+body.theme-dark .activity-icon {
+  background-color: #0a84ff;
+}
+
+body.theme-dark .activity-text {
+  color: var(--text-primary);
+}
+
+body.theme-dark .activity-time {
+  color: var(--text-secondary);
+}
+
+body.theme-dark .stat-label {
+  color: var(--text-secondary);
+}
+
+/* タスクページ追加要素 - ダークテーマ */
+body.theme-dark .task-toolbar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+}
+
+body.theme-dark .search-box input {
+  background-color: #2c2c2e;
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+body.theme-dark .search-box input::placeholder {
+  color: var(--text-tertiary);
+}
+
+body.theme-dark .search-box input:focus {
+  border-color: #0a84ff;
+  box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.3);
+}
+
+body.theme-dark .search-box i {
+  color: var(--text-tertiary);
+}
+
+body.theme-dark .view-toggle {
+  background-color: #2c2c2e;
+}
+
+body.theme-dark .view-btn {
+  color: var(--text-secondary);
+}
+
+body.theme-dark .view-btn:hover {
+  background-color: #3a3a3c;
+  color: #0a84ff;
+}
+
+body.theme-dark .view-btn.active {
+  background-color: #0a84ff;
+  color: white;
+}
+
+body.theme-dark .task-list {
+  background-color: transparent;
+}
+
+body.theme-dark .empty-state {
+  color: var(--text-secondary);
+}
+
+body.theme-dark .empty-state i {
+  opacity: 0.3;
+}
+
+/* カレンダーページ追加要素 - ダークテーマ */
+body.theme-dark .quick-add-section {
+  border-top-color: var(--border-color);
+}
+
+body.theme-dark .quick-add-section h4 {
+  color: var(--text-primary);
+}
+
+body.theme-dark .quick-add-form input {
+  background-color: #2c2c2e;
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+body.theme-dark .quick-add-form input::placeholder {
+  color: var(--text-tertiary);
+}
+
+body.theme-dark .quick-add-btn {
+  background-color: #30d158;
+}
+
+body.theme-dark .quick-add-btn:hover {
+  background-color: #32d760;
+}
+
+body.theme-dark .task-info {
+  color: var(--text-primary);
+}
+
+body.theme-dark .task-meta {
+  color: var(--text-secondary);
+}
+
+body.theme-dark .task-priority-badge {
+  font-weight: 700;
+}
+
+body.theme-dark .task-priority-badge.high {
+  background: linear-gradient(135deg, rgba(255, 69, 58, 0.3) 0%, rgba(255, 69, 58, 0.2) 100%);
+  color: #ff8a80;
+  border: 1px solid rgba(255, 69, 58, 0.5);
+  box-shadow: 0 2px 6px rgba(255, 69, 58, 0.25);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+body.theme-dark .task-priority-badge.medium {
+  background: linear-gradient(135deg, rgba(255, 159, 10, 0.3) 0%, rgba(255, 159, 10, 0.2) 100%);
+  color: #ffc266;
+  border: 1px solid rgba(255, 159, 10, 0.5);
+  box-shadow: 0 2px 6px rgba(255, 159, 10, 0.25);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+body.theme-dark .task-priority-badge.low {
+  background: linear-gradient(135deg, rgba(48, 209, 88, 0.3) 0%, rgba(48, 209, 88, 0.2) 100%);
+  color: #69f0ae;
+  border: 1px solid rgba(48, 209, 88, 0.5);
+  box-shadow: 0 2px 6px rgba(48, 209, 88, 0.25);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Ganttチャート追加要素 - ダークテーマ */
+body.theme-dark .gantt-controls {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+
+body.theme-dark .gantt-controls label {
+  color: var(--text-primary);
+}
+
+body.theme-dark .gantt-controls select,
+body.theme-dark .gantt-controls input {
+  background-color: #2c2c2e;
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+body.theme-dark .gantt-controls button {
+  background-color: #0a84ff;
+  color: white;
+}
+
+body.theme-dark .gantt-controls button:hover {
+  background-color: #409cff;
+}
+
+body.theme-dark .gantt-timeline {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+
+body.theme-dark .gantt-dates {
+  background-color: #1c1c1e;
+  border-bottom-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+body.theme-dark .gantt-date {
+  border-right-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+body.theme-dark .gantt-date.today {
+  background-color: rgba(10, 132, 255, 0.15);
+  color: #0a84ff;
+}
+
+body.theme-dark .gantt-body {
+  background-color: #2c2c2e;
+}
+
+body.theme-dark .gantt-task-info {
+  color: var(--text-primary);
+}
+
+body.theme-dark .gantt-bar.high {
+  background: linear-gradient(90deg, #ff453a, #ff6961);
+}
+
+body.theme-dark .gantt-bar.medium {
+  background: linear-gradient(90deg, #ff9f0a, #ffb340);
+}
+
+body.theme-dark .gantt-bar.low {
+  background: linear-gradient(90deg, #30d158, #32d760);
+}
+
+body.theme-dark .gantt-bar-text {
+  color: white;
+  font-weight: 600;
+}
+
+body.theme-dark .gantt-chart-wrapper {
+  background-color: var(--bg-secondary);
+}
+
+body.theme-dark .gantt-chart {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+body.theme-dark .gantt-task-list {
+  background: linear-gradient(to bottom, #1c1c1e 0%, #2c2c2e 100%);
+  border-right-color: var(--border-color);
+}
+
+body.theme-dark .gantt-task-row {
+  border-bottom-color: var(--border-color);
+}
+
+body.theme-dark .gantt-task-row:hover {
+  background: linear-gradient(90deg, rgba(10, 132, 255, 0.15) 0%, transparent 100%);
+}
+
+body.theme-dark .gantt-bar-row {
+  border-bottom-color: var(--border-color);
+  background: repeating-linear-gradient(90deg,
+      transparent,
+      transparent 79px,
+      var(--border-color) 79px,
+      var(--border-color) 80px);
+}
+
+body.theme-dark .gantt-legend {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+
+body.theme-dark .legend-title {
+  color: var(--text-primary);
+}
+
+body.theme-dark .legend-title i {
+  color: #0a84ff;
+}
+
+body.theme-dark .legend-item {
+  color: var(--text-primary);
+}
+
+body.theme-dark .task-name-column,
+body.theme-dark .task-assignee-column,
+body.theme-dark .task-duration-column {
+  color: var(--text-primary);
+}
+
+/* カレンダー追加要素 - ダークテーマ */
+body.theme-dark .calendar-view {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+body.theme-dark .calendar-grid {
+  background-color: var(--bg-secondary);
+}
+
+body.theme-dark .sidebar-section {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+body.theme-dark .sidebar-section h4 {
+  color: var(--text-primary);
+}
+
+body.theme-dark .sidebar-section h4 i {
+  color: #0a84ff;
+}
+
+body.theme-dark .date-task-count {
+  background-color: var(--bg-tertiary);
+}
+
+body.theme-dark .daily-task-item {
+  background-color: var(--bg-tertiary);
+  border-left-color: #0a84ff;
+}
+
+body.theme-dark .daily-task-item:hover {
+  background-color: #3a3a3c;
+}
+
+body.theme-dark .daily-task-item.high {
+  border-left-color: #ff453a;
+}
+
+body.theme-dark .daily-task-item.medium {
+  border-left-color: #ff9f0a;
+}
+
+body.theme-dark .daily-task-item.low {
+  border-left-color: #30d158;
+}
+
+body.theme-dark .daily-task-title {
+  color: var(--text-primary);
+}
+
+body.theme-dark .daily-task-priority {
+  color: var(--text-secondary);
+}
+
+/* モーダル - ダークテーマ */
+body.theme-dark .modal-form {
+  background-color: var(--bg-secondary);
+}
+
+body.theme-dark .task-detail-info {
+  color: var(--text-primary);
+}
+
+body.theme-dark .task-detail-info h3 {
+  color: var(--text-primary);
+}
+
+body.theme-dark .task-detail-info p {
+  color: var(--text-secondary);
+}
+
+body.theme-dark .task-detail-info strong {
+  color: var(--text-primary);
+}
+
+body.theme-dark .task-delete-text {
+  color: var(--text-primary);
 }
