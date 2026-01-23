@@ -56,14 +56,22 @@ export class SimpleAuth {
 
   static initUserIcon() {
     const userIcon = document.getElementById('userIcon');
-    if (!userIcon) return;
 
     // ユーザー情報を取得
     const user = this.getCurrentUser();
-    if (!user) return;
 
-    // ドロップダウンメニューを作成
-    this.createUserDropdown(userIcon, user);
+    if (!user) {
+      console.warn('no current user found');
+      return;
+    }
+
+    // デスクトップ用ドロップダウンメニューを作成
+    if (userIcon) {
+      this.createUserDropdown(userIcon, user);
+    }
+
+    // モバイル用メニューを初期化
+    this.initMobileMenu(user);
 
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
       console.log('ユーザーアイコン初期化完了');
@@ -99,15 +107,11 @@ export class SimpleAuth {
       { icon: 'fas fa-user', text: 'プロフィール', action: () => window.location.href = 'user-profile.html' }
     ];
 
-    // 管理者メニュー項目（system_adminまたはproject_adminの場合のみ）
+    // 管理者メニュー項目（system_adminの場合のみ）
     const adminMenuItems = [];
     if (user.role === 'system_admin') {
       adminMenuItems.push(
         { icon: 'fas fa-cogs', text: 'システム管理', action: () => window.location.href = 'admin.html' }
-      );
-    } else if (user.role === 'project_admin') {
-      adminMenuItems.push(
-        { icon: 'fas fa-users', text: 'メンバー管理', action: () => window.location.href = 'admin.html?tab=members' }
       );
     }
 
@@ -147,13 +151,22 @@ export class SimpleAuth {
 
     // ユーザーアイコンにドロップダウンを追加
     userIcon.style.position = 'relative';
+    userIcon.style.cursor = 'pointer';
     userIcon.appendChild(dropdown);
 
     // クリックイベント
     userIcon.addEventListener('click', (e) => {
+      console.log('userIcon clicked');
       e.stopPropagation();
       const isVisible = dropdown.style.display === 'block';
       dropdown.style.display = isVisible ? 'none' : 'block';
+      console.log('dropdown display:', dropdown.style.display);
+      console.log('dropdown position:', {
+        position: dropdown.style.position,
+        bottom: dropdown.style.bottom,
+        right: dropdown.style.right,
+        zIndex: dropdown.style.zIndex
+      });
     });
 
     // 外部クリックで閉じる
@@ -167,10 +180,61 @@ export class SimpleAuth {
   static getRoleDisplayName(role) {
     const roleMap = {
       'system_admin': 'システム管理者',
-      'project_admin': 'プロジェクト管理者',
-      'member': 'メンバー'
+      'user': 'メンバー'
     };
     return roleMap[role] || 'メンバー';
+  }
+
+  static initMobileMenu(user) {
+    const moreBtn = document.getElementById('mobileMoreBtn');
+    const menuModal = document.getElementById('mobileMenuModal');
+    const closeBtn = document.getElementById('closeMobileMenu');
+    const overlay = menuModal?.querySelector('.mobile-menu-overlay');
+    const logoutBtn = document.getElementById('mobileLogoutBtn');
+    const userName = document.getElementById('mobileMenuUserName');
+    const adminLink = document.getElementById('mobileAdminLink');
+
+    if (!moreBtn || !menuModal) {
+      return;
+    }
+
+    // ユーザー名を設定
+    if (userName) {
+      userName.textContent = user.displayName || user.id;
+    }
+
+    // 管理者リンクを表示（system_adminの場合のみ）
+    if (adminLink && user.role === 'system_admin') {
+      adminLink.style.display = 'flex';
+    }
+
+    // Moreボタンクリックでメニューを開く
+    moreBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      menuModal.classList.add('active');
+    });
+
+    // 閉じるボタン
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        menuModal.classList.remove('active');
+      });
+    }
+
+    // オーバーレイクリックで閉じる
+    if (overlay) {
+      overlay.addEventListener('click', () => {
+        menuModal.classList.remove('active');
+      });
+    }
+
+    // ログアウトボタン
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => {
+        this.logout();
+      });
+    }
   }
 
   static logout() {

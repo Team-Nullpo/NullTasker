@@ -39,10 +39,6 @@
   gap: var(--spacing-lg);
 }
 
-.sidebar.collapsed #projectSelect {
-  display: none;
-}
-
 /* ロゴエリア */
 .logo {
   display: flex;
@@ -116,7 +112,7 @@
 
 .toggle-btn:hover {
   transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .toggle-btn:active {
@@ -166,17 +162,9 @@
 .bottom-section {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: var(--spacing-md);
   margin-top: auto;
-}
-
-#projectSelect {
-  padding: var(--spacing-sm) var(--spacing-md);
-  font-size: var(--font-size-base);
-  border: 1px solid #ccc;
-  border-radius: var(--border-radius-sm);
-  background-color: white;
 }
 
 .user-icon {

@@ -108,13 +108,15 @@ export class LoadingManager {
   }
 
   /**
-   * Promiseをラップしてローディング表示
-   * @param {Promise} promise - 実行するPromise
+   * Promiseまたは非同期関数をラップしてローディング表示
+   * @param {Promise|Function} promiseOrFn - 実行するPromiseまたは非同期関数
    * @param {string} message - 表示するメッセージ
    */
-  static async wrap(promise, message = '読み込み中...') {
+  static async wrap(promiseOrFn, message = '読み込み中...') {
     this.show(message);
     try {
+      // 関数の場合は呼び出してPromiseを取得
+      const promise = typeof promiseOrFn === 'function' ? promiseOrFn() : promiseOrFn;
       const result = await promise;
       return result;
     } finally {

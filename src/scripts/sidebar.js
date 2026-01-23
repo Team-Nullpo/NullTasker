@@ -25,7 +25,7 @@ export class SidebarManager {
     this.toggleBtn = Utils.getElement('#toggleSidebar'); // 修正: HTMLのIDに合わせる
     this.hideBtn = Utils.getElement('#hideSidebar'); // 修正: HTMLのIDに合わせる
     this.bottombar = Utils.getElement('#bottom-navigation');
-    
+
     // デバッグ用ログ
     Utils.debugLog('サイドバー要素:', {
       sidebar: !!this.sidebar,
@@ -46,38 +46,20 @@ export class SidebarManager {
       if (this.toggleBtn) this.toggleBtn.style.display = 'none';
     } else {
       this.sidebar.style.display = 'flex';
-      
+
       // 前回の表示状態を復元
       const savedState = localStorage.getItem('sidebarVisible');
       if (savedState !== null) {
         this.sidebarVisible = savedState === 'true';
       }
-      
+
       this.applySidebarState();
     }
   }
 
   initializeBottombar() {
-    const { role } = SimpleAuth.getCurrentUser();
-    const barItems = [];
-    if (role === 'system_admin') {
-      barItems.push({
-        icon: 'fas fa-cogs', text: 'システム管理', href: 'admin.html'
-      })
-    } else if (role === 'project_admin') {
-      barItems.push(
-        { icon: 'fas fa-users', text: 'メンバー管理', href: 'admin.html?tab=members' }
-      );
-    }
-    barItems.forEach(item => {
-      const menuItem = document.createElement('a');
-      menuItem.setAttribute('href', item.href)
-      menuItem.className = 'nav-item';
-      menuItem.innerHTML = `<i class="${item.icon}"></i>
-      <span>${item.text}</span>`;
-      
-      this.bottombar.appendChild(menuItem);
-    })
+    // ボトムナビゲーションの初期化
+    // システム管理リンクはMoreメニューに統合されたため、ここでは何もしない
   }
 
   applySidebarState() {
@@ -111,7 +93,7 @@ export class SidebarManager {
 
   updateToggleIcon() {
     if (!this.toggleBtn) return;
-    
+
     const icon = this.toggleBtn.querySelector('i');
     if (icon) {
       if (this.sidebarVisible) {
@@ -142,7 +124,7 @@ export class SidebarManager {
       mainContent.style.marginLeft = '0';
       mainContent.classList.add('expanded');
     }
-    
+
     mainContent.style.transition = 'margin-left 0.3s ease';
   }
 
@@ -155,11 +137,11 @@ export class SidebarManager {
 
   forceShow() {
     if (Utils.isMobile()) return;
-    
+
     this.sidebarVisible = true;
     this.applySidebarState();
     Utils.debugLog('サイドバー強制表示実行');
-    
+
     if (this.toggleBtn) {
       this.toggleBtn.style.transform = 'scale(1.2)';
       setTimeout(() => {
@@ -183,12 +165,12 @@ export class SidebarManager {
         Utils.debugLog('トグルボタンクリック');
         this.toggle();
       });
-      
+
       this.toggleBtn.addEventListener('dblclick', (e) => {
         e.preventDefault();
         this.forceShow();
       });
-      
+
       this.toggleBtn.addEventListener('contextmenu', (e) => {
         e.preventDefault();
         this.forceShow();
@@ -246,32 +228,32 @@ export class SidebarManager {
 export function updateActiveNavigation() {
   const currentPath = window.location.pathname;
   const currentFile = currentPath.split('/').pop() || 'index.html';
-  
+
   Utils.debugLog('現在のパス:', currentPath, 'ファイル:', currentFile);
-  
+
   const sidebarLinks = Utils.getElements('.menu a');
   const bottomNavLinks = Utils.getElements('.bottom-navigation .nav-item');
-  
+
   // 全てのアクティブクラスを削除
   sidebarLinks.forEach(link => link.classList.remove('active'));
   bottomNavLinks.forEach(link => link.classList.remove('active'));
-  
+
   // 現在のファイルに対応する項目をアクティブにする
   sidebarLinks.forEach(link => {
     const linkHref = link.getAttribute('href');
-    if (linkHref === currentFile || 
-        (currentFile === '' && linkHref === 'index.html') ||
-        (currentPath.includes('index') && linkHref === 'index.html')) {
+    if (linkHref === currentFile ||
+      (currentFile === '' && linkHref === 'index.html') ||
+      (currentPath.includes('index') && linkHref === 'index.html')) {
       link.classList.add('active');
       Utils.debugLog('サイドバーアクティブ設定:', linkHref);
     }
   });
-  
+
   bottomNavLinks.forEach(link => {
     const linkHref = link.getAttribute('href');
-    if (linkHref === currentFile || 
-        (currentFile === '' && linkHref === 'index.html') ||
-        (currentPath.includes('index') && linkHref === 'index.html')) {
+    if (linkHref === currentFile ||
+      (currentFile === '' && linkHref === 'index.html') ||
+      (currentPath.includes('index') && linkHref === 'index.html')) {
       link.classList.add('active');
       Utils.debugLog('ボトムナビアクティブ設定:', linkHref);
     }

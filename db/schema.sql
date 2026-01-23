@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
     role TEXT NOT NULL DEFAULT 'user',
     created_at TEXT NOT NULL,
     last_login TEXT,
-    CHECK (role IN ('user', 'project_admin', 'system_admin'))
+    CHECK (role IN ('user', 'system_admin'))
 );
 
 -- プロジェクトテーブル
