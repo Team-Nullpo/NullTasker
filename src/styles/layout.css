@@ -22,26 +22,14 @@
   background: white;
   padding: 1.5rem 2rem;
   border-bottom: 1px solid #e0e0e0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--spacing-lg);
 }
 
 .main-header h1 {
   color: #333;
   font-size: 1.75rem;
   margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-weight: 700;
-}
-
-.main-header h1 i {
-  color: var(--primary-color);
 }
 
 .breadcrumb {

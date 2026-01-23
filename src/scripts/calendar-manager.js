@@ -77,8 +77,16 @@ export class CalendarManager {
     // イベント追加ボタン
     if (elements.addEventBtn) {
       elements.addEventBtn.addEventListener("click", () => {
-        // タスクページに遷移
-        window.location.href = 'task.html';
+        // タスク追加モーダルを開く（存在する場合）
+        const taskModal = Utils.getElement("#taskModal");
+        if (taskModal) {
+          taskModal.style.display = "block";
+        } else {
+          Utils.showNotification(
+            "タスク追加機能は、タスクページで利用できます。",
+            "info"
+          );
+        }
       });
     }
   }
@@ -97,19 +105,7 @@ export class CalendarManager {
 
   renderCalendar() {
     this.updateMonthDisplay();
-    this.updateStats();
     this.renderCalendarDays();
-  }
-
-  updateStats() {
-    const total = this.tasks.length;
-    const completed = this.tasks.filter(t => t.status === 'done').length;
-
-    const totalEl = Utils.getElement('#calendarTotalTasks');
-    const completedEl = Utils.getElement('#calendarCompletedTasks');
-
-    if (totalEl) totalEl.textContent = total;
-    if (completedEl) completedEl.textContent = completed;
   }
 
   updateMonthDisplay() {
@@ -234,24 +230,17 @@ export class CalendarManager {
       selectedDateElement.textContent =
         this.selectedDate.toLocaleDateString("ja-JP");
     }
-
-    // タスク数を更新
-    const tasks = this.getTasksForDate(this.selectedDate);
-    const countElement = Utils.getElement("#selectedDayTaskCount");
-    if (countElement) {
-      countElement.textContent = tasks.length;
-    }
   }
 
   renderDailyTasks() {
-    const dailyTasksContainer = Utils.getElement("#dailyTaskList");
+    const dailyTasksContainer = Utils.getElement("#dailyTaskList"); // 修正: HTMLのIDに合わせる
     if (!dailyTasksContainer) return;
 
     dailyTasksContainer.innerHTML = "";
     const tasks = this.getTasksForDate(this.selectedDate);
 
     if (tasks.length === 0) {
-      dailyTasksContainer.innerHTML = '<div class="empty-daily-tasks"><i class="fas fa-calendar-check"></i><p>この日にタスクはありません</p></div>';
+      dailyTasksContainer.innerHTML = "<p>この日にタスクはありません。</p>";
       return;
     }
 
@@ -263,58 +252,33 @@ export class CalendarManager {
 
   createDailyTaskElement(task) {
     const taskElement = document.createElement("div");
-    taskElement.className = `daily-task-item ${task.priority}`;
-
+    taskElement.className = "daily-task";
+    
     const assigneeName = this.getAssigneeDisplayName(task);
-    const isCompleted = task.status === 'done';
 
     taskElement.innerHTML = `
-      <input type="checkbox" class="daily-task-checkbox" ${isCompleted ? 'checked' : ''} />
-      <div class="daily-task-content">
-        <div class="daily-task-title">${task.title}</div>
-        <div class="daily-task-priority">${this.getPriorityText(task.priority)} • ${assigneeName}</div>
+      <div class="task-info">
+        <div class="task-title">${task.title}</div>
+        <div class="task-meta">${assigneeName} - ${task.category}</div>
+      </div>
+      <div class="task-priority-badge ${task.priority}">
+        ${this.getPriorityText(task.priority)}
       </div>
     `;
-
-    // チェックボックスのイベント
-    const checkbox = taskElement.querySelector('.daily-task-checkbox');
-    checkbox.addEventListener('click', (e) => {
-      e.stopPropagation();
-      this.toggleTaskStatus(task);
-    });
 
     taskElement.addEventListener("click", () => this.showTaskDetail(task));
     return taskElement;
   }
 
-  async toggleTaskStatus(task) {
-    try {
-      const updatedTask = { ...task };
-      updatedTask.status = task.status === 'done' ? 'todo' : 'done';
-      updatedTask.progress = task.status === 'done' ? 0 : 100;
-
-      const success = await TicketManager.updateTicket(updatedTask, task.id);
-      if (success) {
-        this.loadTasks();
-        this.renderCalendar();
-        this.renderDailyTasks();
-        Utils.showNotification('タスクを更新しました', 'success');
-      }
-    } catch (error) {
-      console.error('タスク更新エラー:', error);
-      Utils.showNotification('タスクの更新に失敗しました', 'error');
-    }
-  }
-
   async quickAddTask() {
-    const titleInput = Utils.getElement("#quickTaskInput");
+    const titleInput = Utils.getElement("#quickTaskInput"); // 修正: HTMLのIDに合わせる
     if (!titleInput || !titleInput.value.trim()) return;
 
     const payload = {
       title: titleInput.value.trim(),
       description: "Added from Calendar",
       assignee: SimpleAuth.getCurrentUser().id,
-      startDate: this.selectedDate.toISOString().split("T")[0],
+      startDate: this.selectedDate.toISOString().split("T")[0], // 開始日も設定
       dueDate: this.selectedDate.toISOString().split("T")[0],
       priority: "medium",
       category: "その他",
@@ -328,7 +292,6 @@ export class CalendarManager {
       return;
     }
     titleInput.value = "";
-    this.loadTasks();
     this.renderCalendar();
     this.renderDailyTasks();
 
@@ -351,7 +314,7 @@ export class CalendarManager {
 
   createTaskDetailHTML(task) {
     const assigneeName = this.getAssigneeDisplayName(task);
-
+    
     return `
       <div class="task-detail-info">
         <h3>${task.title}</h3>
@@ -387,12 +350,12 @@ export class CalendarManager {
     if (task.assigneeInfo?.name) {
       return task.assigneeInfo.name;
     }
-
+    
     // フォールバック: assigneeをそのまま表示（IDまたは名前）
     if (task.assignee) {
       return task.assignee;
     }
-
+    
     return "未割り当て";
   }
 

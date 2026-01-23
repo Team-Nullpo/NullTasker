@@ -50,21 +50,19 @@ export class TaskManager {
 
   setupEventListeners() {
     const elements = {
-      addBtn: Utils.getElement("#addTaskBtn"),
+      addBtn: Utils.getElement("#addTaskBtn"), // 修正: IDに変更
       modals: Utils.getElements(".modal"),
       closeBtns: Utils.getElements(".close-modal-btn"),
       form: Utils.getElement("#taskForm"),
-      taskList: Utils.getElement("#taskList"),
-      filterSelect: Utils.getElement("#taskFilter"),
-      sortSelect: Utils.getElement("#taskSort"),
-      searchInput: Utils.getElement("#taskSearch"),
-      viewBtns: Utils.getElements(".view-btn"),
+      taskList: Utils.getElement("#taskList"), // 修正: IDに変更
+      filterSelect: Utils.getElement("#taskFilter"), // フィルター機能追加
       deleteTaskBtn: Utils.getElement("#deleteTask"),
     };
 
     // デバッグ用ログ
     Utils.debugLog("タスク要素:", {
       addBtn: !!elements.addBtn,
+      addBtnElement: elements.addBtn,
       modals: elements.modals?.length || 0,
       form: !!elements.form,
       taskList: !!elements.taskList,
@@ -92,35 +90,7 @@ export class TaskManager {
     // フィルター機能
     if (elements.filterSelect) {
       elements.filterSelect.addEventListener("change", (e) => {
-        this.renderTasks();
-      });
-    }
-
-    // ソート機能
-    if (elements.sortSelect) {
-      elements.sortSelect.addEventListener("change", (e) => {
-        this.renderTasks();
-      });
-    }
-
-    // 検索機能
-    if (elements.searchInput) {
-      elements.searchInput.addEventListener("input", (e) => {
-        this.renderTasks();
-      });
-    }
-
-    // ビュー切り替え
-    if (elements.viewBtns) {
-      elements.viewBtns.forEach(btn => {
-        btn.addEventListener("click", (e) => {
-          elements.viewBtns.forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-          const view = btn.dataset.view;
-          if (elements.taskList) {
-            elements.taskList.dataset.view = view;
-          }
-        });
+        this.filterTasks(e.target.value);
       });
     }
 
@@ -160,7 +130,7 @@ export class TaskManager {
     // 年が4桁であることを確認
     const parts = value.split("-");
     const year = parseInt(parts[0], 10);
-
+    
     if (year < 1900 || year > 9999) {
       input.setCustomValidity("年は1900から9999の範囲で入力してください");
       Utils.showNotification("年は1900から9999の範囲で入力してください", "warning");
@@ -251,25 +221,19 @@ export class TaskManager {
       return;
     }
 
-    const usernames = this.projectUsers.map(u => {
-      return {
-        value: u.id,
-        label: u.displayName
-      }
-    });
-
+    const usernames = this.projectUsers.map(u => { return {
+      value: u.id,
+      label: u.displayName
+    }});
+    
     // settingsオブジェクトの構造を確認
     const projectSettings = this.settings?.settings || this.settings;
-
-    // appSettingsから分類を取得
-    const appSettings = Utils.getFromStorage('appSettings') || { categories: [] };
-
+    
     Utils.debugLog("projectSettings:", projectSettings);
-    Utils.debugLog("appSettings:", appSettings);
-
+    
     const selectors = [
       { id: "#taskAssignee", options: usernames, hasValue: true },
-      { id: "#taskCategory", options: appSettings.categories || [] },
+      { id: "#taskCategory", options: projectSettings?.categories || [] },
       {
         id: "#taskPriority",
         options: projectSettings?.priorities || [],
@@ -520,22 +484,21 @@ export class TaskManager {
     }
   }
 
-  renderTasks() {
+  renderTasks(filter = "all") {
     this.loadTasks();
-    const taskList = Utils.getElement("#taskList");
+    const taskList = Utils.getElement("#taskList"); // 修正: IDに変更
     if (!taskList) {
       console.warn("タスクリストが見つかりません");
       return;
     }
 
-    // フィルター、検索、ソートを適用
-    let filteredTasks = this.getFilteredTasks();
+    // フィルターされたタスクを取得
+    const filteredTasks = this.getFilteredTasks(filter);
 
     taskList.innerHTML = "";
 
     if (filteredTasks.length === 0) {
       taskList.innerHTML = '<div class="no-tasks">タスクが見つかりません</div>';
-      this.updateStats([]);
       return;
     }
 
@@ -543,93 +506,34 @@ export class TaskManager {
       const taskElement = this.createTaskElement(task);
       taskList.appendChild(taskElement);
     });
-
-    // 統計を更新
-    this.updateStats(this.tasks.filter(task => task.project === this.projectId));
   }
 
-  getFilteredTasks() {
-    let tasks = this.tasks.filter(
+  getFilteredTasks(filter) {
+    const tasks = this.tasks.filter(
       (task) => task.project === this.projectId
     );
-
-    // フィルター適用
-    const filterValue = Utils.getElement("#taskFilter")?.value || "all";
-    switch (filterValue) {
+    switch (filter) {
       case "todo":
-        tasks = tasks.filter((task) => task.status === "todo");
-        break;
+        return tasks.filter((task) => task.status !== "done");
       case "in_progress":
-        tasks = tasks.filter((task) => task.status === "in_progress");
-        break;
+        return tasks.filter((task) => task.status === "in_progress");
       case "review":
-        tasks = tasks.filter((task) => task.status === "review");
-        break;
+        return tasks.filter((task) => task.status === "review");
       case "done":
-        tasks = tasks.filter((task) => task.status === "done");
-        break;
+        return tasks.filter((task) => task.status === "done");
+      default:
+        return tasks;
     }
-
-    // 検索適用
-    const searchValue = Utils.getElement("#taskSearch")?.value.toLowerCase() || "";
-    if (searchValue) {
-      tasks = tasks.filter((task) =>
-        task.title.toLowerCase().includes(searchValue) ||
-        task.description.toLowerCase().includes(searchValue) ||
-        task.category.toLowerCase().includes(searchValue)
-      );
-    }
-
-    // ソート適用
-    const sortValue = Utils.getElement("#taskSort")?.value || "dueDate";
-    tasks.sort((a, b) => {
-      switch (sortValue) {
-        case "dueDate":
-          return new Date(a.dueDate) - new Date(b.dueDate);
-        case "priority":
-          const priorityOrder = { high: 0, medium: 1, low: 2 };
-          return priorityOrder[a.priority] - priorityOrder[b.priority];
-        case "status":
-          const statusOrder = { todo: 0, in_progress: 1, review: 2, done: 3 };
-          return statusOrder[a.status] - statusOrder[b.status];
-        case "title":
-          return a.title.localeCompare(b.title);
-        default:
-          return 0;
-      }
-    });
-
-    return tasks;
-  }
-
-  updateStats(tasks) {
-    const total = tasks.length;
-    const inProgress = tasks.filter(t => t.status === "in_progress").length;
-    const completed = tasks.filter(t => t.status === "done").length;
-    const overdue = tasks.filter(t => {
-      if (t.status === "done") return false;
-      return new Date(t.dueDate) < new Date();
-    }).length;
-
-    const totalEl = Utils.getElement("#totalTasks");
-    const inProgressEl = Utils.getElement("#inProgressTasks");
-    const completedEl = Utils.getElement("#completedTasks");
-    const overdueEl = Utils.getElement("#overdueTasks");
-
-    if (totalEl) totalEl.textContent = total;
-    if (inProgressEl) inProgressEl.textContent = inProgress;
-    if (completedEl) completedEl.textContent = completed;
-    if (overdueEl) overdueEl.textContent = overdue;
   }
 
   filterTasks(filter) {
     Utils.debugLog("タスクフィルター適用:", filter);
-    this.renderTasks();
+    this.renderTasks(filter);
   }
 
   createTaskElement(task) {
     const taskDiv = document.createElement("div");
-    taskDiv.className = `task-item priority-${task.priority}`;
+    taskDiv.className = "task-item";
     taskDiv.dataset.id = task.id;
 
     const progressText = this.getProgressText(task.progress);
@@ -637,52 +541,34 @@ export class TaskManager {
     const statusText = this.getStatusText(task.status);
     const assigneeText = this.getAssigneeDisplayName(task);
 
-    // 期限が過ぎているかチェック
-    const isOverdue = task.status !== "done" && new Date(task.dueDate) < new Date();
-    const dueDateClass = isOverdue ? "task-due overdue" : "task-due";
-
-    // 優先度アイコン
-    const priorityIcons = {
-      high: '🔥',
-      medium: '⚡',
-      low: '🌱'
-    };
-
     taskDiv.innerHTML = `
       <div class="task-checkbox">
-        <input type="checkbox" id="${task.id}" ${task.status === "done" ? "checked" : ""
-      }>
+        <input type="checkbox" id="${task.id}" ${
+      task.status === "done" ? "checked" : ""
+    }>
         <label for="${task.id}"></label>
       </div>
       <div class="task-content">
-        <h3>
-          ${priorityIcons[task.priority] || ''} ${task.title}
-        </h3>
-        <p>${task.description || '<em>説明なし</em>'}</p>
+        <h3>${task.title}</h3>
+        <p>${task.description}</p>
         <div class="task-meta">
           <span class="task-priority ${task.priority}">${priorityText}</span>
           <span class="task-status ${task.status}">${statusText}</span>
-          <span class="${dueDateClass}">
-            <i class="fas fa-calendar"></i> ${Utils.formatDate(task.dueDate)}
-          </span>
-          <span class="task-assignee">
-            <i class="fas fa-user"></i> ${assigneeText}
-          </span>
-          <span class="task-category">
-            <i class="fas fa-tag"></i> ${task.category}
-          </span>
-          <span class="task-progress">
-            <i class="fas fa-chart-line"></i> ${progressText}
-          </span>
+          <span class="task-due">期限: ${Utils.formatDate(task.dueDate)}</span>
+          <span class="task-assignee">担当: ${assigneeText}</span>
+          <span class="task-category">分類: ${task.category}</span>
+          <span class="task-progress">進捗: ${progressText}</span>
         </div>
       </div>
       <div class="task-actions">
-        <button type="button" class="task-btn edit-task-btn" data-id="${task.id
-      }" title="編集">
+        <button type="button" class="task-btn edit-task-btn" data-id="${
+          task.id
+        }">
           <i class="fas fa-edit"></i>
         </button>
-        <button type="button" class="task-btn delete-task-btn" data-id="${task.id
-      }" title="削除">
+        <button type="button" class="task-btn delete-task-btn" data-id="${
+          task.id
+        }">
           <i class="fas fa-trash"></i>
         </button>
       </div>
@@ -742,12 +628,12 @@ export class TaskManager {
     if (assignee) {
       return assignee.displayName;
     }
-
+    
     // assigneeValueがない場合は「未割り当て」を返す
     if (!assigneeValue) {
       return "未割り当て";
     }
-
+    
     // IDをそのまま返す（フォールバック）
     return assigneeValue;
   }
@@ -758,7 +644,7 @@ export class TaskManager {
     if (task.assigneeInfo?.name) {
       return task.assigneeInfo.name;
     }
-
+    
     // フォールバック: assigneeIDから検索
     return this.getAssigneeText(task.assignee);
   }
