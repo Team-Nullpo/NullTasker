@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="../styles/base.css" />
   <link rel="stylesheet" href="../styles/layout.css" />
   <link rel="stylesheet" href="../styles/components.css" />
+  <link rel="stylesheet" href="../styles/components-dark.css" />
   <link rel="stylesheet" href="../styles/sidebar.css" />
   <link rel="stylesheet" href="../styles/user-dropdown.css" />
   <link rel="stylesheet" href="../styles/pages.css" />
@@ -124,63 +125,46 @@
             </div>
           </div>
 
-          <<<<<<< HEAD=======<!-- サイドバー -->
-            >>>>>>> bd3c2a6 (feat: 設定画面を大規模改修)
-            <div class="calendar-sidebar">
-              <div class="sidebar-section">
-                <div class="sidebar-header">
-                  <h3><i class="fas fa-calendar-check"></i> 選択された日付</h3>
-                  <p class="selected-date" id="selectedDate">2025年8月27日</p>
-                </div>
-
-                <div class="date-task-count">
-                  <div class="count-badge">
-                    <i class="fas fa-tasks"></i>
-                    <span id="selectedDayTaskCount">0</span>
-                  </div>
-                  <span>件のタスク</span>
-                </div>
+          <div class="calendar-sidebar">
+            <div class="sidebar-section">
+              <div class="sidebar-header">
+                <h3><i class="fas fa-calendar-check"></i> 選択された日付</h3>
+                <p class="selected-date" id="selectedDate">2025年8月27日</p>
               </div>
 
-              <div class="sidebar-section">
-                <h4><i class="fas fa-list-check"></i> この日のタスク</h4>
-                <div id="dailyTaskList" class="daily-task-list">
-                  <!-- 日別タスクが表示されます -->
+              <div class="date-task-count">
+                <div class="count-badge">
+                  <i class="fas fa-tasks"></i>
+                  <span id="selectedDayTaskCount">0</span>
                 </div>
-              </div>
-
-              <div class="sidebar-section">
-                <h4><i class="fas fa-bolt"></i> クイック追加</h4>
-                <div class="quick-add-form">
-                  <input type="text" id="quickTaskInput" placeholder="タスクを入力...">
-                  <button class="quick-add-btn" id="quickAddBtn" title="追加">
-                    <i class="fas fa-plus"></i>
-                  </button>
-                </div>
-              </div>
-
-              <div class="sidebar-section">
-                <h4><i class="fas fa-info-circle"></i> 凡例</h4>
-                <div class="calendar-legend">
-                  <div class="legend-item">
-                    <span class="legend-dot high"></span>
-                    <span>高優先度</span>
-                  </div>
-                  <div class="legend-item">
-                    <span class="legend-dot medium"></span>
-                    <span>中優先度</span>
-                  </div>
-                  <div class="legend-item">
-                    <span class="legend-dot low"></span>
-                    <span>低優先度</span>
-                  </div>
-                  <div class="legend-item">
-                    <span class="legend-dot completed"></span>
-                    <span>完了</span>
-                  </div>
-                </div>
+                <span>件のタスク</span>
               </div>
             </div>
+
+            <div class="sidebar-section">
+              <h4><i class="fas fa-list-check"></i> この日のタスク</h4>
+              <div id="dailyTaskList" class="daily-task-list">
+                <!-- 日別タスクが表示されます -->
+              </div>
+            </div>
+
+            <div class="sidebar-section">
+              <h4><i class="fas fa-bolt"></i> クイック追加</h4>
+              <div class="quick-add-form">
+                <input type="text" id="quickTaskInput" placeholder="タスクを入力...">
+                <button class="quick-add-btn" id="quickAddBtn" title="追加">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="sidebar-section">
+              <h4><i class="fas fa-info-circle"></i> 凡例</h4>
+              <div class="calendar-legend" id="calendarLegend">
+                <!-- 凡例アイテムが動的に追加されます -->
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </main>

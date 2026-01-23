@@ -16,6 +16,7 @@ export class GanttManager {
     if (Utils.getElement('.gantt-container')) {
       this.loadTasks();
       this.setupEventListeners();
+      this.renderLegend();
       this.renderGantt();
     }
   }
@@ -353,6 +354,12 @@ export class GanttManager {
     bar.className = `gantt-bar ${task.priority}`;
     if (task.status === 'done') bar.classList.add('completed');
 
+    // 優先度の色を取得
+    const priorityColor = this.getPriorityColor(task.priority);
+    // 完了の場合の色を取得
+    const statusColor = task.status === 'done' ? this.getStatusColor('done') : null;
+    const backgroundColor = statusColor || priorityColor || '#667eea';
+
     Object.assign(bar.style, {
       width: '100%',
       height: '100%',
@@ -361,7 +368,8 @@ export class GanttManager {
       display: 'flex',
       alignItems: 'center',
       padding: '0 8px',
-      boxSizing: 'border-box'
+      boxSizing: 'border-box',
+      backgroundColor: backgroundColor
     });
 
     // 進捗バー
@@ -542,6 +550,18 @@ export class GanttManager {
     return map[priority] || '未設定';
   }
 
+  getPriorityColor(priority) {
+    const appSettings = Utils.getFromStorage('appSettings') || { priorities: [] };
+    const priorityObj = (appSettings.priorities || []).find(p => p.value === priority);
+    return priorityObj ? priorityObj.color : null;
+  }
+
+  getStatusColor(status) {
+    const appSettings = Utils.getFromStorage('appSettings') || { statuses: [] };
+    const statusObj = (appSettings.statuses || []).find(s => s.value === status);
+    return statusObj ? statusObj.color : null;
+  }
+
   getStatusText(status) {
     const map = {
       todo: '未着手',
@@ -579,6 +599,50 @@ export class GanttManager {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  }
+
+  renderLegend() {
+    const legendContainer = Utils.getElement('#ganttLegendItems');
+    if (!legendContainer) return;
+
+    legendContainer.innerHTML = '';
+
+    // appSettingsから優先度を取得
+    const appSettings = Utils.getFromStorage('appSettings') || { priorities: [], statuses: [] };
+
+    // 優先度凡例を追加
+    if (appSettings.priorities && appSettings.priorities.length > 0) {
+      appSettings.priorities.forEach(priority => {
+        const item = document.createElement('div');
+        item.className = 'legend-item';
+        item.innerHTML = `
+          <div class="legend-color" style="background-color: ${priority.color}"></div>
+          <span>${priority.name}</span>
+        `;
+        legendContainer.appendChild(item);
+      });
+    }
+
+    // 完了ステータスを追加（done値を持つステータスを探す）
+    const doneStatus = appSettings.statuses?.find(s => s.value === 'done');
+    if (doneStatus) {
+      const item = document.createElement('div');
+      item.className = 'legend-item';
+      item.innerHTML = `
+        <div class="legend-color" style="background-color: ${doneStatus.color}"></div>
+        <span>${doneStatus.name}</span>
+      `;
+      legendContainer.appendChild(item);
+    }
+
+    // 今日のマーカー
+    const todayItem = document.createElement('div');
+    todayItem.className = 'legend-item';
+    todayItem.innerHTML = `
+      <div class="legend-color today-marker"></div>
+      <span>今日</span>
+    `;
+    legendContainer.appendChild(todayItem);
   }
 }
 

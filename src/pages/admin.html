@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="../styles/base.css" />
   <link rel="stylesheet" href="../styles/layout.css" />
   <link rel="stylesheet" href="../styles/components.css" />
+  <link rel="stylesheet" href="../styles/components-dark.css" />
   <link rel="stylesheet" href="../styles/sidebar.css" />
   <link rel="stylesheet" href="../styles/user-dropdown.css" />
   <link rel="stylesheet" href="../styles/pages.css" />
@@ -133,6 +134,28 @@
                 <h3>分類管理</h3>
                 <p class="card-count" id="categoryCount">-</p>
                 <p class="card-description">タスク分類の管理</p>
+              </div>
+            </div>
+
+            <div class="dashboard-card" id="dashboardPriorities">
+              <div class="card-icon">
+                <i class="fas fa-exclamation-circle"></i>
+              </div>
+              <div class="card-content">
+                <h3>優先度管理</h3>
+                <p class="card-count" id="priorityCount">-</p>
+                <p class="card-description">タスク優先度の管理</p>
+              </div>
+            </div>
+
+            <div class="dashboard-card" id="dashboardStatuses">
+              <div class="card-icon">
+                <i class="fas fa-flag"></i>
+              </div>
+              <div class="card-content">
+                <h3>ステータス管理</h3>
+                <p class="card-count" id="statusCount">-</p>
+                <p class="card-description">タスクステータスの管理</p>
               </div>
             </div>
 
@@ -340,6 +363,64 @@
             </div>
             <div class="items-list" id="categoriesList">
               <!-- 分類リストが動的に追加されます -->
+            </div>
+          </div>
+        </section>
+
+        <!-- 優先度管理セクション -->
+        <section id="prioritiesSection" class="admin-section" style="display: none;">
+          <div class="section-header">
+            <h2><i class="fas fa-exclamation-circle"></i> 優先度管理</h2>
+            <div class="section-actions">
+              <button class="btn btn-secondary" id="backToDashboard7">
+                <i class="fas fa-arrow-left"></i> ダッシュボードに戻る
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <p class="section-description">タスクの優先度レベルを管理します。各優先度には名前、値、色を設定できます。</p>
+            <div class="priority-form">
+              <div class="form-row">
+                <input type="text" id="priorityNameInput" placeholder="優先度名（例: 高優先度）" class="input-field">
+                <input type="text" id="priorityValueInput" placeholder="値（例: high）" class="input-field">
+                <input type="color" id="priorityColorInput" value="#ef6c00" class="color-input" title="優先度の色">
+                <button class="btn btn-primary" id="addPriorityBtn">
+                  <i class="fas fa-plus"></i> 追加
+                </button>
+              </div>
+            </div>
+            <div class="items-list" id="prioritiesList">
+              <!-- 優先度リストが動的に追加されます -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ステータス管理セクション -->
+        <section id="statusesSection" class="admin-section" style="display: none;">
+          <div class="section-header">
+            <h2><i class="fas fa-flag"></i> ステータス管理</h2>
+            <div class="section-actions">
+              <button class="btn btn-secondary" id="backToDashboard8">
+                <i class="fas fa-arrow-left"></i> ダッシュボードに戻る
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <p class="section-description">タスクのステータスを管理します。各ステータスには名前、値、色を設定できます。</p>
+            <div class="status-form">
+              <div class="form-row">
+                <input type="text" id="statusNameInput" placeholder="ステータス名（例: 進行中）" class="input-field">
+                <input type="text" id="statusValueInput" placeholder="値（例: in_progress）" class="input-field">
+                <input type="color" id="statusColorInput" value="#1976d2" class="color-input" title="ステータスの色">
+                <button class="btn btn-primary" id="addStatusBtn">
+                  <i class="fas fa-plus"></i> 追加
+                </button>
+              </div>
+            </div>
+            <div class="items-list" id="statusesList">
+              <!-- ステータスリストが動的に追加されます -->
             </div>
           </div>
         </section>

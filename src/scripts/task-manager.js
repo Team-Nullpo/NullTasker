@@ -34,12 +34,15 @@ export class TaskManager {
 
   loadSettings() {
     this.projectId = ProjectManager.getCurrentProjectId();
+    console.log(`TaskManager loading settings for project: ${this.projectId}`);
     this.settings = ProjectManager.getProjectSettings(this.projectId);
-    Utils.debugLog("プロジェクト設定:", this.settings);
+    console.log("TaskManager プロジェクト設定:", this.settings);
   }
 
   loadUsers() {
+    console.log(`TaskManager loading users for project: ${this.projectId}`);
     this.projectUsers = UserManager.getUsers(this.projectId);
+    console.log("TaskManager ユーザー:", this.projectUsers);
   }
 
   loadTasks() {
@@ -261,23 +264,38 @@ export class TaskManager {
     // settingsオブジェクトの構造を確認
     const projectSettings = this.settings?.settings || this.settings;
 
-    // appSettingsから分類を取得
-    const appSettings = Utils.getFromStorage('appSettings') || { categories: [] };
+    // appSettingsから分類、優先度、ステータスを取得
+    const appSettings = Utils.getFromStorage('appSettings') || {
+      categories: [],
+      priorities: [],
+      statuses: []
+    };
 
     Utils.debugLog("projectSettings:", projectSettings);
     Utils.debugLog("appSettings:", appSettings);
+
+    // 優先度とステータスを{ value, label }形式に変換
+    const priorities = (appSettings.priorities || []).map(p => ({
+      value: p.value,
+      label: p.name
+    }));
+
+    const statuses = (appSettings.statuses || []).map(s => ({
+      value: s.value,
+      label: s.name
+    }));
 
     const selectors = [
       { id: "#taskAssignee", options: usernames, hasValue: true },
       { id: "#taskCategory", options: appSettings.categories || [] },
       {
         id: "#taskPriority",
-        options: projectSettings?.priorities || [],
+        options: priorities,
         hasValue: true,
       },
       {
         id: "#taskStatus",
-        options: projectSettings?.statuses || [],
+        options: statuses,
         hasValue: true,
       },
     ];
@@ -723,17 +741,19 @@ export class TaskManager {
   }
 
   getPriorityText(priority) {
-    const priorityObj = this.settings.settings.priorities.find(
+    const appSettings = Utils.getFromStorage('appSettings') || { priorities: [] };
+    const priorityObj = (appSettings.priorities || []).find(
       (p) => p.value === priority
     );
-    return priorityObj ? priorityObj.label : "中優先度";
+    return priorityObj ? priorityObj.name : priority || "未設定";
   }
 
   getStatusText(statusValue) {
-    const status = this.settings.settings.statuses.find(
+    const appSettings = Utils.getFromStorage('appSettings') || { statuses: [] };
+    const status = (appSettings.statuses || []).find(
       (s) => s.value === statusValue
     );
-    return status ? status.label : "不明";
+    return status ? status.name : statusValue || "不明";
   }
 
   getAssigneeText(assigneeValue) {

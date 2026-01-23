@@ -24,13 +24,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     // テーマを最初に初期化（全ページで実行）
     initializeTheme();
 
-    // ログインページかチェック
+    // ログインページまたは登録ページかチェック
     const currentPath = window.location.pathname;
     const isLoginPage = currentPath.includes("login.html");
-    Utils.debugLog("Current path:", currentPath, "Is login page:", isLoginPage);
+    const isRegisterPage = currentPath.includes("register.html");
+    const isPublicPage = isLoginPage || isRegisterPage;
+    Utils.debugLog("Current path:", currentPath, "Is public page:", isPublicPage);
 
-    // ログインページ以外で認証チェック
-    if (!isLoginPage) {
+    // 認証が必要なページで認証チェック
+    if (!isPublicPage) {
       // SimpleAuthを使った簡単な認証チェック
       if (!SimpleAuth.isLoggedIn()) {
         Utils.debugLog("認証データがありません。ログインページにリダイレクト");
@@ -39,14 +41,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       Utils.debugLog("認証OK。アプリケーション初期化を継続");
-    }
 
-    await ProjectManager.fetchProjectSettings();
-    await UserManager.fetchUsers();
-    await TicketManager.fetchTickets();
+      // 認証済みユーザーのみデータを取得
+      await ProjectManager.fetchProjectSettings();
+      await UserManager.fetchUsers();
+      await TicketManager.fetchTickets();
 
-    // サイドバー管理（ログインページ以外）
-    if (!isLoginPage) {
+      // サイドバー管理
       try {
         if (typeof SidebarManager === "undefined") {
           console.warn("SidebarManager が見つかりません - スキップします");
@@ -67,7 +68,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       // 共通機能の初期化
       initializeCommonFeatures();
     } else {
-      Utils.debugLog("ログインページのため、他の初期化をスキップ");
+      Utils.debugLog("公開ページのため、認証を必要とする初期化をスキップ");
     }
 
     Utils.debugLog("アプリケーション初期化完了");

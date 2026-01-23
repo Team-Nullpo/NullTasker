@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="../styles/base.css" />
   <link rel="stylesheet" href="../styles/layout.css" />
   <link rel="stylesheet" href="../styles/components.css" />
+  <link rel="stylesheet" href="../styles/components-dark.css" />
   <link rel="stylesheet" href="../styles/sidebar.css" />
   <link rel="stylesheet" href="../styles/user-dropdown.css" />
   <link rel="stylesheet" href="../styles/pages.css" />
@@ -141,27 +142,8 @@
             <div class="legend-title">
               <i class="fas fa-info-circle"></i> 凡例
             </div>
-            <div class="legend-items">
-              <div class="legend-item">
-                <div class="legend-color high"></div>
-                <span>高優先度</span>
-              </div>
-              <div class="legend-item">
-                <div class="legend-color medium"></div>
-                <span>中優先度</span>
-              </div>
-              <div class="legend-item">
-                <div class="legend-color low"></div>
-                <span>低優先度</span>
-              </div>
-              <div class="legend-item">
-                <div class="legend-color completed"></div>
-                <span>完了</span>
-              </div>
-              <div class="legend-item">
-                <div class="legend-color today-marker"></div>
-                <span>今日</span>
-              </div>
+            <div class="legend-items" id="ganttLegendItems">
+              <!-- 凡例アイテムが動的に追加されます -->
             </div>
           </div>
         </div>

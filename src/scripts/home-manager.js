@@ -49,8 +49,8 @@ export class HomeManager {
   updateWelcomeText() {
     const welcomeText = Utils.getElement('#welcomeText');
     if (welcomeText) {
-      const userData = SimpleAuth.getUserData();
-      const username = userData?.username || 'ゲスト';
+      const userData = SimpleAuth.getCurrentUser();
+      const username = userData?.displayName || userData?.display_name || userData?.username || 'ゲスト';
       const hour = new Date().getHours();
       let greeting = 'こんにちは';
 

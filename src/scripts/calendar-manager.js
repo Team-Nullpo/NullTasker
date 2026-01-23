@@ -18,6 +18,7 @@ export class CalendarManager {
     if (Utils.getElement(".calendar-container")) {
       this.loadTasks();
       this.setupEventListeners();
+      this.renderLegend();
       this.renderCalendar();
       this.updateSelectedDate();
     }
@@ -199,6 +200,16 @@ export class CalendarManager {
     if (task.status === "done") {
       taskElement.classList.add("completed");
     }
+
+    // 優先度の色を取得して適用
+    const priorityColor = this.getPriorityColor(task.priority);
+    const statusColor = task.status === 'done' ? this.getStatusColor('done') : null;
+    const backgroundColor = statusColor || priorityColor;
+
+    if (backgroundColor) {
+      taskElement.style.backgroundColor = backgroundColor;
+    }
+
     taskElement.textContent = task.title;
     const assigneeName = this.getAssigneeDisplayName(task);
     taskElement.title = `${task.title} - ${assigneeName}`;
@@ -264,6 +275,12 @@ export class CalendarManager {
   createDailyTaskElement(task) {
     const taskElement = document.createElement("div");
     taskElement.className = `daily-task-item ${task.priority}`;
+
+    // 優先度の色を取得して適用
+    const priorityColor = this.getPriorityColor(task.priority);
+    if (priorityColor) {
+      taskElement.style.borderLeftColor = priorityColor;
+    }
 
     const assigneeName = this.getAssigneeDisplayName(task);
     const isCompleted = task.status === 'done';
@@ -371,6 +388,18 @@ export class CalendarManager {
     return map[priority] || "中優先度";
   }
 
+  getPriorityColor(priority) {
+    const appSettings = Utils.getFromStorage('appSettings') || { priorities: [] };
+    const priorityObj = (appSettings.priorities || []).find(p => p.value === priority);
+    return priorityObj ? priorityObj.color : null;
+  }
+
+  getStatusColor(status) {
+    const appSettings = Utils.getFromStorage('appSettings') || { statuses: [] };
+    const statusObj = (appSettings.statuses || []).find(s => s.value === status);
+    return statusObj ? statusObj.color : null;
+  }
+
   getStatusText(status) {
     const map = {
       todo: "未着手",
@@ -408,6 +437,41 @@ export class CalendarManager {
       this.viewMode = "month";
       if (monthView) monthView.style.display = "block";
       if (weekView) weekView.style.display = "none";
+    }
+  }
+
+  renderLegend() {
+    const legendContainer = Utils.getElement('#calendarLegend');
+    if (!legendContainer) return;
+
+    legendContainer.innerHTML = '';
+
+    // appSettingsから優先度とステータスを取得
+    const appSettings = Utils.getFromStorage('appSettings') || { priorities: [], statuses: [] };
+
+    // 優先度凡例を追加
+    if (appSettings.priorities && appSettings.priorities.length > 0) {
+      appSettings.priorities.forEach(priority => {
+        const item = document.createElement('div');
+        item.className = 'legend-item';
+        item.innerHTML = `
+          <span class="legend-dot" style="background-color: ${priority.color}"></span>
+          <span>${priority.name}</span>
+        `;
+        legendContainer.appendChild(item);
+      });
+    }
+
+    // 完了ステータスを追加（done値を持つステータスを探す）
+    const doneStatus = appSettings.statuses?.find(s => s.value === 'done');
+    if (doneStatus) {
+      const item = document.createElement('div');
+      item.className = 'legend-item';
+      item.innerHTML = `
+        <span class="legend-dot" style="background-color: ${doneStatus.color}"></span>
+        <span>${doneStatus.name}</span>
+      `;
+      legendContainer.appendChild(item);
     }
   }
 }

@@ -55,6 +55,8 @@ export class AdminManager {
       ['#dashboardSystem', 'click', () => this.showSection('system')],
       ['#dashboardBackup', 'click', () => this.showSection('backup')],
       ['#dashboardCategories', 'click', () => this.showSection('categories')],
+      ['#dashboardPriorities', 'click', () => this.showSection('priorities')],
+      ['#dashboardStatuses', 'click', () => this.showSection('statuses')],
 
       // 各フォーム送信
       ['#userForm', 'submit', this.handleUserSubmit.bind(this)],
@@ -104,6 +106,14 @@ export class AdminManager {
       // 分類管理セクション
       ['#backToDashboard6', 'click', () => this.showSection('dashboard')],
       ['#addCategoryBtn', 'click', () => this.addCategory()],
+
+      // 優先度管理セクション
+      ['#backToDashboard7', 'click', () => this.showSection('dashboard')],
+      ['#addPriorityBtn', 'click', () => this.addPriority()],
+
+      // ステータス管理セクション
+      ['#backToDashboard8', 'click', () => this.showSection('dashboard')],
+      ['#addStatusBtn', 'click', () => this.addStatus()],
 
       ['#deleteUser', 'click', () => this.deleteUser(this.deletingUserId)],
 
@@ -209,8 +219,10 @@ export class AdminManager {
     const projectCountEl = document.getElementById('projectCount');
 
     // 設定を読み込み
-    const settings = Utils.getFromStorage('appSettings') || { users: [], categories: [] };
+    const settings = Utils.getFromStorage('appSettings') || { users: [], categories: [], priorities: [], statuses: [] };
     const categoryCountEl = document.getElementById('categoryCount');
+    const priorityCountEl = document.getElementById('priorityCount');
+    const statusCountEl = document.getElementById('statusCount');
 
     if (userCountEl) {
       userCountEl.textContent = `${this.users.length} ユーザー`;
@@ -222,6 +234,14 @@ export class AdminManager {
 
     if (categoryCountEl) {
       categoryCountEl.textContent = `${settings.categories?.length || 0} 分類`;
+    }
+
+    if (priorityCountEl) {
+      priorityCountEl.textContent = `${settings.priorities?.length || 0} 優先度`;
+    }
+
+    if (statusCountEl) {
+      statusCountEl.textContent = `${settings.statuses?.length || 0} ステータス`;
     }
   }
 
@@ -254,6 +274,14 @@ export class AdminManager {
       case 'categories':
         document.getElementById('categoriesSection').style.display = 'block';
         this.loadCategories();
+        break;
+      case 'priorities':
+        document.getElementById('prioritiesSection').style.display = 'block';
+        this.loadPriorities();
+        break;
+      case 'statuses':
+        document.getElementById('statusesSection').style.display = 'block';
+        this.loadStatuses();
         break;
       case 'dashboard':
       default:
@@ -748,6 +776,186 @@ export class AdminManager {
     this.loadCategories();
     this.updateDashboardStats();
     this.showSuccess('分類が削除されました');
+  }
+
+  // 優先度管理
+  loadPriorities() {
+    const prioritiesList = document.getElementById('prioritiesList');
+    if (!prioritiesList) return;
+
+    const settings = Utils.getFromStorage('appSettings') || { priorities: [] };
+    if (!settings.priorities) settings.priorities = [];
+
+    prioritiesList.innerHTML = '';
+
+    if (settings.priorities.length === 0) {
+      prioritiesList.innerHTML = '<div class="empty-message">優先度が登録されていません</div>';
+      return;
+    }
+
+    settings.priorities.forEach((priority, index) => {
+      const item = this.createPriorityListItem(priority, () => this.removePriority(index));
+      prioritiesList.appendChild(item);
+    });
+  }
+
+  addPriority() {
+    const nameInput = document.getElementById('priorityNameInput');
+    const valueInput = document.getElementById('priorityValueInput');
+    const colorInput = document.getElementById('priorityColorInput');
+
+    if (!nameInput || !valueInput || !colorInput) return;
+
+    const name = nameInput.value.trim();
+    const value = valueInput.value.trim();
+    const color = colorInput.value;
+
+    if (!name || !value) {
+      this.showError('優先度名と値を入力してください');
+      return;
+    }
+
+    const settings = Utils.getFromStorage('appSettings') || { priorities: [] };
+    if (!settings.priorities) settings.priorities = [];
+
+    // 値の重複チェック
+    if (settings.priorities.some(p => p.value === value)) {
+      this.showError('この値は既に使用されています');
+      return;
+    }
+
+    settings.priorities.push({ name, value, color });
+    Utils.saveToStorage('appSettings', settings);
+    this.loadPriorities();
+    this.updateDashboardStats();
+
+    // 入力フィールドをクリア
+    nameInput.value = '';
+    valueInput.value = '';
+    this.showSuccess('優先度が追加されました');
+  }
+
+  removePriority(index) {
+    if (!confirm('この優先度を削除しますか？')) return;
+
+    const settings = Utils.getFromStorage('appSettings') || { priorities: [] };
+    settings.priorities.splice(index, 1);
+    Utils.saveToStorage('appSettings', settings);
+    this.loadPriorities();
+    this.updateDashboardStats();
+    this.showSuccess('優先度が削除されました');
+  }
+
+  createPriorityListItem(priority, removeCallback) {
+    const item = document.createElement('div');
+    item.className = 'list-item priority-item';
+    item.innerHTML = `
+      <div class="item-preview">
+        <div class="item-color-box" style="background-color: ${priority.color}"></div>
+        <div class="item-details">
+          <div class="item-name">${priority.name}</div>
+          <div class="item-value">${priority.value}</div>
+        </div>
+      </div>
+      <button class="remove-btn">
+        <i class="fas fa-times"></i> 削除
+      </button>
+    `;
+
+    const removeBtn = item.querySelector('.remove-btn');
+    removeBtn.addEventListener('click', removeCallback);
+
+    return item;
+  }
+
+  // ステータス管理
+  loadStatuses() {
+    const statusesList = document.getElementById('statusesList');
+    if (!statusesList) return;
+
+    const settings = Utils.getFromStorage('appSettings') || { statuses: [] };
+    if (!settings.statuses) settings.statuses = [];
+
+    statusesList.innerHTML = '';
+
+    if (settings.statuses.length === 0) {
+      statusesList.innerHTML = '<div class="empty-message">ステータスが登録されていません</div>';
+      return;
+    }
+
+    settings.statuses.forEach((status, index) => {
+      const item = this.createStatusListItem(status, () => this.removeStatus(index));
+      statusesList.appendChild(item);
+    });
+  }
+
+  addStatus() {
+    const nameInput = document.getElementById('statusNameInput');
+    const valueInput = document.getElementById('statusValueInput');
+    const colorInput = document.getElementById('statusColorInput');
+
+    if (!nameInput || !valueInput || !colorInput) return;
+
+    const name = nameInput.value.trim();
+    const value = valueInput.value.trim();
+    const color = colorInput.value;
+
+    if (!name || !value) {
+      this.showError('ステータス名と値を入力してください');
+      return;
+    }
+
+    const settings = Utils.getFromStorage('appSettings') || { statuses: [] };
+    if (!settings.statuses) settings.statuses = [];
+
+    // 値の重複チェック
+    if (settings.statuses.some(s => s.value === value)) {
+      this.showError('この値は既に使用されています');
+      return;
+    }
+
+    settings.statuses.push({ name, value, color });
+    Utils.saveToStorage('appSettings', settings);
+    this.loadStatuses();
+    this.updateDashboardStats();
+
+    // 入力フィールドをクリア
+    nameInput.value = '';
+    valueInput.value = '';
+    this.showSuccess('ステータスが追加されました');
+  }
+
+  removeStatus(index) {
+    if (!confirm('このステータスを削除しますか？')) return;
+
+    const settings = Utils.getFromStorage('appSettings') || { statuses: [] };
+    settings.statuses.splice(index, 1);
+    Utils.saveToStorage('appSettings', settings);
+    this.loadStatuses();
+    this.updateDashboardStats();
+    this.showSuccess('ステータスが削除されました');
+  }
+
+  createStatusListItem(status, removeCallback) {
+    const item = document.createElement('div');
+    item.className = 'list-item status-item';
+    item.innerHTML = `
+      <div class="item-preview">
+        <div class="item-color-box" style="background-color: ${status.color}"></div>
+        <div class="item-details">
+          <div class="item-name">${status.name}</div>
+          <div class="item-value">${status.value}</div>
+        </div>
+      </div>
+      <button class="remove-btn">
+        <i class="fas fa-times"></i> 削除
+      </button>
+    `;
+
+    const removeBtn = item.querySelector('.remove-btn');
+    removeBtn.addEventListener('click', removeCallback);
+
+    return item;
   }
 
   createListItem(text, removeCallback) {

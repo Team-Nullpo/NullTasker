@@ -14,21 +14,37 @@ export class ProjectManager {
   static getCurrentProjectId() {
     if (!this.currentProject) {
       this.currentProject = localStorage.getItem(this.STORAGE_KEY);
+      console.log(`Loaded project from localStorage: ${this.currentProject}`);
     }
+
+    // 保存されているプロジェクトIDが実際に存在するか確認
+    if (this.currentProject && this.projectSettings && this.projectSettings.length > 0) {
+      const projectExists = this.projectSettings.some(p => p.id === this.currentProject);
+      if (!projectExists) {
+        console.warn(`Saved project (${this.currentProject}) not found in available projects. Selecting first available.`);
+        this.currentProject = null; // リセットして再選択
+      }
+    }
+
     if (!this.currentProject) {
-      this.currentProject = "default";
+      // 利用可能なプロジェクトがあるか確認
+      if (this.projectSettings && this.projectSettings.length > 0) {
+        this.currentProject = this.projectSettings[0].id;
+        console.log(`Using first available project: ${this.currentProject}`);
+      } else {
+        this.currentProject = "default";
+        console.warn(`No projects available, using default: ${this.currentProject}`);
+      }
       this.setCurrentProject(this.currentProject);
-      console.warn(
-        "プロジェクトIDの取得に失敗しました。デフォルトを使用します"
-      );
     }
     return this.currentProject;
   }
   static getProjectSettings(id = null) {
     if (!id) return this.projectSettings;
+    console.log(`Looking for project: ${id}, Available projects:`, this.projectSettings);
     const currentSetting = this.projectSettings.find((p) => (p.id === id));
     if (!currentSetting) {
-      console.warn("指定のプロジェクトが見つかりません。");
+      console.warn(`指定のプロジェクト(${id})が見つかりません。利用可能なプロジェクト:`, this.projectSettings);
       return null;
     }
     return currentSetting;
@@ -41,18 +57,23 @@ export class ProjectManager {
   static async fetchProjectSettings(admin = false) {
     try {
       const url = admin ? "/api/admin/projects" : "/api/projects";
+      console.log(`Fetching projects from: ${url}`);
       const res = await fetch(url, {
         headers: SimpleAuth.getAuthHeaders(),
       });
+      console.log(`Response status: ${res.status}`);
       if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+        const errorText = await res.text();
+        console.error('Server error response:', errorText);
+        throw new Error(`HTTP error! status: ${res.status}, message: ${errorText}`);
       }
       const data = await res.json();
+      console.log('Fetched projects:', data);
       this.projectSettings = data;
-      console.log(this.projectSettings);
     } catch (error) {
-      console.error("設定の読み込みに失敗しました:", error);
-      this.projectSettings = AppConfig.getDefaultSettings();
+      console.error("プロジェクト設定の読み込みに失敗しました:", error);
+      console.error('Error details:', error.message);
+      this.projectSettings = [];
     }
   }
   static async addProject(payload) {

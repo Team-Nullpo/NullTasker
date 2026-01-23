@@ -7,17 +7,23 @@ export class UserManager {
   static async fetchUsers(admin = false) {
     try {
       const url = admin ? '/api/admin/users' : '/api/users';
+      console.log(`Fetching users from: ${url}`);
       const res = await fetch(url, {
         headers: SimpleAuth.getAuthHeaders()
       });
+      console.log(`Response status: ${res.status}`);
       if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+        const errorText = await res.text();
+        console.error('Server error response:', errorText);
+        throw new Error(`HTTP error! status: ${res.status}, message: ${errorText}`);
       }
       const data = await res.json();
+      console.log('Fetched users:', data);
       this.users = data;
-      console.log(this.users);
     } catch (error) {
-      console.error('設定の読み込みに失敗しました:', error);
+      console.error('ユーザーデータの読み込みに失敗しました:', error);
+      console.error('Error details:', error.message);
+      this.users = []; // エラー時は空配列を設定
     }
   }
 
@@ -30,8 +36,8 @@ export class UserManager {
   static async addUser(payload, admin = true) {
     try {
       const url = admin ? '/api/admin/users' : '/api/register';
-      const headers = admin ? SimpleAuth.getAuthHeaders() : {'Content-Type': 'application/json'};
-      
+      const headers = admin ? SimpleAuth.getAuthHeaders() : { 'Content-Type': 'application/json' };
+
       const response = await fetch(url, {
         method: 'POST',
         headers: headers,
@@ -66,7 +72,7 @@ export class UserManager {
         console.error('プロフィール更新エラー:', errorText);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const newUser = await response.json();
       console.log('プロフィール更新に成功しました');
       const index = this.users.findIndex(u => u.id === newUser.id);
@@ -93,7 +99,7 @@ export class UserManager {
         console.error('パスワード変更エラー:', errorText);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       console.log('パスワード変更に成功しました');
       return true;
     } catch (error) {
@@ -121,7 +127,7 @@ export class UserManager {
         console.error('ユーザー更新エラー:', errorText);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const newUser = await response.json();
       console.log('ユーザー更新に成功しました');
       this.users[index] = newUser;
