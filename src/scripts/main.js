@@ -12,6 +12,7 @@ import { AdminManager } from "./admin-manager.js";
 import { TicketManager } from "./ticket-manager.js";
 import { UserProfileManager } from "./user-profile.js";
 import { AuthInterceptor } from "./auth-interceptor.js";
+import { HomeManager } from "./home-manager.js";
 
 // アプリケーション初期化
 document.addEventListener("DOMContentLoaded", async () => {
@@ -115,6 +116,15 @@ function getCurrentPage() {
 async function initializePageManager(page) {
   try {
     switch (page) {
+      case "dashboard":
+        Utils.debugLog("ホーム画面を初期化中...");
+        if (typeof HomeManager !== "undefined") {
+          window.homeManager = new HomeManager();
+        } else {
+          console.warn("HomeManager が見つかりません");
+        }
+        break;
+
       case "task":
         Utils.debugLog("タスク管理を初期化中...");
         if (typeof TaskManager !== "undefined") {
