@@ -53,7 +53,7 @@ export class HomeManager {
       const username = userData?.username || 'ゲスト';
       const hour = new Date().getHours();
       let greeting = 'こんにちは';
-      
+
       if (hour < 12) {
         greeting = 'おはようございます';
       } else if (hour < 18) {
@@ -61,7 +61,7 @@ export class HomeManager {
       } else {
         greeting = 'こんばんは';
       }
-      
+
       welcomeText.textContent = `${greeting}、${username}さん`;
     }
   }
@@ -118,8 +118,8 @@ export class HomeManager {
       dueDate.setHours(0, 0, 0, 0);
       return dueDate > today && dueDate <= nextWeek;
     })
-    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
-    .slice(0, 5);
+      .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+      .slice(0, 5);
 
     if (upcomingTasks.length === 0) {
       container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-check"></i><p>期限が近いタスクはありません</p></div>';

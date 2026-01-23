@@ -41,7 +41,6 @@
         <a href="task.html"><i class="fas fa-tasks"></i><span>Task</span></a>
         <a href="calendar.html" class="active"><i class="fas fa-calendar"></i><span>Calendar</span></a>
         <a href="gantt.html"><i class="fas fa-chart-bar"></i><span>Gantt</span></a>
-        <a href="setting.html"><i class="fas fa-cog"></i><span>Setting</span></a>
       </nav>
       <div class="bottom-section">
         <select id="projectSelect">
@@ -57,38 +56,67 @@
     <!-- メインコンテンツ -->
     <main class="main-content" id="mainContent">
       <div class="main-header">
-        <h1>カレンダー</h1>
+        <h1><i class="fas fa-calendar-alt"></i> カレンダー</h1>
+        <button class="btn btn-primary" id="addEventBtn">
+          <i class="fas fa-plus-circle"></i> タスク追加
+        </button>
       </div>
       <div class="main-body">
+        <!-- コントロールパネル -->
         <div class="calendar-controls">
-          <div class="calendar-navigation">
-            <button class="nav-btn" id="prevMonth">
-              <i class="fas fa-chevron-left"></i>
-            </button>
-            <h2 class="current-month" id="currentMonth">2025年 8月</h2>
-            <button class="nav-btn" id="nextMonth">
-              <i class="fas fa-chevron-right"></i>
+          <div class="calendar-controls-left">
+            <div class="calendar-navigation">
+              <button class="nav-btn" id="prevMonth" title="前月">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <h2 class="current-month" id="currentMonth">2025年 8月</h2>
+              <button class="nav-btn" id="nextMonth" title="次月">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+            <button class="btn btn-primary" id="todayBtn">
+              <i class="fas fa-calendar-day"></i> 今日
             </button>
           </div>
-          <div class="calendar-actions">
-            <button class="btn btn-primary" id="todayBtn">今日</button>
-            <button class="btn btn-secondary" id="addEventBtn">
-              <i class="fas fa-plus"></i> イベント追加
-            </button>
+
+          <div class="calendar-stats">
+            <div class="calendar-stat-item">
+              <i class="fas fa-clipboard-list"></i>
+              <span id="calendarTotalTasks">0</span> タスク
+            </div>
+            <div class="calendar-stat-item">
+              <i class="fas fa-check-circle"></i>
+              <span id="calendarCompletedTasks">0</span> 完了
+            </div>
           </div>
         </div>
 
         <div class="calendar-container">
+          <!-- カレンダービュー -->
           <div class="calendar-view">
             <div class="calendar-grid">
               <div class="calendar-header">
-                <div class="calendar-day-header">日</div>
-                <div class="calendar-day-header">月</div>
-                <div class="calendar-day-header">火</div>
-                <div class="calendar-day-header">水</div>
-                <div class="calendar-day-header">木</div>
-                <div class="calendar-day-header">金</div>
-                <div class="calendar-day-header">土</div>
+                <div class="calendar-day-header sunday">
+                  <i class="fas fa-sun"></i> 日
+                </div>
+                <div class="calendar-day-header">
+                  <i class="fas fa-moon"></i> 月
+                </div>
+                <div class="calendar-day-header">
+                  <i class="fas fa-star"></i> 火
+                </div>
+                <div class="calendar-day-header">
+                  <i class="fas fa-cloud"></i> 水
+                </div>
+                <div class="calendar-day-header">
+                  <i class="fas fa-tree"></i> 木
+                </div>
+                <div class="calendar-day-header">
+                  <i class="fas fa-gem"></i> 金
+                </div>
+                <div class="calendar-day-header saturday">
+                  <i class="fas fa-meteor"></i> 土
+                </div>
               </div>
               <div class="calendar-days" id="calendarDays">
                 <!-- カレンダーの日付が動的に生成されます -->
@@ -96,29 +124,63 @@
             </div>
           </div>
 
-          <div class="calendar-sidebar">
-            <div class="sidebar-header">
-              <h3>選択された日付</h3>
-              <p class="selected-date" id="selectedDate">2025年8月27日</p>
-            </div>
+          <<<<<<< HEAD=======<!-- サイドバー -->
+            >>>>>>> bd3c2a6 (feat: 設定画面を大規模改修)
+            <div class="calendar-sidebar">
+              <div class="sidebar-section">
+                <div class="sidebar-header">
+                  <h3><i class="fas fa-calendar-check"></i> 選択された日付</h3>
+                  <p class="selected-date" id="selectedDate">2025年8月27日</p>
+                </div>
 
-            <div class="daily-tasks">
-              <h4>今日のタスク</h4>
-              <div id="dailyTaskList">
-                <!-- 日別タスクが表示されます -->
+                <div class="date-task-count">
+                  <div class="count-badge">
+                    <i class="fas fa-tasks"></i>
+                    <span id="selectedDayTaskCount">0</span>
+                  </div>
+                  <span>件のタスク</span>
+                </div>
+              </div>
+
+              <div class="sidebar-section">
+                <h4><i class="fas fa-list-check"></i> この日のタスク</h4>
+                <div id="dailyTaskList" class="daily-task-list">
+                  <!-- 日別タスクが表示されます -->
+                </div>
+              </div>
+
+              <div class="sidebar-section">
+                <h4><i class="fas fa-bolt"></i> クイック追加</h4>
+                <div class="quick-add-form">
+                  <input type="text" id="quickTaskInput" placeholder="タスクを入力...">
+                  <button class="quick-add-btn" id="quickAddBtn" title="追加">
+                    <i class="fas fa-plus"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="sidebar-section">
+                <h4><i class="fas fa-info-circle"></i> 凡例</h4>
+                <div class="calendar-legend">
+                  <div class="legend-item">
+                    <span class="legend-dot high"></span>
+                    <span>高優先度</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-dot medium"></span>
+                    <span>中優先度</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-dot low"></span>
+                    <span>低優先度</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-dot completed"></span>
+                    <span>完了</span>
+                  </div>
+                </div>
               </div>
             </div>
-
-            <div class="quick-add-section">
-              <h4>クイック追加</h4>
-              <div class="quick-add-form">
-                <input type="text" id="quickTaskInput" placeholder="新しいタスクを入力...">
-                <button class="quick-add-btn" id="quickAddBtn">
-                  <i class="fas fa-plus"></i>
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </main>
@@ -140,10 +202,6 @@
       <a href="gantt.html" class="nav-item">
         <i class="fas fa-chart-bar"></i>
         <span>Gantt</span>
-      </a>
-      <a href="setting.html" class="nav-item">
-        <i class="fas fa-cog"></i>
-        <span>Setting</span>
       </a>
       <a href="user-profile.html" class="nav-item">
         <i class="fas fa-user-circle"></i>
