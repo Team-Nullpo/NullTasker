@@ -408,11 +408,17 @@
           </div>
 
           <div class="settings-card">
-            <p class="section-description">タスクのステータスを管理します。各ステータスには名前、値、色を設定できます。</p>
+            <p class="section-description">タスクのステータスを管理します。各ステータスには名前、値、タイプ、色を設定できます。</p>
             <div class="status-form">
               <div class="form-row">
                 <input type="text" id="statusNameInput" placeholder="ステータス名（例: 進行中）" class="input-field">
                 <input type="text" id="statusValueInput" placeholder="値（例: in_progress）" class="input-field">
+                <select id="statusTypeInput" class="input-field" title="ステータスの種類">
+                  <option value="todo">未着手</option>
+                  <option value="in_progress" selected>進行中</option>
+                  <option value="review">レビュー</option>
+                  <option value="done">完了</option>
+                </select>
                 <input type="color" id="statusColorInput" value="#1976d2" class="color-input" title="ステータスの色">
                 <button class="btn btn-primary" id="addStatusBtn">
                   <i class="fas fa-plus"></i> 追加

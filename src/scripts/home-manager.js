@@ -68,10 +68,24 @@ export class HomeManager {
 
   updateStats() {
     const total = this.tasks.length;
-    const inProgress = this.tasks.filter(t => t.status === 'in_progress').length;
-    const completed = this.tasks.filter(t => t.status === 'done').length;
+
+    // タイプごとにステータスをグループ化
+    const appSettings = Utils.getFromStorage('appSettings') || { statuses: [] };
+    const inProgressStatuses = appSettings.statuses
+      .filter(s => ['in_progress', 'review'].includes(s.type || ''))
+      .map(s => s.value);
+    const completedStatuses = appSettings.statuses
+      .filter(s => s.type === 'done')
+      .map(s => s.value);
+
+    // フォールバック: デフォルト値
+    if (inProgressStatuses.length === 0) inProgressStatuses.push('in_progress');
+    if (completedStatuses.length === 0) completedStatuses.push('done');
+
+    const inProgress = this.tasks.filter(t => inProgressStatuses.includes(t.status)).length;
+    const completed = this.tasks.filter(t => completedStatuses.includes(t.status)).length;
     const overdue = this.tasks.filter(t => {
-      if (t.status === 'done') return false;
+      if (completedStatuses.includes(t.status)) return false;
       return new Date(t.dueDate) < new Date();
     }).length;
 
@@ -132,7 +146,9 @@ export class HomeManager {
   createTaskCard(task) {
     const priorityClass = task.priority || 'low';
     const priorityText = this.getPriorityText(task.priority);
+    const priorityColor = this.getPriorityColor(task.priority);
     const dueDate = Utils.formatDate(task.dueDate);
+    const colorStyle = priorityColor ? `background-color: ${priorityColor}; border-color: ${priorityColor};` : '';
 
     return `
       <div class="task-card" onclick="window.location.href='task.html'">
@@ -142,7 +158,7 @@ export class HomeManager {
         <div class="task-card-content">
           <div class="task-card-title">${task.title}</div>
           <div class="task-card-meta">
-            <span class="task-card-priority ${priorityClass}">${priorityText}</span>
+            <span class="task-card-priority ${priorityClass}" style="${colorStyle}">${priorityText}</span>
             <span><i class="fas fa-calendar"></i> ${dueDate}</span>
           </div>
         </div>
@@ -151,19 +167,49 @@ export class HomeManager {
   }
 
   getPriorityText(priority) {
+    const appSettings = Utils.getFromStorage('appSettings') || { priorities: [] };
+    const priorityObj = (appSettings.priorities || []).find(p => p.value === priority);
+    if (priorityObj) {
+      return priorityObj.name;
+    }
+    // フォールバック
     const map = {
       high: '高',
       medium: '中',
       low: '低'
     };
-    return map[priority] || '低';
+    return map[priority] || '不明';
+  }
+
+  getPriorityColor(priority) {
+    const appSettings = Utils.getFromStorage('appSettings') || { priorities: [] };
+    const priorityObj = (appSettings.priorities || []).find(p => p.value === priority);
+    return priorityObj ? priorityObj.color : null;
   }
 
   renderProgressWidget() {
     const total = this.tasks.length;
-    const completed = this.tasks.filter(t => t.status === 'done').length;
-    const inProgress = this.tasks.filter(t => t.status === 'in_progress').length;
-    const todo = this.tasks.filter(t => t.status === 'todo').length;
+
+    // タイプごとにステータスをグループ化
+    const appSettings = Utils.getFromStorage('appSettings') || { statuses: [] };
+    const completedStatuses = appSettings.statuses
+      .filter(s => s.type === 'done')
+      .map(s => s.value);
+    const inProgressStatuses = appSettings.statuses
+      .filter(s => ['in_progress', 'review'].includes(s.type || ''))
+      .map(s => s.value);
+    const todoStatuses = appSettings.statuses
+      .filter(s => s.type === 'todo')
+      .map(s => s.value);
+
+    // フォールバック
+    if (completedStatuses.length === 0) completedStatuses.push('done');
+    if (inProgressStatuses.length === 0) inProgressStatuses.push('in_progress');
+    if (todoStatuses.length === 0) todoStatuses.push('todo');
+
+    const completed = this.tasks.filter(t => completedStatuses.includes(t.status)).length;
+    const inProgress = this.tasks.filter(t => inProgressStatuses.includes(t.status)).length;
+    const todo = this.tasks.filter(t => todoStatuses.includes(t.status)).length;
 
     const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
 

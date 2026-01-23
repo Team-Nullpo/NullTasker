@@ -892,12 +892,14 @@ export class AdminManager {
   addStatus() {
     const nameInput = document.getElementById('statusNameInput');
     const valueInput = document.getElementById('statusValueInput');
+    const typeInput = document.getElementById('statusTypeInput');
     const colorInput = document.getElementById('statusColorInput');
 
-    if (!nameInput || !valueInput || !colorInput) return;
+    if (!nameInput || !valueInput || !typeInput || !colorInput) return;
 
     const name = nameInput.value.trim();
     const value = valueInput.value.trim();
+    const type = typeInput.value;
     const color = colorInput.value;
 
     if (!name || !value) {
@@ -914,7 +916,7 @@ export class AdminManager {
       return;
     }
 
-    settings.statuses.push({ name, value, color });
+    settings.statuses.push({ name, value, type, color });
     Utils.saveToStorage('appSettings', settings);
     this.loadStatuses();
     this.updateDashboardStats();
@@ -922,6 +924,7 @@ export class AdminManager {
     // 入力フィールドをクリア
     nameInput.value = '';
     valueInput.value = '';
+    typeInput.value = 'in_progress';
     this.showSuccess('ステータスが追加されました');
   }
 
@@ -937,6 +940,13 @@ export class AdminManager {
   }
 
   createStatusListItem(status, removeCallback) {
+    const typeLabels = {
+      todo: '未着手',
+      in_progress: '進行中',
+      review: 'レビュー',
+      done: '完了'
+    };
+
     const item = document.createElement('div');
     item.className = 'list-item status-item';
     item.innerHTML = `
@@ -944,7 +954,7 @@ export class AdminManager {
         <div class="item-color-box" style="background-color: ${status.color}"></div>
         <div class="item-details">
           <div class="item-name">${status.name}</div>
-          <div class="item-value">${status.value}</div>
+          <div class="item-value">${status.value} (${typeLabels[status.type] || status.type || '未設定'})</div>
         </div>
       </div>
       <button class="remove-btn">

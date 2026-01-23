@@ -24,7 +24,7 @@
 <body>
   <div class="app-container">
     <!-- トグルボタン（サイドバーの外に配置） -->
-    <button id="toggleSidebar" class="toggle-btn">
+    <button id="toggleSidebar" class="toggle-btn" aria-label="サイドバーを開閉" aria-expanded="true">
       <i class="fas fa-bars"></i>
     </button>
 
@@ -33,7 +33,7 @@
       <div class="logo">
         <img src="../assets/logo.png" alt="Logo" />
         <!-- サイドバー内の非表示ボタン -->
-        <button id="hideSidebar" class="sidebar-hide-btn">
+        <button id="hideSidebar" class="sidebar-hide-btn" aria-label="サイドバーを閉じる">
           <i class="fas fa-chevron-left"></i>
         </button>
       </div>
@@ -58,7 +58,7 @@
     <main class="main-content" id="mainContent">
       <div class="main-header">
         <h1><i class="fas fa-tasks"></i> タスク管理</h1>
-        <button class="add-task-btn" id="addTaskBtn">
+        <button class="add-task-btn" id="addTaskBtn" aria-label="新しいタスクを追加">
           <i class="fas fa-plus-circle"></i> 新しいタスク
         </button>
       </div>
@@ -69,16 +69,16 @@
             <div class="task-toolbar-left">
               <div class="search-box">
                 <i class="fas fa-search"></i>
-                <input type="text" id="taskSearch" placeholder="タスクを検索..." />
+                <input type="text" id="taskSearch" placeholder="タスクを検索..." aria-label="タスク検索" />
               </div>
-              <select class="filter-select" id="taskFilter">
+              <select class="filter-select" id="taskFilter" aria-label="タスクフィルター">
                 <option value="all">すべて</option>
                 <option value="todo">未完了</option>
                 <option value="in_progress">進行中</option>
                 <option value="review">レビュー中</option>
                 <option value="done">完了済み</option>
               </select>
-              <select class="sort-select" id="taskSort">
+              <select class="sort-select" id="taskSort" aria-label="タスクソート">
                 <option value="dueDate">期限順</option>
                 <option value="priority">優先度順</option>
                 <option value="status">ステータス順</option>
@@ -86,11 +86,11 @@
               </select>
             </div>
             <div class="task-toolbar-right">
-              <div class="view-toggle">
-                <button class="view-btn active" data-view="list" title="リストビュー">
+              <div class="view-toggle" role="group" aria-label="表示切替">
+                <button class="view-btn active" data-view="list" title="リストビュー" aria-label="リスト表示" aria-pressed="true">
                   <i class="fas fa-list"></i>
                 </button>
-                <button class="view-btn" data-view="grid" title="グリッドビュー">
+                <button class="view-btn" data-view="grid" title="グリッドビュー" aria-label="グリッド表示" aria-pressed="false">
                   <i class="fas fa-th"></i>
                 </button>
               </div>

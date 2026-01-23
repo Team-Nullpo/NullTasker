@@ -192,14 +192,18 @@ export class GanttManager {
         }
         break;
       case 'week':
-        startDate.setDate(this.currentDate.getDate() - this.currentDate.getDay());
-        for (let i = 0; i < 7; i++) {
-          const date = new Date(startDate);
-          date.setDate(startDate.getDate() + i);
+        // 週の開始日を計算（日曜日始まり）
+        const weekStartDate = new Date(this.currentDate);
+        weekStartDate.setDate(this.currentDate.getDate() - this.currentDate.getDay());
+        weekStartDate.setHours(0, 0, 0, 0);
+
+        for (let i = 0; i <= 6; i++) {
+          const date = new Date(weekStartDate.getFullYear(), weekStartDate.getMonth(), weekStartDate.getDate() + i, 0, 0, 0, 0);
           dates.push(date);
         }
         break;
       default:
+        // 日表示モード: 現在の日付を中心に前後3日
         for (let i = -3; i <= 3; i++) {
           const date = new Date(this.currentDate);
           date.setDate(this.currentDate.getDate() + i);
@@ -301,7 +305,17 @@ export class GanttManager {
     const firstDate = dates[0];
     const lastDate = dates[dates.length - 1];
 
-    if (startDate > lastDate || endDate < firstDate) {
+    // 日付の時刻部分を正規化して比較
+    const firstDateNormalized = new Date(firstDate);
+    firstDateNormalized.setHours(0, 0, 0, 0);
+    const lastDateNormalized = new Date(lastDate);
+    lastDateNormalized.setHours(23, 59, 59, 999);
+    const startDateNormalized = new Date(startDate);
+    startDateNormalized.setHours(0, 0, 0, 0);
+    const endDateNormalized = new Date(endDate);
+    endDateNormalized.setHours(23, 59, 59, 999);
+
+    if (startDateNormalized > lastDateNormalized || endDateNormalized < firstDateNormalized) {
       return row; // 完全に範囲外なら何も描かない
     }
 
@@ -314,17 +328,6 @@ export class GanttManager {
       cellWidth
     );
     row.appendChild(barContainer);
-
-    console.log('Creating Gantt bar for task:', task.title, {
-      startDate,
-      endDate,
-      startIndex,
-      endIndex,
-      firstDate,
-      lastDate,
-      formattedStartIndex,
-      formattedEndIndex
-    });
 
     return row;
   }
@@ -435,6 +438,7 @@ export class GanttManager {
   }
 
   findDateIndex(dates, targetDate) {
+    if (!targetDate || isNaN(targetDate.getTime())) return -1;
     return dates.findIndex(date => Utils.isSameDate(date, targetDate));
   }
 

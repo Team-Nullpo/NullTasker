@@ -10,6 +10,9 @@ import { AppConfig } from "./config.js";
 import { ProjectManager } from "./project-manager.js";
 import { UserManager } from "./user-manager.js";
 import { TicketManager } from "./ticket-manager.js";
+import { Logger } from "./logger.js";
+import { LoadingManager } from "./loading-manager.js";
+import { Validator } from "./validator.js";
 
 // タスク管理クラス
 export class TaskManager {
@@ -34,15 +37,13 @@ export class TaskManager {
 
   loadSettings() {
     this.projectId = ProjectManager.getCurrentProjectId();
-    console.log(`TaskManager loading settings for project: ${this.projectId}`);
+    Logger.debug('TaskManager loading settings for project:', this.projectId);
     this.settings = ProjectManager.getProjectSettings(this.projectId);
-    console.log("TaskManager プロジェクト設定:", this.settings);
   }
 
   loadUsers() {
-    console.log(`TaskManager loading users for project: ${this.projectId}`);
+    Logger.debug('TaskManager loading users for project:', this.projectId);
     this.projectUsers = UserManager.getUsers(this.projectId);
-    console.log("TaskManager ユーザー:", this.projectUsers);
   }
 
   loadTasks() {
@@ -65,14 +66,6 @@ export class TaskManager {
       deleteTaskBtn: Utils.getElement("#deleteTask"),
     };
 
-    // デバッグ用ログ
-    Utils.debugLog("タスク要素:", {
-      addBtn: !!elements.addBtn,
-      modals: elements.modals?.length || 0,
-      form: !!elements.form,
-      taskList: !!elements.taskList,
-    });
-
     // モーダル関連のイベント
     this.setupModalEvents(elements);
 
@@ -94,21 +87,28 @@ export class TaskManager {
 
     // フィルター機能
     if (elements.filterSelect) {
-      elements.filterSelect.addEventListener("change", (e) => {
+      elements.filterSelect.addEventListener("change", () => {
         this.renderTasks();
       });
     }
 
     // ソート機能
     if (elements.sortSelect) {
-      elements.sortSelect.addEventListener("change", (e) => {
+      elements.sortSelect.addEventListener("change", () => {
         this.renderTasks();
       });
     }
 
-    // 検索機能
+    // 検索機能（debounce適用）
     if (elements.searchInput) {
-      elements.searchInput.addEventListener("input", (e) => {
+      elements.searchInput.addEventListener("input", Utils.debounce(() => {
+        this.renderTasks();
+      }, 300));
+    }
+
+    // ソート機能
+    if (elements.sortSelect) {
+      elements.sortSelect.addEventListener("change", () => {
         this.renderTasks();
       });
     }
@@ -177,12 +177,12 @@ export class TaskManager {
   setupModalEvents(elements) {
     const { addBtn, modals, closeBtns, deleteTaskBtn } = elements;
 
-    Utils.debugLog("setupModalEvents - addBtn:", addBtn);
+    Logger.debug("setupModalEvents - addBtn:", addBtn);
 
     if (addBtn) {
-      Utils.debugLog("タスク追加ボタンにイベントリスナーを設定します");
+      Logger.debug("タスク追加ボタンにイベントリスナーを設定します");
       addBtn.addEventListener("click", () => {
-        Utils.debugLog("タスク追加ボタンがクリックされました");
+        Logger.debug("タスク追加ボタンがクリックされました");
         this.resetEditState();
         const form = Utils.getElement("#taskForm");
         if (form) {
@@ -195,7 +195,7 @@ export class TaskManager {
         this.openModal("#taskModal");
       });
     } else {
-      console.error("タスク追加ボタン(#addTaskBtn)が見つかりません");
+      Logger.error("タスク追加ボタン(#addTaskBtn)が見つかりません");
     }
 
     if (closeBtns)
@@ -346,7 +346,7 @@ export class TaskManager {
     try {
       const form = Utils.getElement("#taskForm");
       if (!form) {
-        console.error("フォームが見つかりません");
+        Logger.error("フォームが見つかりません");
         return;
       }
 
@@ -364,27 +364,40 @@ export class TaskManager {
         project: this.projectId,
       };
 
-      Utils.debugLog("フォーム送信データ:", payload);
+      Logger.debug("フォーム送信データ:", payload);
 
-      if (!this.validateTaskData(payload)) return;
-
-      if (this.editingTaskId) {
-        if (!(await TicketManager.updateTicket(payload, this.editingTaskId))) {
-          Utils.showNotification("タスク更新に失敗しました", "error");
-          return;
-        }
-      } else {
-        if (!(await TicketManager.createTicket(payload))) {
-          Utils.showNotification("タスク追加に失敗しました", "error");
-          return;
-        }
+      // データ検証
+      const validation = Validator.validateTask(payload);
+      if (!validation.valid) {
+        Utils.showNotification(validation.errors[0], "error");
+        return;
       }
+
+      const message = this.editingTaskId ? 'タスクを更新しています...' : 'タスクを作成しています...';
+
+      await LoadingManager.wrap(async () => {
+        if (this.editingTaskId) {
+          const success = await TicketManager.updateTicket(payload, this.editingTaskId);
+          if (!success) {
+            throw new Error("タスク更新に失敗しました");
+          }
+        } else {
+          const success = await TicketManager.createTicket(payload);
+          if (!success) {
+            throw new Error("タスク追加に失敗しました");
+          }
+        }
+      }, message);
+
       this.renderTasks();
       this.closeModal();
-      Utils.showNotification("タスクが正常に更新されました。", "success");
+      Utils.showNotification(
+        this.editingTaskId ? "タスクが更新されました" : "タスクが作成されました",
+        "success"
+      );
     } catch (error) {
-      console.error("フォーム送信エラー:", error);
-      Utils.showNotification("フォームの送信に失敗しました。", "error");
+      Logger.error("フォーム送信エラー:", error);
+      Utils.showNotification(error.message || "フォームの送信に失敗しました", "error");
     }
   }
 
@@ -527,14 +540,21 @@ export class TaskManager {
   async deleteTask() {
     try {
       if (!this.deletingTaskId) return;
-      if (!(await TicketManager.removeTicket(this.deletingTaskId))) return;
+
+      await LoadingManager.wrap(async () => {
+        const success = await TicketManager.removeTicket(this.deletingTaskId);
+        if (!success) {
+          throw new Error("タスクの削除に失敗しました");
+        }
+      }, 'タスクを削除しています...');
+
       this.renderTasks();
       this.deletingTaskId = null;
       this.closeModal();
-      Utils.showNotification("タスクが削除されました。", "success");
+      Utils.showNotification("タスクが削除されました", "success");
     } catch (error) {
-      console.error("タスク削除エラー:", error);
-      Utils.showNotification("タスクの削除に失敗しました。", "error");
+      Logger.error("タスク削除エラー:", error);
+      Utils.showNotification(error.message || "タスクの削除に失敗しました", "error");
     }
   }
 
@@ -542,7 +562,7 @@ export class TaskManager {
     this.loadTasks();
     const taskList = Utils.getElement("#taskList");
     if (!taskList) {
-      console.warn("タスクリストが見つかりません");
+      Logger.warn("タスクリストが見つかりません");
       return;
     }
 
