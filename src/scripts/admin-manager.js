@@ -54,7 +54,6 @@ export class AdminManager {
       ['#dashboardProject', 'click', () => this.showSection('projects')],
       ['#dashboardSystem', 'click', () => this.showSection('system')],
       ['#dashboardBackup', 'click', () => this.showSection('backup')],
-      ['#dashboardMembers', 'click', () => this.showSection('members')],
       ['#dashboardCategories', 'click', () => this.showSection('categories')],
 
       // 各フォーム送信
@@ -101,10 +100,6 @@ export class AdminManager {
       ['#exportSettingsBtn', 'click', () => this.downloadSettingsBackup()],
       ['#importDataBtn', 'click', () => this.importData()],
       ['#clearDataBtn', 'click', () => this.clearAllData()],
-
-      // メンバー管理セクション
-      ['#backToDashboard5', 'click', () => this.showSection('dashboard')],
-      ['#addMemberBtn', 'click', () => this.addMember()],
 
       // 分類管理セクション
       ['#backToDashboard6', 'click', () => this.showSection('dashboard')],
@@ -215,7 +210,6 @@ export class AdminManager {
 
     // 設定を読み込み
     const settings = Utils.getFromStorage('appSettings') || { users: [], categories: [] };
-    const memberCountEl = document.getElementById('memberCount');
     const categoryCountEl = document.getElementById('categoryCount');
 
     if (userCountEl) {
@@ -224,10 +218,6 @@ export class AdminManager {
 
     if (projectCountEl) {
       projectCountEl.textContent = `${this.projects.length} プロジェクト`;
-    }
-
-    if (memberCountEl) {
-      memberCountEl.textContent = `${settings.users?.length || 0} メンバー`;
     }
 
     if (categoryCountEl) {
@@ -260,10 +250,6 @@ export class AdminManager {
       case 'backup':
         document.getElementById('backupSection').style.display = 'block';
         this.updateStorageInfo();
-        break;
-      case 'members':
-        document.getElementById('membersSection').style.display = 'block';
-        this.loadMembers();
         break;
       case 'categories':
         document.getElementById('categoriesSection').style.display = 'block';
@@ -709,58 +695,10 @@ export class AdminManager {
   }
 
   // メンバー管理
-  loadMembers() {
-    const membersList = document.getElementById('membersList');
-    if (!membersList) return;
-
-    const settings = Utils.getFromStorage('appSettings') || { users: [] };
-    membersList.innerHTML = '';
-
-    if (!settings.users || settings.users.length === 0) {
-      membersList.innerHTML = '<div class="empty-message">メンバーがありません</div>';
-      return;
-    }
-
-    settings.users.forEach((member, index) => {
-      const item = this.createListItem(member, () => this.removeMember(index));
-      membersList.appendChild(item);
-    });
-  }
-
-  addMember() {
-    const memberInput = document.getElementById('memberInput');
-    if (!memberInput || !memberInput.value.trim()) return;
-
-    const memberName = memberInput.value.trim();
-    const settings = Utils.getFromStorage('appSettings') || { users: [], categories: [] };
-
-    if (!settings.users) settings.users = [];
-
-    if (settings.users.includes(memberName)) {
-      this.showError('このメンバーは既に存在します');
-      return;
-    }
-
-    settings.users.push(memberName);
-    Utils.saveToStorage('appSettings', settings);
-    this.loadMembers();
-    this.updateDashboardStats();
-    memberInput.value = '';
-    this.showSuccess('メンバーが追加されました');
-  }
-
-  removeMember(index) {
-    if (!confirm('このメンバーを削除しますか？')) return;
-
-    const settings = Utils.getFromStorage('appSettings') || { users: [], categories: [] };
-    settings.users.splice(index, 1);
-    Utils.saveToStorage('appSettings', settings);
-    this.loadMembers();
-    this.updateDashboardStats();
-    this.showSuccess('メンバーが削除されました');
-  }
-
+  // ========================================
   // 分類管理
+  // ========================================
+
   loadCategories() {
     const categoriesList = document.getElementById('categoriesList');
     if (!categoriesList) return;
