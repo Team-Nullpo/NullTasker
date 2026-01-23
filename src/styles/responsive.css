@@ -89,18 +89,16 @@
     width: 100%;
     min-height: 100vh;
     background-color: #fff;
-    padding-bottom: 80px;
-    /* ボトムナビゲーション分 */
+    padding-bottom: 80px; /* ボトムナビゲーション分 */
   }
 
   .main-header {
     margin-bottom: var(--spacing-lg);
-    padding: var(--spacing-lg);
+    padding-top: var(--spacing-xl);
     background-color: var(--light-bg);
+    padding: var(--spacing-lg);
     border-radius: var(--border-radius-sm);
     border: 2px solid var(--primary-color);
-    flex-direction: column;
-    gap: var(--spacing-md);
   }
 
   .main-header h1 {
@@ -127,129 +125,9 @@
     display: flex;
   }
 
-  /* ホーム画面のモバイル対応 */
-  .header-actions {
-    flex-direction: column;
-    gap: var(--spacing-md);
-    align-items: stretch;
-  }
-
-  .welcome-text {
-    font-size: var(--font-size-sm);
-  }
-
-  .dashboard-stats {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-md);
-  }
-
-  .stat-card {
-    flex-direction: column;
-    text-align: center;
-    padding: var(--spacing-lg);
-  }
-
-  .stat-icon {
-    width: 50px;
-    height: 50px;
-  }
-
-  .stat-icon i {
-    font-size: 24px;
-  }
-
-  .stat-value {
-    font-size: 2rem;
-  }
-
-  .dashboard-content {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-lg);
-  }
-
-  .section-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-sm);
-  }
-
-  .section-header h2 {
-    font-size: var(--font-size-lg);
-  }
-
-  .task-card {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .task-card-meta {
-    flex-direction: column;
-    gap: var(--spacing-xs);
-  }
-
-  .progress-circle {
-    width: 150px;
-    height: 150px;
-  }
-
-  .progress-percentage {
-    font-size: 2rem;
-  }
-
-  .quick-actions {
-    grid-template-columns: 1fr;
-  }
-
   /* タスクページのモバイル対応 */
   .task-container {
     max-width: 100%;
-  }
-
-  .task-toolbar {
-    flex-direction: column;
-    gap: var(--spacing-md);
-    padding: var(--spacing-md);
-  }
-
-  .task-toolbar-left {
-    width: 100%;
-    flex-direction: column;
-  }
-
-  .task-toolbar-right {
-    width: 100%;
-    justify-content: flex-end;
-  }
-
-  .search-box {
-    max-width: 100%;
-  }
-
-  .filter-select,
-  .sort-select {
-    width: 100%;
-    font-size: var(--font-size-base);
-  }
-
-  .task-stats {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-md);
-  }
-
-  .stat-card {
-    padding: var(--spacing-md);
-  }
-
-  .stat-card i {
-    font-size: 2rem;
-  }
-
-  .stat-value {
-    font-size: 1.5rem;
-  }
-
-  .task-list[data-view="grid"] {
-    grid-template-columns: 1fr;
   }
 
   .task-header {
@@ -279,7 +157,7 @@
   .task-item {
     flex-direction: column;
     gap: var(--spacing-md);
-    padding: var(--spacing-md);
+    padding: var(--spacing-lg);
   }
 
   .task-checkbox {
@@ -295,22 +173,18 @@
   }
 
   .task-meta {
-    gap: var(--spacing-sm);
+    gap: var(--spacing-md);
   }
 
   .task-priority,
   .task-status {
-    font-size: 10px;
-    padding: 4px 8px;
+    font-size: 11px;
+    padding: var(--spacing-sm) var(--spacing-md);
   }
 
   .task-actions {
-    width: 100%;
-    justify-content: flex-end;
-    gap: var(--spacing-sm);
-    border-top: 1px solid var(--gray-200);
-    padding-top: var(--spacing-sm);
-    margin-top: var(--spacing-sm);
+    align-self: flex-end;
+    gap: var(--spacing-md);
   }
 
   .task-btn {
@@ -381,48 +255,33 @@
     padding: 0;
   }
 
-  .settings-tabs {
-    overflow-x: auto;
-    gap: var(--spacing-xs);
-    margin-bottom: var(--spacing-lg);
-  }
-
-  .settings-tab {
-    padding: var(--spacing-md) var(--spacing-lg);
-    font-size: var(--font-size-sm);
-    white-space: nowrap;
-  }
-
   .settings-section {
     margin-bottom: var(--spacing-xl);
     padding: var(--spacing-xl) var(--spacing-lg);
     border-radius: var(--border-radius);
   }
 
-  .settings-section h2,
-  .section-header h2 {
+  .settings-section h2 {
     font-size: var(--font-size-lg);
     margin-bottom: var(--spacing-lg);
   }
 
-  .settings-card {
-    padding: var(--spacing-lg);
-  }
-
-  .input-group {
+  .input-with-button {
     flex-direction: column;
     gap: var(--spacing-md);
   }
 
-  .input-field {
-    width: 100%;
+  .add-btn {
+    justify-content: center;
+    padding: var(--spacing-lg);
+    font-size: var(--font-size-base);
   }
 
-  .data-actions {
+  .action-buttons {
     flex-direction: column;
   }
 
-  .data-actions button {
+  .action-buttons button {
     width: 100%;
     padding: var(--spacing-lg);
     font-size: var(--font-size-base);
@@ -454,7 +313,7 @@
     bottom: 4px;
   }
 
-  input:checked+.slider:before {
+  input:checked + .slider:before {
     transform: translateX(22px);
   }
 
@@ -477,33 +336,7 @@
   .gantt-controls {
     flex-direction: column;
     align-items: stretch;
-    gap: var(--spacing-md);
-    padding: var(--spacing-md);
-  }
-
-  .gantt-controls-left,
-  .gantt-controls-right {
-    width: 100%;
-    flex-direction: column;
-    gap: var(--spacing-md);
-  }
-
-  .time-scale-controls {
-    width: 100%;
-  }
-
-  .time-scale-controls select {
-    width: 100%;
-  }
-
-  .date-navigation {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .gantt-stats {
-    width: 100%;
-    justify-content: space-around;
+    gap: var(--spacing-lg);
   }
 
   .gantt-chart {
@@ -514,20 +347,7 @@
   .gantt-task-list {
     width: 100%;
     border-right: none;
-    border-bottom: 2px solid var(--gray-200);
-  }
-
-  .gantt-task-header {
-    height: 44px;
-  }
-
-  .task-name-column {
-    font-size: var(--font-size-sm);
-  }
-
-  .task-assignee-column,
-  .task-duration-column {
-    font-size: var(--font-size-xs);
+    border-bottom: 1px solid var(--gray-200);
   }
 
   .gantt-timeline {
@@ -535,13 +355,7 @@
   }
 
   .gantt-legend {
-    flex-direction: column;
-    align-items: flex-start;
     gap: var(--spacing-md);
-  }
-
-  .legend-items {
-    width: 100%;
   }
 
   .legend-item {
@@ -550,7 +364,6 @@
 
   .current-period {
     min-width: auto;
-    font-size: var(--font-size-sm);
   }
 
   /* カレンダーのモバイル対応 */
@@ -571,8 +384,7 @@
   }
 
   .day-tasks {
-    display: none;
-    /* モバイルでは日付セルのタスクを非表示 */
+    display: none; /* モバイルでは日付セルのタスクを非表示 */
   }
 
   .calendar-task {
@@ -650,7 +462,6 @@
 
 /* プリント対応 */
 @media print {
-
   .sidebar,
   .toggle-btn,
   .bottom-navigation,
@@ -703,21 +514,18 @@
 
 /* 色覚異常対応 */
 @media (prefers-color-scheme: no-preference) {
-
   .task-priority.high,
   .gantt-bar.high,
   .calendar-task.high,
   .legend-color.high {
-    background-color: #0066cc;
-    /* 青系に変更 */
+    background-color: #0066cc; /* 青系に変更 */
   }
 
   .task-priority.medium,
   .gantt-bar.medium,
   .calendar-task.medium,
   .legend-color.medium {
-    background-color: #cc6600;
-    /* オレンジ系 */
+    background-color: #cc6600; /* オレンジ系 */
   }
 }
 

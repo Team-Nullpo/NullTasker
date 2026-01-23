@@ -33,8 +33,6 @@ export class GanttManager {
       timeScaleSelect: Utils.getElement('#timeScale'),
       prevBtn: Utils.getElement('#prevPeriod'),
       nextBtn: Utils.getElement('#nextPeriod'),
-      todayBtn: Utils.getElement('#todayGantt'),
-      exportBtn: Utils.getElement('#exportGantt'),
       // task detail modal and close button are optional on the gantt page;
       // use document.querySelector to avoid noisy Utils.getElement warnings when absent
       taskDetailModal: document.querySelector('#taskDetailModal'),
@@ -54,17 +52,6 @@ export class GanttManager {
 
     if (elements.nextBtn) {
       elements.nextBtn.addEventListener('click', () => this.navigatePeriod(1));
-    }
-
-    if (elements.todayBtn) {
-      elements.todayBtn.addEventListener('click', () => {
-        this.currentDate = new Date();
-        this.renderGantt();
-      });
-    }
-
-    if (elements.exportBtn) {
-      elements.exportBtn.addEventListener('click', () => this.exportGantt());
     }
 
     this.setupModalEvents(elements);
@@ -102,21 +89,9 @@ export class GanttManager {
 
   renderGantt() {
     this.updatePeriodDisplay();
-    this.updateStats();
     this.renderTimeline();
     this.renderTaskList();
     this.renderGanttBars();
-  }
-
-  updateStats() {
-    const total = this.tasks.length;
-    const inProgress = this.tasks.filter(t => t.status === 'in_progress').length;
-
-    const totalEl = Utils.getElement('#ganttTotalTasks');
-    const inProgressEl = Utils.getElement('#ganttInProgress');
-
-    if (totalEl) totalEl.textContent = total;
-    if (inProgressEl) inProgressEl.textContent = inProgress;
   }
 
   updatePeriodDisplay() {
@@ -137,8 +112,9 @@ export class GanttManager {
         weekStart.setDate(date - this.currentDate.getDay());
         const weekEnd = new Date(weekStart);
         weekEnd.setDate(weekStart.getDate() + 6);
-        displayText = `${weekStart.getMonth() + 1}/${weekStart.getDate()} - ${weekEnd.getMonth() + 1
-          }/${weekEnd.getDate()}`;
+        displayText = `${weekStart.getMonth() + 1}/${weekStart.getDate()} - ${
+          weekEnd.getMonth() + 1
+        }/${weekEnd.getDate()}`;
         break;
       default:
         displayText = `${year}年${month}月${date}日`;
@@ -153,20 +129,10 @@ export class GanttManager {
 
     header.innerHTML = '';
     const dates = this.getTimelineDates();
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
 
     dates.forEach(date => {
       const cell = document.createElement('div');
       cell.className = 'gantt-date-cell';
-
-      // 今日の日付かチェック
-      const dateOnly = new Date(date);
-      dateOnly.setHours(0, 0, 0, 0);
-      if (dateOnly.getTime() === today.getTime()) {
-        cell.classList.add('today');
-      }
-
       cell.textContent = this.formatTimelineDate(date);
       header.appendChild(cell);
     });
@@ -285,8 +251,8 @@ export class GanttManager {
     const startDate = task.startDate
       ? new Date(task.startDate)
       : task.createdAt
-        ? new Date(task.createdAt)
-        : null;
+      ? new Date(task.createdAt)
+      : null;
     const endDate = task.dueDate ? new Date(task.dueDate) : startDate ? new Date(startDate) : null;
 
     // 日付が不正ならバーは描かない（表示崩れを防ぐ）
@@ -492,64 +458,6 @@ export class GanttManager {
     }
 
     return '未割り当て';
-  }
-
-  exportGantt() {
-    try {
-      // CSV形式でエクスポート
-      const headers = ['タスク名', '担当者', '開始日', '終了日', '優先度', 'ステータス', '進捗率'];
-      const rows = this.tasks.map(task => [
-        task.title,
-        this.getAssigneeDisplayName(task),
-        task.startDate,
-        task.dueDate,
-        this.getPriorityText(task.priority),
-        this.getStatusText(task.status),
-        `${task.progress || 0}%`
-      ]);
-
-      const csvContent = [
-        headers.join(','),
-        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-      ].join('\n');
-
-      // BOM付きでダウンロード（Excelで正しく開くため）
-      const bom = '\uFEFF';
-      const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-
-      link.setAttribute('href', url);
-      link.setAttribute('download', `gantt-chart-${new Date().toISOString().split('T')[0]}.csv`);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      Utils.showNotification('ガントチャートをエクスポートしました', 'success');
-    } catch (error) {
-      console.error('エクスポートエラー:', error);
-      Utils.showNotification('エクスポートに失敗しました', 'error');
-    }
-  }
-
-  getPriorityText(priority) {
-    const map = {
-      high: '高優先度',
-      medium: '中優先度',
-      low: '低優先度'
-    };
-    return map[priority] || '未設定';
-  }
-
-  getStatusText(status) {
-    const map = {
-      todo: '未着手',
-      in_progress: '進行中',
-      review: 'レビュー中',
-      done: '完了'
-    };
-    return map[status] || '未着手';
   }
 
   toggleExpand() {
