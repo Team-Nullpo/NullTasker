@@ -18,6 +18,7 @@ export class CalendarManager {
     if (Utils.getElement(".calendar-container")) {
       this.loadTasks();
       this.setupEventListeners();
+      this.renderLegend();
       this.renderCalendar();
       this.updateSelectedDate();
     }
@@ -77,16 +78,8 @@ export class CalendarManager {
     // イベント追加ボタン
     if (elements.addEventBtn) {
       elements.addEventBtn.addEventListener("click", () => {
-        // タスク追加モーダルを開く（存在する場合）
-        const taskModal = Utils.getElement("#taskModal");
-        if (taskModal) {
-          taskModal.style.display = "block";
-        } else {
-          Utils.showNotification(
-            "タスク追加機能は、タスクページで利用できます。",
-            "info"
-          );
-        }
+        // タスクページに遷移
+        window.location.href = 'task.html';
       });
     }
   }
@@ -105,7 +98,19 @@ export class CalendarManager {
 
   renderCalendar() {
     this.updateMonthDisplay();
+    this.updateStats();
     this.renderCalendarDays();
+  }
+
+  updateStats() {
+    const total = this.tasks.length;
+    const completed = this.tasks.filter(t => t.status === 'done').length;
+
+    const totalEl = Utils.getElement('#calendarTotalTasks');
+    const completedEl = Utils.getElement('#calendarCompletedTasks');
+
+    if (totalEl) totalEl.textContent = total;
+    if (completedEl) completedEl.textContent = completed;
   }
 
   updateMonthDisplay() {
@@ -195,6 +200,16 @@ export class CalendarManager {
     if (task.status === "done") {
       taskElement.classList.add("completed");
     }
+
+    // 優先度の色を取得して適用
+    const priorityColor = this.getPriorityColor(task.priority);
+    const statusColor = task.status === 'done' ? this.getStatusColor('done') : null;
+    const backgroundColor = statusColor || priorityColor;
+
+    if (backgroundColor) {
+      taskElement.style.backgroundColor = backgroundColor;
+    }
+
     taskElement.textContent = task.title;
     const assigneeName = this.getAssigneeDisplayName(task);
     taskElement.title = `${task.title} - ${assigneeName}`;
@@ -230,17 +245,24 @@ export class CalendarManager {
       selectedDateElement.textContent =
         this.selectedDate.toLocaleDateString("ja-JP");
     }
+
+    // タスク数を更新
+    const tasks = this.getTasksForDate(this.selectedDate);
+    const countElement = Utils.getElement("#selectedDayTaskCount");
+    if (countElement) {
+      countElement.textContent = tasks.length;
+    }
   }
 
   renderDailyTasks() {
-    const dailyTasksContainer = Utils.getElement("#dailyTaskList"); // 修正: HTMLのIDに合わせる
+    const dailyTasksContainer = Utils.getElement("#dailyTaskList");
     if (!dailyTasksContainer) return;
 
     dailyTasksContainer.innerHTML = "";
     const tasks = this.getTasksForDate(this.selectedDate);
 
     if (tasks.length === 0) {
-      dailyTasksContainer.innerHTML = "<p>この日にタスクはありません。</p>";
+      dailyTasksContainer.innerHTML = '<div class="empty-daily-tasks"><i class="fas fa-calendar-check"></i><p>この日にタスクはありません</p></div>';
       return;
     }
 
@@ -252,33 +274,64 @@ export class CalendarManager {
 
   createDailyTaskElement(task) {
     const taskElement = document.createElement("div");
-    taskElement.className = "daily-task";
-    
+    taskElement.className = `daily-task-item ${task.priority}`;
+
+    // 優先度の色を取得して適用
+    const priorityColor = this.getPriorityColor(task.priority);
+    if (priorityColor) {
+      taskElement.style.borderLeftColor = priorityColor;
+    }
+
     const assigneeName = this.getAssigneeDisplayName(task);
+    const isCompleted = task.status === 'done';
 
     taskElement.innerHTML = `
-      <div class="task-info">
-        <div class="task-title">${task.title}</div>
-        <div class="task-meta">${assigneeName} - ${task.category}</div>
-      </div>
-      <div class="task-priority-badge ${task.priority}">
-        ${this.getPriorityText(task.priority)}
+      <input type="checkbox" class="daily-task-checkbox" ${isCompleted ? 'checked' : ''} />
+      <div class="daily-task-content">
+        <div class="daily-task-title">${task.title}</div>
+        <div class="daily-task-priority">${this.getPriorityText(task.priority)} • ${assigneeName}</div>
       </div>
     `;
+
+    // チェックボックスのイベント
+    const checkbox = taskElement.querySelector('.daily-task-checkbox');
+    checkbox.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.toggleTaskStatus(task);
+    });
 
     taskElement.addEventListener("click", () => this.showTaskDetail(task));
     return taskElement;
   }
 
+  async toggleTaskStatus(task) {
+    try {
+      const updatedTask = { ...task };
+      updatedTask.status = task.status === 'done' ? 'todo' : 'done';
+      updatedTask.progress = task.status === 'done' ? 0 : 100;
+
+      const success = await TicketManager.updateTicket(updatedTask, task.id);
+      if (success) {
+        this.loadTasks();
+        this.renderCalendar();
+        this.renderDailyTasks();
+        Utils.showNotification('タスクを更新しました', 'success');
+      }
+    } catch (error) {
+      console.error('タスク更新エラー:', error);
+      Utils.showNotification('タスクの更新に失敗しました', 'error');
+    }
+  }
+
   async quickAddTask() {
-    const titleInput = Utils.getElement("#quickTaskInput"); // 修正: HTMLのIDに合わせる
+    const titleInput = Utils.getElement("#quickTaskInput");
     if (!titleInput || !titleInput.value.trim()) return;
 
     const payload = {
       title: titleInput.value.trim(),
       description: "Added from Calendar",
       assignee: SimpleAuth.getCurrentUser().id,
-      startDate: this.selectedDate.toISOString().split("T")[0], // 開始日も設定
+      startDate: this.selectedDate.toISOString().split("T")[0],
       dueDate: this.selectedDate.toISOString().split("T")[0],
       priority: "medium",
       category: "その他",
@@ -292,6 +345,7 @@ export class CalendarManager {
       return;
     }
     titleInput.value = "";
+    this.loadTasks();
     this.renderCalendar();
     this.renderDailyTasks();
 
@@ -314,7 +368,7 @@ export class CalendarManager {
 
   createTaskDetailHTML(task) {
     const assigneeName = this.getAssigneeDisplayName(task);
-    
+
     return `
       <div class="task-detail-info">
         <h3>${task.title}</h3>
@@ -334,6 +388,18 @@ export class CalendarManager {
     return map[priority] || "中優先度";
   }
 
+  getPriorityColor(priority) {
+    const appSettings = Utils.getFromStorage('appSettings') || { priorities: [] };
+    const priorityObj = (appSettings.priorities || []).find(p => p.value === priority);
+    return priorityObj ? priorityObj.color : null;
+  }
+
+  getStatusColor(status) {
+    const appSettings = Utils.getFromStorage('appSettings') || { statuses: [] };
+    const statusObj = (appSettings.statuses || []).find(s => s.value === status);
+    return statusObj ? statusObj.color : null;
+  }
+
   getStatusText(status) {
     const map = {
       todo: "未着手",
@@ -350,12 +416,12 @@ export class CalendarManager {
     if (task.assigneeInfo?.name) {
       return task.assigneeInfo.name;
     }
-    
+
     // フォールバック: assigneeをそのまま表示（IDまたは名前）
     if (task.assignee) {
       return task.assignee;
     }
-    
+
     return "未割り当て";
   }
 
@@ -371,6 +437,41 @@ export class CalendarManager {
       this.viewMode = "month";
       if (monthView) monthView.style.display = "block";
       if (weekView) weekView.style.display = "none";
+    }
+  }
+
+  renderLegend() {
+    const legendContainer = Utils.getElement('#calendarLegend');
+    if (!legendContainer) return;
+
+    legendContainer.innerHTML = '';
+
+    // appSettingsから優先度とステータスを取得
+    const appSettings = Utils.getFromStorage('appSettings') || { priorities: [], statuses: [] };
+
+    // 優先度凡例を追加
+    if (appSettings.priorities && appSettings.priorities.length > 0) {
+      appSettings.priorities.forEach(priority => {
+        const item = document.createElement('div');
+        item.className = 'legend-item';
+        item.innerHTML = `
+          <span class="legend-dot" style="background-color: ${priority.color}"></span>
+          <span>${priority.name}</span>
+        `;
+        legendContainer.appendChild(item);
+      });
+    }
+
+    // 完了ステータスを追加（done値を持つステータスを探す）
+    const doneStatus = appSettings.statuses?.find(s => s.value === 'done');
+    if (doneStatus) {
+      const item = document.createElement('div');
+      item.className = 'legend-item';
+      item.innerHTML = `
+        <span class="legend-dot" style="background-color: ${doneStatus.color}"></span>
+        <span>${doneStatus.name}</span>
+      `;
+      legendContainer.appendChild(item);
     }
   }
 }

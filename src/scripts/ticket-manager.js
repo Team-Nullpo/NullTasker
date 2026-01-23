@@ -1,5 +1,7 @@
 import { SimpleAuth } from "./simple-auth.js";
 import { Utils } from "./utils.js";
+import { Logger } from "./logger.js";
+import { LoadingManager } from "./loading-manager.js";
 
 export class TicketManager {
   static tasks = [];
@@ -30,105 +32,117 @@ export class TicketManager {
   }
 
   static async fetchTickets() {
-    try {
-      const res = await fetch("/api/tasks", {
-        headers: SimpleAuth.getAuthHeaders(),
-      });
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    return LoadingManager.wrap(async () => {
+      try {
+        const res = await fetch("/api/tasks", {
+          headers: SimpleAuth.getAuthHeaders(),
+        });
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
-      const data = await res.json();
-      if (Array.isArray(data.tasks)) {
-        // 正規化して内部データにセット
-        this.tasks = data.tasks.map((t) => this.normalizeTask(t));
-      } else if (Array.isArray(data)) {
-        this.tasks = data.map((t) => this.normalizeTask(t));
-      } else {
-        console.warn("APIレスポンスが配列ではありません:", data);
-        this.tasks = [];
+        const data = await res.json();
+        if (Array.isArray(data.tasks)) {
+          // 正規化して内部データにセット
+          this.tasks = data.tasks.map((t) => this.normalizeTask(t));
+        } else if (Array.isArray(data)) {
+          this.tasks = data.map((t) => this.normalizeTask(t));
+        } else {
+          Logger.warn("APIレスポンスが配列ではありません:", data);
+          this.tasks = [];
+        }
+        Logger.debug('Fetched tickets:', this.tasks.length);
+      } catch (error) {
+        Logger.error("チケットの取得に失敗しました", error);
       }
-    } catch (error) {
-      console.log("チケットの取得に失敗しました", error);
-    }
+    }, 'タスクデータを読み込んでいます...');
   }
 
   static async createTicket(ticket) {
-    try {
-      const response = await fetch("/api/tasks", {
-        method: "POST",
-        headers: SimpleAuth.getAuthHeaders(),
-        body: JSON.stringify(ticket),
-      });
+    return LoadingManager.wrap(async () => {
+      try {
+        const response = await fetch("/api/tasks", {
+          method: "POST",
+          headers: SimpleAuth.getAuthHeaders(),
+          body: JSON.stringify(ticket),
+        });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("サーバーエラーレスポンス:", errorText);
-        throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+          const errorText = await response.text();
+          Logger.error("サーバーエラーレスポンス:", errorText);
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const newTicket = await response.json();
+        // サーバーが返すタスクを正規化して格納
+        this.tasks.push(this.normalizeTask(newTicket));
+        Logger.debug(newTicket);
+        Logger.debug(this.tasks);
+        Logger.info("タスク保存に成功しました: ", response.status);
+
+      } catch (error) {
+        Logger.error('タスク作成エラー:', error);
+        return false;
       }
-  const newTicket = await response.json();
-  // サーバーが返すタスクを正規化して格納
-  this.tasks.push(this.normalizeTask(newTicket));
-      console.log(newTicket);
-      console.log(this.tasks);
-      Utils.debugLog("タスク保存に成功しました: ", response.status);
-
-    } catch (error) {
-      return false;
-    }
-    return true;
+      return true;
+    }, 'タスクを作成しています...');
   }
 
   static async updateTicket(ticket, id) {
-    const index = this.tasks.findIndex((t) => t.id === id);
-    if (index === -1) {
-      Utils.debugLog("対象のチケットが見つかりません");
-      return false;
-    }
-    try {
-      const response = await fetch(`/api/tasks/${id}`, {
-        method: "PUT",
-        headers: SimpleAuth.getAuthHeaders(),
-        body: JSON.stringify(ticket),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("サーバーエラーレスポンス:", errorText);
-        throw new Error(`HTTP error! status: ${response.status}`);
+    return LoadingManager.wrap(async () => {
+      const index = this.tasks.findIndex((t) => t.id === id);
+      if (index === -1) {
+        Logger.warn("対象のチケットが見つかりません");
+        return false;
       }
-  const newTicket = await response.json();
-  // 更新レスポンスはDBからのスネークケースかもしれないので正規化して置換
-  this.tasks[index] = this.normalizeTask(newTicket);
-      console.log(newTicket);
-      console.log(this.tasks);
-      Utils.debugLog("タスク保存に成功しました: ", response.status);
-    } catch (error) {
-      return false;
-    }
-    return true;
+      try {
+        const response = await fetch(`/api/tasks/${id}`, {
+          method: "PUT",
+          headers: SimpleAuth.getAuthHeaders(),
+          body: JSON.stringify(ticket),
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          Logger.error("サーバーエラーレスポンス:", errorText);
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const newTicket = await response.json();
+        // 更新レスポンスはDBからのスネークケースかもしれないので正規化して置換
+        this.tasks[index] = this.normalizeTask(newTicket);
+        Logger.debug(newTicket);
+        Logger.debug(this.tasks);
+        Logger.info("タスク保存に成功しました: ", response.status);
+      } catch (error) {
+        Logger.error('タスク更新エラー:', error);
+        return false;
+      }
+      return true;
+    }, 'タスクを更新しています...');
   }
 
   static async removeTicket(id) {
-    const index = this.tasks.findIndex((t) => t.id === id);
-    if (index === -1) {
-      Utils.debugLog("対象のチケットが見つかりません");
-      return false;
-    }
-    try {
-      const response = await fetch(`/api/tasks/${id}`, {
-        method: "DELETE",
-        headers: SimpleAuth.getAuthHeaders(),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("サーバーエラーレスポンス:", errorText);
-        throw new Error(`HTTP error! status: ${response.status}`);
+    return LoadingManager.wrap(async () => {
+      const index = this.tasks.findIndex((t) => t.id === id);
+      if (index === -1) {
+        Logger.warn("対象のチケットが見つかりません");
+        return false;
       }
-      this.tasks.splice(index, 1);
-      Utils.debugLog("タスク保存に成功しました: ", response.status);
-    } catch (error) {
-      return false;
-    }
-    return true;
+      try {
+        const response = await fetch(`/api/tasks/${id}`, {
+          method: "DELETE",
+          headers: SimpleAuth.getAuthHeaders(),
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          Logger.error("サーバーエラーレスポンス:", errorText);
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        this.tasks.splice(index, 1);
+        Logger.info("タスク削除に成功しました: ", response.status);
+      } catch (error) {
+        Logger.error('タスク削除エラー:', error);
+        return false;
+      }
+      return true;
+    }, 'タスクを削除しています...');
   }
 }

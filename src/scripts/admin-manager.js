@@ -54,6 +54,9 @@ export class AdminManager {
       ['#dashboardProject', 'click', () => this.showSection('projects')],
       ['#dashboardSystem', 'click', () => this.showSection('system')],
       ['#dashboardBackup', 'click', () => this.showSection('backup')],
+      ['#dashboardCategories', 'click', () => this.showSection('categories')],
+      ['#dashboardPriorities', 'click', () => this.showSection('priorities')],
+      ['#dashboardStatuses', 'click', () => this.showSection('statuses')],
 
       // 各フォーム送信
       ['#userForm', 'submit', this.handleUserSubmit.bind(this)],
@@ -94,24 +97,23 @@ export class AdminManager {
       ],
 
       // バックアップセクション
-      ['#backupSection .section-actions .btn.btn-primary', 'click', () => this.createBackup()],
-      [
-        '#backupSection .section-actions .btn.btn-secondary',
-        'click',
-        () => this.showSection('dashboard')
-      ],
+      ['#backToDashboard4', 'click', () => this.showSection('dashboard')],
+      ['#exportDataBtn', 'click', () => this.exportData()],
+      ['#exportSettingsBtn', 'click', () => this.downloadSettingsBackup()],
+      ['#importDataBtn', 'click', () => this.importData()],
+      ['#clearDataBtn', 'click', () => this.clearAllData()],
 
-      // データ/設定ダウンロード
-      [
-        '#backupSection .backup-card:nth-of-type(1) .btn.btn-primary',
-        'click',
-        () => this.downloadDataBackup()
-      ],
-      [
-        '#backupSection .backup-card:nth-of-type(2) .btn.btn-primary',
-        'click',
-        () => this.downloadSettingsBackup()
-      ],
+      // 分類管理セクション
+      ['#backToDashboard6', 'click', () => this.showSection('dashboard')],
+      ['#addCategoryBtn', 'click', () => this.addCategory()],
+
+      // 優先度管理セクション
+      ['#backToDashboard7', 'click', () => this.showSection('dashboard')],
+      ['#addPriorityBtn', 'click', () => this.addPriority()],
+
+      // ステータス管理セクション
+      ['#backToDashboard8', 'click', () => this.showSection('dashboard')],
+      ['#addStatusBtn', 'click', () => this.addStatus()],
 
       ['#deleteUser', 'click', () => this.deleteUser(this.deletingUserId)],
 
@@ -131,6 +133,26 @@ export class AdminManager {
     ];
 
     mappings.forEach(([selector, event, handler]) => add(selector, event, handler));
+
+    // Enterキーでメンバー/カテゴリー追加
+    const memberInput = document.getElementById('memberInput');
+    const categoryInput = document.getElementById('categoryInput');
+    if (memberInput) {
+      memberInput.addEventListener('keypress', e => {
+        if (e.key === 'Enter') this.addMember();
+      });
+    }
+    if (categoryInput) {
+      categoryInput.addEventListener('keypress', e => {
+        if (e.key === 'Enter') this.addCategory();
+      });
+    }
+
+    // ファイル入力のセットアップ
+    const importFileInput = document.getElementById('importFileInput');
+    if (importFileInput) {
+      importFileInput.addEventListener('change', e => this.handleFileImport(e));
+    }
 
     // モーダル外クリックで閉じる（ウィンドウ全体）
     window.addEventListener('click', event => {
@@ -196,12 +218,30 @@ export class AdminManager {
     const userCountEl = document.getElementById('userCount');
     const projectCountEl = document.getElementById('projectCount');
 
+    // 設定を読み込み
+    const settings = Utils.getFromStorage('appSettings') || { users: [], categories: [], priorities: [], statuses: [] };
+    const categoryCountEl = document.getElementById('categoryCount');
+    const priorityCountEl = document.getElementById('priorityCount');
+    const statusCountEl = document.getElementById('statusCount');
+
     if (userCountEl) {
       userCountEl.textContent = `${this.users.length} ユーザー`;
     }
 
     if (projectCountEl) {
       projectCountEl.textContent = `${this.projects.length} プロジェクト`;
+    }
+
+    if (categoryCountEl) {
+      categoryCountEl.textContent = `${settings.categories?.length || 0} 分類`;
+    }
+
+    if (priorityCountEl) {
+      priorityCountEl.textContent = `${settings.priorities?.length || 0} 優先度`;
+    }
+
+    if (statusCountEl) {
+      statusCountEl.textContent = `${settings.statuses?.length || 0} ステータス`;
     }
   }
 
@@ -229,6 +269,19 @@ export class AdminManager {
         break;
       case 'backup':
         document.getElementById('backupSection').style.display = 'block';
+        this.updateStorageInfo();
+        break;
+      case 'categories':
+        document.getElementById('categoriesSection').style.display = 'block';
+        this.loadCategories();
+        break;
+      case 'priorities':
+        document.getElementById('prioritiesSection').style.display = 'block';
+        this.loadPriorities();
+        break;
+      case 'statuses':
+        document.getElementById('statusesSection').style.display = 'block';
+        this.loadStatuses();
         break;
       case 'dashboard':
       default:
@@ -255,8 +308,7 @@ export class AdminManager {
         user.role
       )}</span></td>
         <td>${user.projects ? user.projects.join(', ') : '-'}</td>
-        <td>${
-          user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('ja-JP') : '未ログイン'
+        <td>${user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('ja-JP') : '未ログイン'
         }</td>
         <td>
           <button class="btn btn-sm btn-primary btn-edit">
@@ -668,6 +720,354 @@ export class AdminManager {
 
   loadSystemSettings() {
     // システム設定をロード（今後実装）
+  }
+
+  // メンバー管理
+  // ========================================
+  // 分類管理
+  // ========================================
+
+  loadCategories() {
+    const categoriesList = document.getElementById('categoriesList');
+    if (!categoriesList) return;
+
+    const settings = Utils.getFromStorage('appSettings') || { categories: [] };
+    categoriesList.innerHTML = '';
+
+    if (!settings.categories || settings.categories.length === 0) {
+      categoriesList.innerHTML = '<div class="empty-message">分類がありません</div>';
+      return;
+    }
+
+    settings.categories.forEach((category, index) => {
+      const item = this.createListItem(category, () => this.removeCategory(index));
+      categoriesList.appendChild(item);
+    });
+  }
+
+  addCategory() {
+    const categoryInput = document.getElementById('categoryInput');
+    if (!categoryInput || !categoryInput.value.trim()) return;
+
+    const categoryName = categoryInput.value.trim();
+    const settings = Utils.getFromStorage('appSettings') || { users: [], categories: [] };
+
+    if (!settings.categories) settings.categories = [];
+
+    if (settings.categories.includes(categoryName)) {
+      this.showError('この分類は既に存在します');
+      return;
+    }
+
+    settings.categories.push(categoryName);
+    Utils.saveToStorage('appSettings', settings);
+    this.loadCategories();
+    this.updateDashboardStats();
+    categoryInput.value = '';
+    this.showSuccess('分類が追加されました');
+  }
+
+  removeCategory(index) {
+    if (!confirm('この分類を削除しますか？')) return;
+
+    const settings = Utils.getFromStorage('appSettings') || { users: [], categories: [] };
+    settings.categories.splice(index, 1);
+    Utils.saveToStorage('appSettings', settings);
+    this.loadCategories();
+    this.updateDashboardStats();
+    this.showSuccess('分類が削除されました');
+  }
+
+  // 優先度管理
+  loadPriorities() {
+    const prioritiesList = document.getElementById('prioritiesList');
+    if (!prioritiesList) return;
+
+    const settings = Utils.getFromStorage('appSettings') || { priorities: [] };
+    if (!settings.priorities) settings.priorities = [];
+
+    prioritiesList.innerHTML = '';
+
+    if (settings.priorities.length === 0) {
+      prioritiesList.innerHTML = '<div class="empty-message">優先度が登録されていません</div>';
+      return;
+    }
+
+    settings.priorities.forEach((priority, index) => {
+      const item = this.createPriorityListItem(priority, () => this.removePriority(index));
+      prioritiesList.appendChild(item);
+    });
+  }
+
+  addPriority() {
+    const nameInput = document.getElementById('priorityNameInput');
+    const valueInput = document.getElementById('priorityValueInput');
+    const colorInput = document.getElementById('priorityColorInput');
+
+    if (!nameInput || !valueInput || !colorInput) return;
+
+    const name = nameInput.value.trim();
+    const value = valueInput.value.trim();
+    const color = colorInput.value;
+
+    if (!name || !value) {
+      this.showError('優先度名と値を入力してください');
+      return;
+    }
+
+    const settings = Utils.getFromStorage('appSettings') || { priorities: [] };
+    if (!settings.priorities) settings.priorities = [];
+
+    // 値の重複チェック
+    if (settings.priorities.some(p => p.value === value)) {
+      this.showError('この値は既に使用されています');
+      return;
+    }
+
+    settings.priorities.push({ name, value, color });
+    Utils.saveToStorage('appSettings', settings);
+    this.loadPriorities();
+    this.updateDashboardStats();
+
+    // 入力フィールドをクリア
+    nameInput.value = '';
+    valueInput.value = '';
+    this.showSuccess('優先度が追加されました');
+  }
+
+  removePriority(index) {
+    if (!confirm('この優先度を削除しますか？')) return;
+
+    const settings = Utils.getFromStorage('appSettings') || { priorities: [] };
+    settings.priorities.splice(index, 1);
+    Utils.saveToStorage('appSettings', settings);
+    this.loadPriorities();
+    this.updateDashboardStats();
+    this.showSuccess('優先度が削除されました');
+  }
+
+  createPriorityListItem(priority, removeCallback) {
+    const item = document.createElement('div');
+    item.className = 'list-item priority-item';
+    item.innerHTML = `
+      <div class="item-preview">
+        <div class="item-color-box" style="background-color: ${priority.color}"></div>
+        <div class="item-details">
+          <div class="item-name">${priority.name}</div>
+          <div class="item-value">${priority.value}</div>
+        </div>
+      </div>
+      <button class="remove-btn">
+        <i class="fas fa-times"></i> 削除
+      </button>
+    `;
+
+    const removeBtn = item.querySelector('.remove-btn');
+    removeBtn.addEventListener('click', removeCallback);
+
+    return item;
+  }
+
+  // ステータス管理
+  loadStatuses() {
+    const statusesList = document.getElementById('statusesList');
+    if (!statusesList) return;
+
+    const settings = Utils.getFromStorage('appSettings') || { statuses: [] };
+    if (!settings.statuses) settings.statuses = [];
+
+    statusesList.innerHTML = '';
+
+    if (settings.statuses.length === 0) {
+      statusesList.innerHTML = '<div class="empty-message">ステータスが登録されていません</div>';
+      return;
+    }
+
+    settings.statuses.forEach((status, index) => {
+      const item = this.createStatusListItem(status, () => this.removeStatus(index));
+      statusesList.appendChild(item);
+    });
+  }
+
+  addStatus() {
+    const nameInput = document.getElementById('statusNameInput');
+    const valueInput = document.getElementById('statusValueInput');
+    const typeInput = document.getElementById('statusTypeInput');
+    const colorInput = document.getElementById('statusColorInput');
+
+    if (!nameInput || !valueInput || !typeInput || !colorInput) return;
+
+    const name = nameInput.value.trim();
+    const value = valueInput.value.trim();
+    const type = typeInput.value;
+    const color = colorInput.value;
+
+    if (!name || !value) {
+      this.showError('ステータス名と値を入力してください');
+      return;
+    }
+
+    const settings = Utils.getFromStorage('appSettings') || { statuses: [] };
+    if (!settings.statuses) settings.statuses = [];
+
+    // 値の重複チェック
+    if (settings.statuses.some(s => s.value === value)) {
+      this.showError('この値は既に使用されています');
+      return;
+    }
+
+    settings.statuses.push({ name, value, type, color });
+    Utils.saveToStorage('appSettings', settings);
+    this.loadStatuses();
+    this.updateDashboardStats();
+
+    // 入力フィールドをクリア
+    nameInput.value = '';
+    valueInput.value = '';
+    typeInput.value = 'in_progress';
+    this.showSuccess('ステータスが追加されました');
+  }
+
+  removeStatus(index) {
+    if (!confirm('このステータスを削除しますか？')) return;
+
+    const settings = Utils.getFromStorage('appSettings') || { statuses: [] };
+    settings.statuses.splice(index, 1);
+    Utils.saveToStorage('appSettings', settings);
+    this.loadStatuses();
+    this.updateDashboardStats();
+    this.showSuccess('ステータスが削除されました');
+  }
+
+  createStatusListItem(status, removeCallback) {
+    const typeLabels = {
+      todo: '未着手',
+      in_progress: '進行中',
+      review: 'レビュー',
+      done: '完了'
+    };
+
+    const item = document.createElement('div');
+    item.className = 'list-item status-item';
+    item.innerHTML = `
+      <div class="item-preview">
+        <div class="item-color-box" style="background-color: ${status.color}"></div>
+        <div class="item-details">
+          <div class="item-name">${status.name}</div>
+          <div class="item-value">${status.value} (${typeLabels[status.type] || status.type || '未設定'})</div>
+        </div>
+      </div>
+      <button class="remove-btn">
+        <i class="fas fa-times"></i> 削除
+      </button>
+    `;
+
+    const removeBtn = item.querySelector('.remove-btn');
+    removeBtn.addEventListener('click', removeCallback);
+
+    return item;
+  }
+
+  createListItem(text, removeCallback) {
+    const item = document.createElement('div');
+    item.className = 'list-item';
+    item.innerHTML = `
+      <span>${text}</span>
+      <button class="remove-btn">
+        <i class="fas fa-times"></i> 削除
+      </button>
+    `;
+
+    const removeBtn = item.querySelector('.remove-btn');
+    removeBtn.addEventListener('click', removeCallback);
+
+    return item;
+  }
+
+  // データ管理
+  exportData() {
+    const data = {
+      settings: Utils.getFromStorage('appSettings'),
+      tasks: Utils.getFromStorage('tasks', []),
+      timestamp: new Date().toISOString()
+    };
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `nulltasker-backup-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    this.showSuccess('データがエクスポートされました');
+  }
+
+  importData() {
+    const fileInput = document.getElementById('importFileInput');
+    if (fileInput) fileInput.click();
+  }
+
+  handleFileImport(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const data = JSON.parse(e.target.result);
+
+        if (confirm('現在のデータを上書きしますか？この操作は元に戻せません。')) {
+          if (data.settings) {
+            Utils.saveToStorage('appSettings', data.settings);
+          }
+
+          if (data.tasks) {
+            Utils.saveToStorage('tasks', data.tasks);
+          }
+
+          this.showSuccess('データがインポートされました');
+          setTimeout(() => location.reload(), 1500);
+        }
+      } catch (error) {
+        this.showError('ファイルの読み込みに失敗しました');
+        console.error('Import error:', error);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  clearAllData() {
+    if (confirm('全てのデータを削除しますか？この操作は元に戻せません。')) {
+      if (confirm('本当にすべてのデータを削除しますか？')) {
+        localStorage.clear();
+        this.showSuccess('全データが削除されました');
+        setTimeout(() => location.reload(), 1500);
+      }
+    }
+  }
+
+  updateStorageInfo() {
+    const storageUsed = document.querySelector('.storage-used');
+    const storageText = document.querySelector('.storage-text');
+
+    if (storageUsed && storageText) {
+      let total = 0;
+      for (let key in localStorage) {
+        if (localStorage.hasOwnProperty(key)) {
+          total += localStorage[key].length;
+        }
+      }
+
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      const percentage = Math.min((total / maxSize) * 100, 100);
+      storageUsed.style.width = `${percentage}%`;
+      storageText.textContent = `${percentage.toFixed(0)}% 使用中 (${Utils.formatBytes(
+        total
+      )} / 10MB)`;
+    }
   }
 
   showSuccess(message) {

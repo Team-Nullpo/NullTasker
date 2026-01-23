@@ -59,8 +59,6 @@ CREATE TABLE IF NOT EXISTS tasks (
     FOREIGN KEY (project) REFERENCES projects(id) ON DELETE CASCADE,
     FOREIGN KEY (assignee) REFERENCES users(id) ON DELETE SET NULL,
     FOREIGN KEY (parent_task) REFERENCES tasks(id) ON DELETE SET NULL,
-    CHECK (priority IN ('high', 'medium', 'low')),
-    CHECK (status IN ('todo', 'in_progress', 'review', 'done')),
     CHECK (progress >= 0 AND progress <= 100)
 );
 

@@ -5,13 +5,13 @@ import { GanttManager } from "./gantt-manager.js";
 import { SidebarManager } from "./sidebar.js";
 import { Utils } from "./utils.js";
 import { SimpleAuth } from "./simple-auth.js";
-import { SettingsManager } from "./settings-manager.js";
 import { ProjectManager } from "./project-manager.js";
 import { UserManager } from "./user-manager.js";
 import { AdminManager } from "./admin-manager.js";
 import { TicketManager } from "./ticket-manager.js";
 import { UserProfileManager } from "./user-profile.js";
 import { AuthInterceptor } from "./auth-interceptor.js";
+import { HomeManager } from "./home-manager.js";
 
 // アプリケーション初期化
 document.addEventListener("DOMContentLoaded", async () => {
@@ -24,13 +24,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     // テーマを最初に初期化（全ページで実行）
     initializeTheme();
 
-    // ログインページかチェック
+    // ログインページまたは登録ページかチェック
     const currentPath = window.location.pathname;
     const isLoginPage = currentPath.includes("login.html");
-    Utils.debugLog("Current path:", currentPath, "Is login page:", isLoginPage);
+    const isRegisterPage = currentPath.includes("register.html");
+    const isPublicPage = isLoginPage || isRegisterPage;
+    Utils.debugLog("Current path:", currentPath, "Is public page:", isPublicPage);
 
-    // ログインページ以外で認証チェック
-    if (!isLoginPage) {
+    // 認証が必要なページで認証チェック
+    if (!isPublicPage) {
       // SimpleAuthを使った簡単な認証チェック
       if (!SimpleAuth.isLoggedIn()) {
         Utils.debugLog("認証データがありません。ログインページにリダイレクト");
@@ -39,14 +41,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       Utils.debugLog("認証OK。アプリケーション初期化を継続");
-    }
 
-    await ProjectManager.fetchProjectSettings();
-    await UserManager.fetchUsers();
-    await TicketManager.fetchTickets();
+      // 認証済みユーザーのみデータを取得
+      await ProjectManager.fetchProjectSettings();
+      await UserManager.fetchUsers();
+      await TicketManager.fetchTickets();
 
-    // サイドバー管理（ログインページ以外）
-    if (!isLoginPage) {
+      // サイドバー管理
       try {
         if (typeof SidebarManager === "undefined") {
           console.warn("SidebarManager が見つかりません - スキップします");
@@ -67,7 +68,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       // 共通機能の初期化
       initializeCommonFeatures();
     } else {
-      Utils.debugLog("ログインページのため、他の初期化をスキップ");
+      Utils.debugLog("公開ページのため、認証を必要とする初期化をスキップ");
     }
 
     Utils.debugLog("アプリケーション初期化完了");
@@ -115,6 +116,15 @@ function getCurrentPage() {
 async function initializePageManager(page) {
   try {
     switch (page) {
+      case "dashboard":
+        Utils.debugLog("ホーム画面を初期化中...");
+        if (typeof HomeManager !== "undefined") {
+          window.homeManager = new HomeManager();
+        } else {
+          console.warn("HomeManager が見つかりません");
+        }
+        break;
+
       case "task":
         Utils.debugLog("タスク管理を初期化中...");
         if (typeof TaskManager !== "undefined") {
@@ -142,14 +152,6 @@ async function initializePageManager(page) {
         }
         break;
 
-      case "settings":
-        Utils.debugLog("設定管理を初期化中...");
-        if (typeof SettingsManager !== "undefined") {
-          window.settingsManager = new SettingsManager();
-        } else {
-          console.warn("SettingsManager が見つかりません");
-        }
-        break;
       case "admin":
         Utils.debugLog("管理者設定画面を初期化中...");
         if (typeof AdminManager !== "undefined") {
@@ -158,14 +160,14 @@ async function initializePageManager(page) {
           console.warn("AdminManager が見つかりません");
         }
         break;
-        case "user-profile":
-          Utils.debugLog("個人設定画面を初期化中...");
-          if (typeof UserProfileManager !== "undefined") {
-            window.settingsManager = new UserProfileManager();
-          } else {
-            console.warn("UserProfileManager が見つかりません");
-          }
-          break;
+      case "user-profile":
+        Utils.debugLog("個人設定画面を初期化中...");
+        if (typeof UserProfileManager !== "undefined") {
+          window.settingsManager = new UserProfileManager();
+        } else {
+          console.warn("UserProfileManager が見つかりません");
+        }
+        break;
 
       case "dashboard":
       default:
@@ -243,13 +245,12 @@ function displayRecentTasks(tasks) {
       taskElement.innerHTML = `
         <div class="task-info">
           <h4>${task.title || "タイトルなし"}</h4>
-          <p>${task.assignee || "未割り当て"} - ${
-        task.category || "カテゴリなし"
-      }</p>
+          <p>${task.assignee || "未割り当て"} - ${task.category || "カテゴリなし"
+        }</p>
         </div>
         <div class="task-status ${task.status || "todo"}">${getStatusText(
-        task.status
-      )}</div>
+          task.status
+        )}</div>
       `;
       recentTasksContainer.appendChild(taskElement);
     });

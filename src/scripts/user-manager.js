@@ -1,24 +1,35 @@
 import { SimpleAuth } from './simple-auth.js';
 import { Utils } from './utils.js';
+import { Logger } from './logger.js';
+import { LoadingManager } from './loading-manager.js';
+import { Validator } from './validator.js';
 
 export class UserManager {
   static users = [];
 
   static async fetchUsers(admin = false) {
-    try {
-      const url = admin ? '/api/admin/users' : '/api/users';
-      const res = await fetch(url, {
-        headers: SimpleAuth.getAuthHeaders()
-      });
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+    return LoadingManager.wrap(async () => {
+      try {
+        const url = admin ? '/api/admin/users' : '/api/users';
+        Logger.debug(`Fetching users from: ${url}`);
+        const res = await fetch(url, {
+          headers: SimpleAuth.getAuthHeaders()
+        });
+        Logger.debug(`Response status: ${res.status}`);
+        if (!res.ok) {
+          const errorText = await res.text();
+          Logger.error('Server error response:', errorText);
+          throw new Error(`HTTP error! status: ${res.status}, message: ${errorText}`);
+        }
+        const data = await res.json();
+        Logger.debug('Fetched users:', data);
+        this.users = data;
+      } catch (error) {
+        Logger.error('ユーザーデータの読み込みに失敗しました:', error);
+        Logger.error('Error details:', error.message);
+        this.users = []; // エラー時は空配列を設定
       }
-      const data = await res.json();
-      this.users = data;
-      console.log(this.users);
-    } catch (error) {
-      console.error('設定の読み込みに失敗しました:', error);
-    }
+    }, 'ユーザーデータを読み込んでいます...');
   }
 
   static getUsers(projectId = null) {
@@ -28,132 +39,168 @@ export class UserManager {
   }
 
   static async addUser(payload, admin = true) {
-    try {
-      const url = admin ? '/api/admin/users' : '/api/register';
-      const headers = admin ? SimpleAuth.getAuthHeaders() : {'Content-Type': 'application/json'};
-      
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify(payload)
-      });
+    return LoadingManager.wrap(async () => {
+      try {
+        // バリデーション
+        const validation = Validator.validateUser(payload);
+        if (!validation.valid) {
+          Logger.warn('User validation failed:', validation.errors);
+          alert('入力エラー:\n' + validation.errors.join('\n'));
+          return false;
+        }
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('サーバーエラーレスポンス:', errorText);
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const url = admin ? '/api/admin/users' : '/api/register';
+        const headers = admin ? SimpleAuth.getAuthHeaders() : { 'Content-Type': 'application/json' };
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          Logger.error('サーバーエラーレスポンス:', errorText);
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const newUser = await response.json();
+        this.users.push(newUser);
+        Logger.info('ユーザー作成に成功しました:', response.status);
+      } catch (error) {
+        Logger.error('ユーザー作成エラー:', error);
+        return false;
       }
-      const newUser = await response.json();
-      this.users.push(newUser);
-      console.log('ユーザー作成に成功しました:', response.status);
-    } catch (error) {
-      console.error('ユーザー作成エラー:', error);
-      return false;
-    }
-    return true;
+      return true;
+    }, 'ユーザーを作成しています...');
   }
   // 一般ユーザーのプロフィール更新
   static async updateProfile(payload) {
-    try {
-      const response = await fetch('/api/user/profile', {
-        method: 'PUT',
-        headers: SimpleAuth.getAuthHeaders(),
-        body: JSON.stringify(payload)
-      });
+    return LoadingManager.wrap(async () => {
+      try {
+        // バリデーション（部分的な更新を許可）
+        const validation = Validator.validateUser(payload, true);
+        if (!validation.valid) {
+          Logger.warn('Profile validation failed:', validation.errors);
+          alert('入力エラー:\n' + validation.errors.join('\n'));
+          return false;
+        }
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('プロフィール更新エラー:', errorText);
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const response = await fetch('/api/user/profile', {
+          method: 'PUT',
+          headers: SimpleAuth.getAuthHeaders(),
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          Logger.error('プロフィール更新エラー:', errorText);
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const newUser = await response.json();
+        Logger.info('プロフィール更新に成功しました');
+        const index = this.users.findIndex(u => u.id === newUser.id);
+        this.users[index] = newUser;
+
+        return true;
+      } catch (error) {
+        Logger.error('プロフィール更新エラー:', error);
+        return false;
       }
-      
-      const newUser = await response.json();
-      console.log('プロフィール更新に成功しました');
-      const index = this.users.findIndex(u => u.id === newUser.id);
-      this.users[index] = newUser;
-
-      return true;
-    } catch (error) {
-      console.error('プロフィール更新エラー:', error);
-      return false;
-    }
+    }, 'プロフィールを更新しています...');
   }
 
   // 一般ユーザーのパスワード変更
   static async updatePassword(payload) {
-    try {
-      const response = await fetch('/api/user/password', {
-        method: 'PUT',
-        headers: SimpleAuth.getAuthHeaders(),
-        body: JSON.stringify(payload)
-      });
+    return LoadingManager.wrap(async () => {
+      try {
+        const response = await fetch('/api/user/password', {
+          method: 'PUT',
+          headers: SimpleAuth.getAuthHeaders(),
+          body: JSON.stringify(payload)
+        });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('パスワード変更エラー:', errorText);
-        throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+          const errorText = await response.text();
+          Logger.error('パスワード変更エラー:', errorText);
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        Logger.info('パスワード変更に成功しました');
+        return true;
+      } catch (error) {
+        Logger.error('パスワード変更エラー:', error);
+        return false;
       }
-      
-      console.log('パスワード変更に成功しました');
-      return true;
-    } catch (error) {
-      console.error('パスワード変更エラー:', error);
-      return false;
-    }
+    }, 'パスワードを変更しています...');
   }
 
   // 管理者によるユーザー更新
   static async updateUser(payload, userId) {
-    try {
-      const index = this.users.findIndex((u) => u.id === userId);
-      if (index === -1) {
-        Utils.debugLog("対象のユーザーが見つかりません");
+    return LoadingManager.wrap(async () => {
+      try {
+        const index = this.users.findIndex((u) => u.id === userId);
+        if (index === -1) {
+          Logger.warn("対象のユーザーが見つかりません");
+          return false;
+        }
+
+        // バリデーション（部分的な更新を許可）
+        const validation = Validator.validateUser(payload, true);
+        if (!validation.valid) {
+          Logger.warn('User validation failed:', validation.errors);
+          alert('入力エラー:\n' + validation.errors.join('\n'));
+          return false;
+        }
+
+        const response = await fetch(`/api/admin/users/${userId}`, {
+          method: 'PUT',
+          headers: SimpleAuth.getAuthHeaders(),
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          Logger.error('ユーザー更新エラー:', errorText);
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const newUser = await response.json();
+        Logger.info('ユーザー更新に成功しました');
+        this.users[index] = newUser;
+        return true;
+      } catch (error) {
+        Logger.error('ユーザー更新エラー:', error);
         return false;
       }
-      const response = await fetch(`/api/admin/users/${userId}`, {
-        method: 'PUT',
-        headers: SimpleAuth.getAuthHeaders(),
-        body: JSON.stringify(payload)
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('ユーザー更新エラー:', errorText);
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const newUser = await response.json();
-      console.log('ユーザー更新に成功しました');
-      this.users[index] = newUser;
-      return true;
-    } catch (error) {
-      console.error('ユーザー更新エラー:', error);
-      return false;
-    }
+    }, 'ユーザーを更新しています...');
   }
 
   static async removeUser(id) {
-    const index = this.users.findIndex((u) => u.id === id);
-    if (index === -1) {
-      Utils.debugLog("対象のユーザーが見つかりません");
-      return false;
-    }
-    try {
-      const response = await fetch(`/api/admin/users/${id}`, {
-        method: "DELETE",
-        headers: SimpleAuth.getAuthHeaders(),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("サーバーエラーレスポンス:", errorText);
-        throw new Error(`HTTP error! status: ${response.status}`);
+    return LoadingManager.wrap(async () => {
+      const index = this.users.findIndex((u) => u.id === id);
+      if (index === -1) {
+        Logger.warn("対象のユーザーが見つかりません");
+        return false;
       }
-      this.users.splice(index, 1);
-      Utils.debugLog("ユーザー削除に成功しました: ", response.status);
-    } catch (error) {
-      return false;
-    }
-    return true;
+      try {
+        const response = await fetch(`/api/admin/users/${id}`, {
+          method: "DELETE",
+          headers: SimpleAuth.getAuthHeaders(),
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          Logger.error("サーバーエラーレスポンス:", errorText);
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        this.users.splice(index, 1);
+        Logger.info("ユーザー削除に成功しました: ", response.status);
+      } catch (error) {
+        Logger.error('ユーザー削除エラー:', error);
+        return false;
+      }
+      return true;
+    }, 'ユーザーを削除しています...');
   }
 }

@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="../styles/base.css" />
   <link rel="stylesheet" href="../styles/layout.css" />
   <link rel="stylesheet" href="../styles/components.css" />
+  <link rel="stylesheet" href="../styles/components-dark.css" />
   <link rel="stylesheet" href="../styles/sidebar.css" />
   <link rel="stylesheet" href="../styles/user-dropdown.css" />
   <link rel="stylesheet" href="../styles/pages.css" />
@@ -43,7 +44,6 @@
         <a href="task.html"><i class="fas fa-tasks"></i><span>Task</span></a>
         <a href="calendar.html"><i class="fas fa-calendar"></i><span>Calendar</span></a>
         <a href="gantt.html"><i class="fas fa-chart-bar"></i><span>Gantt</span></a>
-        <a href="setting.html"><i class="fas fa-cog"></i><span>Project Settings</span></a>
       </nav>
       <div class="bottom-section">
         <select id="projectSelect">
@@ -120,9 +120,42 @@
                 <i class="fas fa-download"></i>
               </div>
               <div class="card-content">
-                <h3>バックアップ</h3>
+                <h3>データ管理</h3>
                 <p class="card-count">-</p>
                 <p class="card-description">データのバックアップ・復元</p>
+              </div>
+            </div>
+
+            <div class="dashboard-card" id="dashboardCategories">
+              <div class="card-icon">
+                <i class="fas fa-tags"></i>
+              </div>
+              <div class="card-content">
+                <h3>分類管理</h3>
+                <p class="card-count" id="categoryCount">-</p>
+                <p class="card-description">タスク分類の管理</p>
+              </div>
+            </div>
+
+            <div class="dashboard-card" id="dashboardPriorities">
+              <div class="card-icon">
+                <i class="fas fa-exclamation-circle"></i>
+              </div>
+              <div class="card-content">
+                <h3>優先度管理</h3>
+                <p class="card-count" id="priorityCount">-</p>
+                <p class="card-description">タスク優先度の管理</p>
+              </div>
+            </div>
+
+            <div class="dashboard-card" id="dashboardStatuses">
+              <div class="card-icon">
+                <i class="fas fa-flag"></i>
+              </div>
+              <div class="card-content">
+                <h3>ステータス管理</h3>
+                <p class="card-count" id="statusCount">-</p>
+                <p class="card-description">タスクステータスの管理</p>
               </div>
             </div>
 
@@ -256,10 +289,10 @@
           <div class="section-header">
             <h2><i class="fas fa-download"></i> バックアップ管理</h2>
             <div class="section-actions">
-              <button class="btn btn-primary">
+              <button class="btn btn-primary" id="createBackupBtn">
                 <i class="fas fa-download"></i> バックアップ作成
               </button>
-              <button class="btn btn-secondary">
+              <button class="btn btn-secondary" id="backToDashboard4">
                 <i class="fas fa-arrow-left"></i> ダッシュボードに戻る
               </button>
             </div>
@@ -269,7 +302,7 @@
             <div class="backup-card">
               <h3><i class="fas fa-database"></i> データバックアップ</h3>
               <p>ユーザー、プロジェクト、タスクデータをバックアップします。</p>
-              <button class="btn btn-primary">
+              <button class="btn btn-primary" id="exportDataBtn">
                 <i class="fas fa-download"></i> データをダウンロード
               </button>
             </div>
@@ -277,7 +310,7 @@
             <div class="backup-card">
               <h3><i class="fas fa-cog"></i> 設定バックアップ</h3>
               <p>システム設定をバックアップします。</p>
-              <button class="btn btn-primary">
+              <button class="btn btn-primary" id="exportSettingsBtn">
                 <i class="fas fa-download"></i> 設定をダウンロード
               </button>
             </div>
@@ -286,9 +319,114 @@
               <h3><i class="fas fa-upload"></i> データ復元</h3>
               <p>バックアップファイルからデータを復元します。</p>
               <input type="file" id="restoreFile" accept=".json" style="display: none;">
-              <button class="btn btn-warning">
+              <button class="btn btn-warning" id="importDataBtn">
                 <i class="fas fa-upload"></i> ファイルを選択
               </button>
+            </div>
+
+            <div class="backup-card danger">
+              <h3><i class="fas fa-trash-alt"></i> データ削除</h3>
+              <p>すべてのデータを削除します。この操作は元に戻せません。</p>
+              <button class="btn btn-danger" id="clearDataBtn">
+                <i class="fas fa-exclamation-triangle"></i> すべてのデータを削除
+              </button>
+            </div>
+          </div>
+
+          <div class="storage-info-section">
+            <h3><i class="fas fa-chart-pie"></i> ストレージ使用量</h3>
+            <div class="storage-bar">
+              <div class="storage-used" style="width: 65%;"></div>
+            </div>
+            <p class="storage-text">65% 使用中 (6.5MB / 10MB)</p>
+          </div>
+        </section>
+
+        <!-- 分類管理セクション -->
+        <section id="categoriesSection" class="admin-section" style="display: none;">
+          <div class="section-header">
+            <h2><i class="fas fa-tags"></i> 分類管理</h2>
+            <div class="section-actions">
+              <button class="btn btn-secondary" id="backToDashboard6">
+                <i class="fas fa-arrow-left"></i> ダッシュボードに戻る
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <p class="section-description">タスクの分類カテゴリーを管理します</p>
+            <div class="input-group">
+              <input type="text" id="categoryInput" placeholder="分類名を入力" class="input-field">
+              <button class="btn btn-primary" id="addCategoryBtn">
+                <i class="fas fa-plus"></i> 追加
+              </button>
+            </div>
+            <div class="items-list" id="categoriesList">
+              <!-- 分類リストが動的に追加されます -->
+            </div>
+          </div>
+        </section>
+
+        <!-- 優先度管理セクション -->
+        <section id="prioritiesSection" class="admin-section" style="display: none;">
+          <div class="section-header">
+            <h2><i class="fas fa-exclamation-circle"></i> 優先度管理</h2>
+            <div class="section-actions">
+              <button class="btn btn-secondary" id="backToDashboard7">
+                <i class="fas fa-arrow-left"></i> ダッシュボードに戻る
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <p class="section-description">タスクの優先度レベルを管理します。各優先度には名前、値、色を設定できます。</p>
+            <div class="priority-form">
+              <div class="form-row">
+                <input type="text" id="priorityNameInput" placeholder="優先度名（例: 高優先度）" class="input-field">
+                <input type="text" id="priorityValueInput" placeholder="値（例: high）" class="input-field">
+                <input type="color" id="priorityColorInput" value="#ef6c00" class="color-input" title="優先度の色">
+                <button class="btn btn-primary" id="addPriorityBtn">
+                  <i class="fas fa-plus"></i> 追加
+                </button>
+              </div>
+            </div>
+            <div class="items-list" id="prioritiesList">
+              <!-- 優先度リストが動的に追加されます -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ステータス管理セクション -->
+        <section id="statusesSection" class="admin-section" style="display: none;">
+          <div class="section-header">
+            <h2><i class="fas fa-flag"></i> ステータス管理</h2>
+            <div class="section-actions">
+              <button class="btn btn-secondary" id="backToDashboard8">
+                <i class="fas fa-arrow-left"></i> ダッシュボードに戻る
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <p class="section-description">タスクのステータスを管理します。各ステータスには名前、値、タイプ、色を設定できます。</p>
+            <div class="status-form">
+              <div class="form-row">
+                <input type="text" id="statusNameInput" placeholder="ステータス名（例: 進行中）" class="input-field">
+                <input type="text" id="statusValueInput" placeholder="値（例: in_progress）" class="input-field">
+                <select id="statusTypeInput" class="input-field" title="ステータスの種類">
+                  <option value="todo">未着手</option>
+                  <option value="in_progress" selected>進行中</option>
+                  <option value="review">レビュー</option>
+                  <option value="done">完了</option>
+                </select>
+                <input type="color" id="statusColorInput" value="#1976d2" class="color-input" title="ステータスの色">
+                <button class="btn btn-primary" id="addStatusBtn">
+                  <i class="fas fa-plus"></i> 追加
+                </button>
+              </div>
+            </div>
+            <div class="items-list" id="statusesList">
+              <!-- ステータスリストが動的に追加されます -->
             </div>
           </div>
         </section>
@@ -413,7 +551,9 @@
       </a>
       <a href="task.html" class="nav-item">
         <i class="fas fa-tasks"></i>
-        <span>Task</span>
+        input type="file" id="importFileInput" style="display: none;" accept=".json">
+
+        < <span>Task</span>
       </a>
       <a href="calendar.html" class="nav-item">
         <i class="fas fa-calendar"></i>
@@ -422,10 +562,6 @@
       <a href="gantt.html" class="nav-item">
         <i class="fas fa-chart-bar"></i>
         <span>Gantt</span>
-      </a>
-      <a href="setting.html" class="nav-item">
-        <i class="fas fa-cog"></i>
-        <span>Setting</span>
       </a>
       <a href="user-profile.html" class="nav-item">
         <i class="fas fa-user-circle"></i>

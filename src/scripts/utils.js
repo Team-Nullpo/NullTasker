@@ -489,6 +489,23 @@ export class Utils {
   }
 
   /**
+   * スロットル関数
+   * @param {Function} func - 実行する関数
+   * @param {number} limit - 実行間隔（ミリ秒）
+   * @returns {Function} スロットルされた関数
+   */
+  static throttle(func, limit = 300) {
+    let inThrottle;
+    return function (...args) {
+      if (!inThrottle) {
+        func.apply(this, args);
+        inThrottle = true;
+        setTimeout(() => (inThrottle = false), limit);
+      }
+    };
+  }
+
+  /**
    * URLパラメータを取得
    * @param {string} name - パラメータ名
    * @returns {string|null} パラメータ値

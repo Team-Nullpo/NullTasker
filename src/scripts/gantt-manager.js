@@ -16,6 +16,7 @@ export class GanttManager {
     if (Utils.getElement('.gantt-container')) {
       this.loadTasks();
       this.setupEventListeners();
+      this.renderLegend();
       this.renderGantt();
     }
   }
@@ -33,6 +34,8 @@ export class GanttManager {
       timeScaleSelect: Utils.getElement('#timeScale'),
       prevBtn: Utils.getElement('#prevPeriod'),
       nextBtn: Utils.getElement('#nextPeriod'),
+      todayBtn: Utils.getElement('#todayGantt'),
+      exportBtn: Utils.getElement('#exportGantt'),
       // task detail modal and close button are optional on the gantt page;
       // use document.querySelector to avoid noisy Utils.getElement warnings when absent
       taskDetailModal: document.querySelector('#taskDetailModal'),
@@ -52,6 +55,17 @@ export class GanttManager {
 
     if (elements.nextBtn) {
       elements.nextBtn.addEventListener('click', () => this.navigatePeriod(1));
+    }
+
+    if (elements.todayBtn) {
+      elements.todayBtn.addEventListener('click', () => {
+        this.currentDate = new Date();
+        this.renderGantt();
+      });
+    }
+
+    if (elements.exportBtn) {
+      elements.exportBtn.addEventListener('click', () => this.exportGantt());
     }
 
     this.setupModalEvents(elements);
@@ -89,9 +103,21 @@ export class GanttManager {
 
   renderGantt() {
     this.updatePeriodDisplay();
+    this.updateStats();
     this.renderTimeline();
     this.renderTaskList();
     this.renderGanttBars();
+  }
+
+  updateStats() {
+    const total = this.tasks.length;
+    const inProgress = this.tasks.filter(t => t.status === 'in_progress').length;
+
+    const totalEl = Utils.getElement('#ganttTotalTasks');
+    const inProgressEl = Utils.getElement('#ganttInProgress');
+
+    if (totalEl) totalEl.textContent = total;
+    if (inProgressEl) inProgressEl.textContent = inProgress;
   }
 
   updatePeriodDisplay() {
@@ -112,9 +138,8 @@ export class GanttManager {
         weekStart.setDate(date - this.currentDate.getDay());
         const weekEnd = new Date(weekStart);
         weekEnd.setDate(weekStart.getDate() + 6);
-        displayText = `${weekStart.getMonth() + 1}/${weekStart.getDate()} - ${
-          weekEnd.getMonth() + 1
-        }/${weekEnd.getDate()}`;
+        displayText = `${weekStart.getMonth() + 1}/${weekStart.getDate()} - ${weekEnd.getMonth() + 1
+          }/${weekEnd.getDate()}`;
         break;
       default:
         displayText = `${year}年${month}月${date}日`;
@@ -129,10 +154,20 @@ export class GanttManager {
 
     header.innerHTML = '';
     const dates = this.getTimelineDates();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     dates.forEach(date => {
       const cell = document.createElement('div');
       cell.className = 'gantt-date-cell';
+
+      // 今日の日付かチェック
+      const dateOnly = new Date(date);
+      dateOnly.setHours(0, 0, 0, 0);
+      if (dateOnly.getTime() === today.getTime()) {
+        cell.classList.add('today');
+      }
+
       cell.textContent = this.formatTimelineDate(date);
       header.appendChild(cell);
     });
@@ -157,14 +192,18 @@ export class GanttManager {
         }
         break;
       case 'week':
-        startDate.setDate(this.currentDate.getDate() - this.currentDate.getDay());
-        for (let i = 0; i < 7; i++) {
-          const date = new Date(startDate);
-          date.setDate(startDate.getDate() + i);
+        // 週の開始日を計算（日曜日始まり）
+        const weekStartDate = new Date(this.currentDate);
+        weekStartDate.setDate(this.currentDate.getDate() - this.currentDate.getDay());
+        weekStartDate.setHours(0, 0, 0, 0);
+
+        for (let i = 0; i <= 6; i++) {
+          const date = new Date(weekStartDate.getFullYear(), weekStartDate.getMonth(), weekStartDate.getDate() + i, 0, 0, 0, 0);
           dates.push(date);
         }
         break;
       default:
+        // 日表示モード: 現在の日付を中心に前後3日
         for (let i = -3; i <= 3; i++) {
           const date = new Date(this.currentDate);
           date.setDate(this.currentDate.getDate() + i);
@@ -251,8 +290,8 @@ export class GanttManager {
     const startDate = task.startDate
       ? new Date(task.startDate)
       : task.createdAt
-      ? new Date(task.createdAt)
-      : null;
+        ? new Date(task.createdAt)
+        : null;
     const endDate = task.dueDate ? new Date(task.dueDate) : startDate ? new Date(startDate) : null;
 
     // 日付が不正ならバーは描かない（表示崩れを防ぐ）
@@ -266,7 +305,17 @@ export class GanttManager {
     const firstDate = dates[0];
     const lastDate = dates[dates.length - 1];
 
-    if (startDate > lastDate || endDate < firstDate) {
+    // 日付の時刻部分を正規化して比較
+    const firstDateNormalized = new Date(firstDate);
+    firstDateNormalized.setHours(0, 0, 0, 0);
+    const lastDateNormalized = new Date(lastDate);
+    lastDateNormalized.setHours(23, 59, 59, 999);
+    const startDateNormalized = new Date(startDate);
+    startDateNormalized.setHours(0, 0, 0, 0);
+    const endDateNormalized = new Date(endDate);
+    endDateNormalized.setHours(23, 59, 59, 999);
+
+    if (startDateNormalized > lastDateNormalized || endDateNormalized < firstDateNormalized) {
       return row; // 完全に範囲外なら何も描かない
     }
 
@@ -279,17 +328,6 @@ export class GanttManager {
       cellWidth
     );
     row.appendChild(barContainer);
-
-    console.log('Creating Gantt bar for task:', task.title, {
-      startDate,
-      endDate,
-      startIndex,
-      endIndex,
-      firstDate,
-      lastDate,
-      formattedStartIndex,
-      formattedEndIndex
-    });
 
     return row;
   }
@@ -319,6 +357,12 @@ export class GanttManager {
     bar.className = `gantt-bar ${task.priority}`;
     if (task.status === 'done') bar.classList.add('completed');
 
+    // 優先度の色を取得
+    const priorityColor = this.getPriorityColor(task.priority);
+    // 完了の場合の色を取得
+    const statusColor = task.status === 'done' ? this.getStatusColor('done') : null;
+    const backgroundColor = statusColor || priorityColor || '#667eea';
+
     Object.assign(bar.style, {
       width: '100%',
       height: '100%',
@@ -327,7 +371,8 @@ export class GanttManager {
       display: 'flex',
       alignItems: 'center',
       padding: '0 8px',
-      boxSizing: 'border-box'
+      boxSizing: 'border-box',
+      backgroundColor: backgroundColor
     });
 
     // 進捗バー
@@ -393,6 +438,7 @@ export class GanttManager {
   }
 
   findDateIndex(dates, targetDate) {
+    if (!targetDate || isNaN(targetDate.getTime())) return -1;
     return dates.findIndex(date => Utils.isSameDate(date, targetDate));
   }
 
@@ -460,6 +506,76 @@ export class GanttManager {
     return '未割り当て';
   }
 
+  exportGantt() {
+    try {
+      // CSV形式でエクスポート
+      const headers = ['タスク名', '担当者', '開始日', '終了日', '優先度', 'ステータス', '進捗率'];
+      const rows = this.tasks.map(task => [
+        task.title,
+        this.getAssigneeDisplayName(task),
+        task.startDate,
+        task.dueDate,
+        this.getPriorityText(task.priority),
+        this.getStatusText(task.status),
+        `${task.progress || 0}%`
+      ]);
+
+      const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+      ].join('\n');
+
+      // BOM付きでダウンロード（Excelで正しく開くため）
+      const bom = '\uFEFF';
+      const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+
+      link.setAttribute('href', url);
+      link.setAttribute('download', `gantt-chart-${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      Utils.showNotification('ガントチャートをエクスポートしました', 'success');
+    } catch (error) {
+      console.error('エクスポートエラー:', error);
+      Utils.showNotification('エクスポートに失敗しました', 'error');
+    }
+  }
+
+  getPriorityText(priority) {
+    const map = {
+      high: '高優先度',
+      medium: '中優先度',
+      low: '低優先度'
+    };
+    return map[priority] || '未設定';
+  }
+
+  getPriorityColor(priority) {
+    const appSettings = Utils.getFromStorage('appSettings') || { priorities: [] };
+    const priorityObj = (appSettings.priorities || []).find(p => p.value === priority);
+    return priorityObj ? priorityObj.color : null;
+  }
+
+  getStatusColor(status) {
+    const appSettings = Utils.getFromStorage('appSettings') || { statuses: [] };
+    const statusObj = (appSettings.statuses || []).find(s => s.value === status);
+    return statusObj ? statusObj.color : null;
+  }
+
+  getStatusText(status) {
+    const map = {
+      todo: '未着手',
+      in_progress: '進行中',
+      review: 'レビュー中',
+      done: '完了'
+    };
+    return map[status] || '未着手';
+  }
+
   toggleExpand() {
     this.isExpanded = !this.isExpanded;
     const chart = Utils.getElement('.gantt-chart');
@@ -487,6 +603,50 @@ export class GanttManager {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  }
+
+  renderLegend() {
+    const legendContainer = Utils.getElement('#ganttLegendItems');
+    if (!legendContainer) return;
+
+    legendContainer.innerHTML = '';
+
+    // appSettingsから優先度を取得
+    const appSettings = Utils.getFromStorage('appSettings') || { priorities: [], statuses: [] };
+
+    // 優先度凡例を追加
+    if (appSettings.priorities && appSettings.priorities.length > 0) {
+      appSettings.priorities.forEach(priority => {
+        const item = document.createElement('div');
+        item.className = 'legend-item';
+        item.innerHTML = `
+          <div class="legend-color" style="background-color: ${priority.color}"></div>
+          <span>${priority.name}</span>
+        `;
+        legendContainer.appendChild(item);
+      });
+    }
+
+    // 完了ステータスを追加（done値を持つステータスを探す）
+    const doneStatus = appSettings.statuses?.find(s => s.value === 'done');
+    if (doneStatus) {
+      const item = document.createElement('div');
+      item.className = 'legend-item';
+      item.innerHTML = `
+        <div class="legend-color" style="background-color: ${doneStatus.color}"></div>
+        <span>${doneStatus.name}</span>
+      `;
+      legendContainer.appendChild(item);
+    }
+
+    // 今日のマーカー
+    const todayItem = document.createElement('div');
+    todayItem.className = 'legend-item';
+    todayItem.innerHTML = `
+      <div class="legend-color today-marker"></div>
+      <span>今日</span>
+    `;
+    legendContainer.appendChild(todayItem);
   }
 }
 

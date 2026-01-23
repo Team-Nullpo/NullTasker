@@ -18,10 +18,11 @@ export class UserProfileManager {
       }
 
       this.currentUser = SimpleAuth.getCurrentUser();
+
       this.loadUserData();
       this.setupEventListeners();
       this.loadPersonalSettings();
-      
+
     } catch (error) {
       console.error('初期化エラー:', error);
       this.showError('初期化に失敗しました');
@@ -29,13 +30,14 @@ export class UserProfileManager {
   }
 
   loadUserData() {
-    const userData = UserManager.getUsers().find(u => u.id === this.currentUser.id);
+    // JWTトークンから取得したユーザー情報を使用
+    const userData = this.currentUser;
     if (!userData) {
       this.showError("ユーザー情報を取得できませんでした");
       console.log("ユーザーが見つかりませんでした");
       return;
     }
-    
+
     // フォームに現在の値を設定
     document.getElementById('loginId').value = userData.loginId || userData.id;
     document.getElementById('displayName').value = userData.displayName || '';
@@ -90,7 +92,7 @@ export class UserProfileManager {
 
   async handleProfileSubmit(event) {
     event.preventDefault();
-    
+
     const formData = new FormData(event.target);
     const profileData = {
       displayName: formData.get('displayName'),
@@ -111,7 +113,7 @@ export class UserProfileManager {
 
   async handlePasswordSubmit(event) {
     event.preventDefault();
-    
+
     const formData = new FormData(event.target);
     const passwordData = {
       currentPassword: formData.get('currentPassword'),
@@ -136,10 +138,10 @@ export class UserProfileManager {
       return;
     }
     this.showSuccess('パスワードを変更しました');
-    
+
     // フォームをクリア
     event.target.reset();
-    
+
     // パスワード強度表示をクリア
     document.getElementById('passwordStrength').innerHTML = '';
     document.getElementById('passwordMatch').innerHTML = '';
@@ -147,7 +149,7 @@ export class UserProfileManager {
 
   async handlePersonalSettingsSubmit(event) {
     event.preventDefault();
-    
+
     const formData = new FormData(event.target);
     const settingsData = {
       theme: formData.get('theme'),
@@ -160,10 +162,10 @@ export class UserProfileManager {
     try {
       // テーマをローカルストレージに保存
       Utils.saveToStorage('userTheme', settingsData.theme);
-      
+
       // その他の設定もローカルストレージに保存
       localStorage.setItem('userPersonalSettings', JSON.stringify(settingsData));
-      
+
       // サーバーにも保存（オプション）
       const response = await fetch('/api/user/settings', {
         method: 'PUT',
@@ -195,25 +197,25 @@ export class UserProfileManager {
       if (themeSelect) {
         themeSelect.value = savedTheme;
       }
-      
+
       // その他の設定を読み込み
       const savedSettings = localStorage.getItem('userPersonalSettings');
       if (savedSettings) {
         const settings = JSON.parse(savedSettings);
-        
+
         // フォームに値を設定
         if (settings.language) document.getElementById('language').value = settings.language;
         if (settings.timezone) document.getElementById('timezone').value = settings.timezone;
-        
+
         document.getElementById('emailNotifications').checked = settings.emailNotifications || false;
         document.getElementById('browserNotifications').checked = settings.browserNotifications || false;
-        
+
         // 言語設定を適用
         if (settings.language) {
           document.documentElement.lang = settings.language;
         }
       }
-      
+
       // テーマ変更のイベントリスナーを追加
       if (themeSelect) {
         themeSelect.addEventListener('change', (e) => {
@@ -228,7 +230,7 @@ export class UserProfileManager {
   applyTheme(theme) {
     // 既存のテーマクラスを削除
     document.body.className = document.body.className.replace(/theme-\w+/g, '');
-    
+
     if (theme === 'auto') {
       // システムのテーマ設定を検出
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -237,7 +239,7 @@ export class UserProfileManager {
       // 指定されたテーマを適用
       document.body.classList.add(`theme-${theme}`);
     }
-    
+
     // ローカルストレージに保存
     Utils.saveToStorage('userTheme', theme);
   }
@@ -272,7 +274,7 @@ export class UserProfileManager {
   checkPasswordStrength(event) {
     const password = event.target.value;
     const strengthDiv = document.getElementById('passwordStrength');
-    
+
     if (!password) {
       strengthDiv.innerHTML = '';
       return;
@@ -351,18 +353,18 @@ export class UserProfileManager {
   showSuccess(message) {
     const successDiv = document.getElementById('successMessage');
     const successText = document.getElementById('successText');
-    
+
     successText.textContent = message;
     successDiv.style.display = 'block';
-    
+
     // エラーメッセージを隠す
     document.getElementById('errorMessage').style.display = 'none';
-    
+
     // 3秒後に自動で隠す
     setTimeout(() => {
       successDiv.style.display = 'none';
     }, 3000);
-    
+
     // ページトップにスクロール
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -370,18 +372,18 @@ export class UserProfileManager {
   showError(message) {
     const errorDiv = document.getElementById('errorMessage');
     const errorText = document.getElementById('errorText');
-    
+
     errorText.textContent = message;
     errorDiv.style.display = 'block';
-    
+
     // 成功メッセージを隠す
     document.getElementById('successMessage').style.display = 'none';
-    
+
     // 5秒後に自動で隠す
     setTimeout(() => {
       errorDiv.style.display = 'none';
     }, 5000);
-    
+
     // ページトップにスクロール
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
