@@ -89,7 +89,8 @@
     width: 100%;
     min-height: 100vh;
     background-color: #fff;
-    padding-bottom: 80px; /* ボトムナビゲーション分 */
+    padding-bottom: 80px;
+    /* ボトムナビゲーション分 */
   }
 
   .main-header {
@@ -130,6 +131,53 @@
     max-width: 100%;
   }
 
+  .task-toolbar {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+  }
+
+  .task-toolbar-left {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .task-toolbar-right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .search-box {
+    max-width: 100%;
+  }
+
+  .filter-select,
+  .sort-select {
+    width: 100%;
+    font-size: var(--font-size-base);
+  }
+
+  .task-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+  }
+
+  .stat-card {
+    padding: var(--spacing-md);
+  }
+
+  .stat-card i {
+    font-size: 2rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .task-list[data-view="grid"] {
+    grid-template-columns: 1fr;
+  }
+
   .task-header {
     flex-direction: column;
     gap: var(--spacing-lg);
@@ -157,7 +205,7 @@
   .task-item {
     flex-direction: column;
     gap: var(--spacing-md);
-    padding: var(--spacing-lg);
+    padding: var(--spacing-md);
   }
 
   .task-checkbox {
@@ -173,18 +221,22 @@
   }
 
   .task-meta {
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
   }
 
   .task-priority,
   .task-status {
-    font-size: 11px;
-    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 10px;
+    padding: 4px 8px;
   }
 
   .task-actions {
-    align-self: flex-end;
-    gap: var(--spacing-md);
+    width: 100%;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+    border-top: 1px solid var(--gray-200);
+    padding-top: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
   }
 
   .task-btn {
@@ -313,7 +365,7 @@
     bottom: 4px;
   }
 
-  input:checked + .slider:before {
+  input:checked+.slider:before {
     transform: translateX(22px);
   }
 
@@ -384,7 +436,8 @@
   }
 
   .day-tasks {
-    display: none; /* モバイルでは日付セルのタスクを非表示 */
+    display: none;
+    /* モバイルでは日付セルのタスクを非表示 */
   }
 
   .calendar-task {
@@ -462,6 +515,7 @@
 
 /* プリント対応 */
 @media print {
+
   .sidebar,
   .toggle-btn,
   .bottom-navigation,
@@ -514,18 +568,21 @@
 
 /* 色覚異常対応 */
 @media (prefers-color-scheme: no-preference) {
+
   .task-priority.high,
   .gantt-bar.high,
   .calendar-task.high,
   .legend-color.high {
-    background-color: #0066cc; /* 青系に変更 */
+    background-color: #0066cc;
+    /* 青系に変更 */
   }
 
   .task-priority.medium,
   .gantt-bar.medium,
   .calendar-task.medium,
   .legend-color.medium {
-    background-color: #cc6600; /* オレンジ系 */
+    background-color: #cc6600;
+    /* オレンジ系 */
   }
 }
 
