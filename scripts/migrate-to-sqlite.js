@@ -147,6 +147,7 @@ function migrateTasks(db, tasksData) {
         createdAt: task.createdAt || new Date().toISOString(),
         updatedAt: task.updatedAt || new Date().toISOString()
       });
+      
       count++;
     } catch (error) {
       console.error(`タスク移行エラー (${task.id}):`, error.message);
